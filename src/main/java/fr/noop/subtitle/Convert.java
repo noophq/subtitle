@@ -166,6 +166,14 @@ public class Convert {
                 .hasArg()
                 .desc("Output charset")
                 .build());
+        
+
+        // Output charset option
+        this.options.addOption(Option.builder("dsm")
+                .required(false)
+                .longOpt("disable-strict-mode")
+                .desc("Disable strict mode")
+                .build());
     }
 
     public Convert() {
@@ -202,6 +210,7 @@ public class Convert {
             String outputFilePath = line.getOptionValue("o");
             String inputCharset = line.getOptionValue("ic", "utf-8");
             String outputCharset = line.getOptionValue("oc", "utf-8");
+            boolean disableStrictMode = line.hasOption("disable-strict-mode");
 
             // Build parser for input file
             SubtitleParser subtitleParser = null;
@@ -227,7 +236,7 @@ public class Convert {
             SubtitleObject inputSubtitle = null;
 
             try {
-                inputSubtitle = subtitleParser.parse(is);
+                inputSubtitle = subtitleParser.parse(is, !disableStrictMode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
