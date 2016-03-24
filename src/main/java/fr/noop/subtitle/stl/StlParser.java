@@ -10,17 +10,20 @@
 
 package fr.noop.subtitle.stl;
 
-import fr.noop.subtitle.model.SubtitleParser;
-import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.util.SubtitleTimeCode;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+
+import fr.noop.subtitle.model.SubtitleParser;
+import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitleTimeCode;
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -28,8 +31,12 @@ import java.util.Date;
 public class StlParser implements SubtitleParser {
     public StlParser() {
     }
-
+    
     public StlObject parse(InputStream is) throws SubtitleParsingException {
+    	return parse(is, true);
+    }
+
+    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 

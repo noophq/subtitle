@@ -10,15 +10,13 @@
 
 package fr.noop.subtitle.sami;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
-import fr.noop.subtitle.model.SubtitleCue;
-import fr.noop.subtitle.model.SubtitleObject;
-import fr.noop.subtitle.model.SubtitleWriter;
-import fr.noop.subtitle.util.SubtitleTimeCode;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+
+import fr.noop.subtitle.model.SubtitleCue;
+import fr.noop.subtitle.model.SubtitleObject;
+import fr.noop.subtitle.model.SubtitleWriter;
 
 /**
  * Created by clebeaupin on 11/10/15.

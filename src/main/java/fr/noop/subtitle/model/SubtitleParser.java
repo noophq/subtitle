@@ -10,8 +10,6 @@
 
 package fr.noop.subtitle.model;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,4 +18,5 @@ import java.io.InputStream;
  */
 public interface SubtitleParser {
     public SubtitleObject parse(InputStream is) throws IOException, SubtitleParsingException;
+    public SubtitleObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException;
 }

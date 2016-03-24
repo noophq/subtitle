@@ -10,16 +10,16 @@
 
 package fr.noop.subtitle.srt;
 
-import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.model.SubtitleParser;
-import fr.noop.subtitle.util.SubtitleTextLine;
-import fr.noop.subtitle.util.SubtitlePlainText;
-import fr.noop.subtitle.util.SubtitleTimeCode;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import fr.noop.subtitle.model.SubtitleParser;
+import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitlePlainText;
+import fr.noop.subtitle.util.SubtitleTextLine;
+import fr.noop.subtitle.util.SubtitleTimeCode;
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -40,6 +40,11 @@ public class SrtParser implements SubtitleParser {
 
     @Override
     public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException {
+    	return parse(is, true);
+    }
+    
+    @Override
+    public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
         SrtObject srtObject = new SrtObject();
 

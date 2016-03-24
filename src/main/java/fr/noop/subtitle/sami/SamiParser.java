@@ -10,18 +10,16 @@
 
 package fr.noop.subtitle.sami;
 
-import fr.noop.subtitle.model.SubtitleParser;
-import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.srt.SrtCue;
-import fr.noop.subtitle.srt.SrtObject;
-import fr.noop.subtitle.util.SubtitlePlainText;
-import fr.noop.subtitle.util.SubtitleTextLine;
-import fr.noop.subtitle.util.SubtitleTimeCode;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import fr.noop.subtitle.model.SubtitleParser;
+import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitlePlainText;
+import fr.noop.subtitle.util.SubtitleTextLine;
+import fr.noop.subtitle.util.SubtitleTimeCode;
 
 /**
  * Created by clebeaupin on 11/10/15.
@@ -41,8 +39,14 @@ public class SamiParser implements SubtitleParser {
         this.charset = charset;
     }
 
+
     @Override
     public SamiObject parse(InputStream is) throws IOException, SubtitleParsingException {
+    	return parse(is, true);
+    }
+    
+    @Override
+    public SamiObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
         // Create SAMI object
         SamiObject samiObject = new SamiObject();
 
