@@ -32,11 +32,18 @@ public class StlParser implements SubtitleParser {
     public StlParser() {
     }
     
+    @Override
     public StlObject parse(InputStream is) throws SubtitleParsingException {
     	return parse(is, true);
     }
 
+    @Override
     public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
+    	return parse(is, 0, strict);
+    }
+    
+    @Override
+    public StlObject parse(InputStream is, int subtitleOffset, boolean strict) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 
@@ -45,7 +52,7 @@ public class StlParser implements SubtitleParser {
 
         try {
             // Read GSI block
-            StlGsi gsi = this.readGsi(dis);
+            StlGsi gsi = this.readGsi(dis, subtitleOffset);
             stl = new StlObject(gsi);
         } catch (IOException e) {
             throw new SubtitleParsingException("Unable to parse Gsi block");
@@ -79,7 +86,7 @@ public class StlParser implements SubtitleParser {
         }
     }
 
-    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate) throws IOException {
+    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate, int subtitleOffset) throws IOException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
@@ -89,7 +96,7 @@ public class StlParser implements SubtitleParser {
         int frameDuration = (1000/frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, frame*frameDuration, subtitleOffset);
     }
 
     private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException {
@@ -121,7 +128,7 @@ public class StlParser implements SubtitleParser {
         return StringUtils.strip(new String(bytes));
     }
 
-    private StlGsi readGsi(DataInputStream dis) throws IOException {
+    private StlGsi readGsi(DataInputStream dis, int subtitleOffset) throws IOException {
         // Read and extract metadata from GSI block
         // GSI block is 1024 bytes long
         StlGsi gsi = new StlGsi();
@@ -193,10 +200,10 @@ public class StlParser implements SubtitleParser {
         gsi.setTcs((short) dis.readUnsignedByte());
 
         // Read Time Code: Start-of-Programme (TCP)
-        gsi.setTcp(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        gsi.setTcp(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate(), subtitleOffset));
 
         // Read Time Code: First In-Cue (TCF)
-        gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate(), subtitleOffset));
 
         // Read Total Number of Disks (TND)
         gsi.setTnd((short) dis.readUnsignedByte());
