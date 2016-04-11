@@ -53,11 +53,16 @@ public class VttParser implements SubtitleParser {
 
     @Override
     public VttObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, true);
+    	return parse(is, 0, true);
     }
     
     @Override
     public VttObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
+    	return parse(is, 0, true);
+    }
+    
+    @Override
+    public VttObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
         VttObject vttObject = new VttObject();
 
@@ -105,8 +110,8 @@ public class VttParser implements SubtitleParser {
                             "Timecode textLine is badly formated: %s", textLine));
                 }
 
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12), subtitleOffset));
+                cue.setEndTime(this.parseTimeCode(textLine.substring(17), subtitleOffset));
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }
@@ -291,13 +296,13 @@ public class VttParser implements SubtitleParser {
         return cueLines;
     }
 
-    private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
+    private SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) throws SubtitleParsingException {
         try {
             int hour = Integer.parseInt(timeCodeString.substring(0, 2));
             int minute = Integer.parseInt(timeCodeString.substring(3, 5));
             int second = Integer.parseInt(timeCodeString.substring(6, 8));
             int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
-            return new SubtitleTimeCode(hour, minute, second, millisecond);
+            return new SubtitleTimeCode(hour, minute, second, millisecond, subtitleOffset);
         } catch (NumberFormatException e) {
             throw new SubtitleParsingException(String.format(
                     "Unable to parse time code: %s", timeCodeString));

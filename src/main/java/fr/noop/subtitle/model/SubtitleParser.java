@@ -19,4 +19,5 @@ import java.io.InputStream;
 public interface SubtitleParser {
     public SubtitleObject parse(InputStream is) throws IOException, SubtitleParsingException;
     public SubtitleObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException;
+    public SubtitleObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException;
 }

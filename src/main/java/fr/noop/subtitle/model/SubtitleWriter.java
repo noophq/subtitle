@@ -10,8 +10,6 @@
 
 package fr.noop.subtitle.model;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
-
 import java.io.IOException;
 import java.io.OutputStream;
 

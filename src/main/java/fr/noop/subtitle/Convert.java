@@ -167,12 +167,19 @@ public class Convert {
                 .desc("Output charset")
                 .build());
         
-
         // Output charset option
         this.options.addOption(Option.builder("dsm")
                 .required(false)
                 .longOpt("disable-strict-mode")
                 .desc("Disable strict mode")
+                .build());
+
+        // Output charset option
+        this.options.addOption(Option.builder("so")
+                .required(false)
+                .longOpt("offset")
+                .hasArg()
+                .desc("Subtitles offset")
                 .build());
     }
 
@@ -211,12 +218,13 @@ public class Convert {
             String inputCharset = line.getOptionValue("ic", "utf-8");
             String outputCharset = line.getOptionValue("oc", "utf-8");
             boolean disableStrictMode = line.hasOption("disable-strict-mode");
+            int subtitleOffset = Integer.parseInt(line.getOptionValue("so", "0"));
 
             // Build parser for input file
             SubtitleParser subtitleParser = null;
 
             try {
-                subtitleParser = this.buildParser(inputFilePath, inputCharset);
+                subtitleParser = this.buildParser(inputFilePath, inputCharset, subtitleOffset);
             } catch(IOException e) {
                 System.out.println(String.format("Unable to build parser for file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
@@ -236,7 +244,7 @@ public class Convert {
             SubtitleObject inputSubtitle = null;
 
             try {
-                inputSubtitle = subtitleParser.parse(is, !disableStrictMode);
+                inputSubtitle = subtitleParser.parse(is, subtitleOffset, !disableStrictMode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
@@ -279,7 +287,7 @@ public class Convert {
         }
     }
 
-    private SubtitleParser buildParser(String filePath, String charset) throws IOException {
+    private SubtitleParser buildParser(String filePath, String charset, int offset) throws IOException {
         String ext = this.getFileExtension(filePath);
 
         // Get subtitle parser class
