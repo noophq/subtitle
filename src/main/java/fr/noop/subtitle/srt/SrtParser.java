@@ -116,6 +116,10 @@ public class SrtParser implements SubtitleParser {
                     "Unexpected line: %s", textLine));
         }
 
+        if (cue != null) {
+            srtObject.addCue(cue);
+        }
+
         return srtObject;
     }
 
