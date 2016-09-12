@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitlePlainText;
@@ -135,5 +136,11 @@ public class SrtParser implements SubtitleParser {
             throw new SubtitleParsingException(String.format(
                     "Unable to parse time code: %s", timeCodeString));
         }
+    }
+
+    @Override
+    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict)
+	    throws IOException, SubtitleParsingException {
+	throw new SubtitleParsingException("Not implemented");
     }
 }
