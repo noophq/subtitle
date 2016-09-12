@@ -66,6 +66,11 @@ public class VttParser implements SubtitleParser {
     
     @Override
     public VttObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException {
+	return parse(is, subtitleOffset, -1, strict);
+    }
+    
+    @Override
+    public VttObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
         VttObject vttObject = new VttObject();
 
@@ -118,6 +123,9 @@ public class VttParser implements SubtitleParser {
                 try {
                     cue.setStartTime(this.parseTimeCode(textLine.substring(0, arrowStart-1), subtitleOffset));
                     cue.setEndTime(this.parseTimeCode(textLine.substring(arrowStart + 4), subtitleOffset));
+                    if (cue.getStartTime().getTime() > maxDuration - subtitleOffset || cue.getEndTime().getTime() > maxDuration - subtitleOffset) {
+                	shouldIgnoreCurrentCue = true;
+                    }
                 } catch (InvalidParameterException e) {
                     shouldIgnoreCurrentCue = true;
                 }
@@ -345,4 +353,5 @@ public class VttParser implements SubtitleParser {
                     "Unable to parse time code: %s", timeCodeString));
         }
     }
+
 }

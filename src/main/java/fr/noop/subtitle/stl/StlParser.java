@@ -21,6 +21,7 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
+import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -277,5 +278,11 @@ public class StlParser implements SubtitleParser {
 
         // TTI is fully parsed
         return tti;
+    }
+
+    @Override
+    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict)
+	    throws IOException, SubtitleParsingException {
+	throw new SubtitleParsingException("Not implemented");
     }
 }
