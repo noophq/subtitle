@@ -28,7 +28,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     public SubtitleTimeCode(int hour, int minute, int second, int millisecond, int offset) {
     	int newTime = hour*MS_HOUR+minute*MS_MINUTE+second*MS_SECOND+millisecond + offset;
-        
+        if (newTime < 0) {
+            throw new InvalidParameterException("Cannot create a timecode before time zero (check your offset) !");
+        }
         int newHour = (int) ((newTime/MS_HOUR)%MAX_HOUR);
         int minuteOffsetRest = newTime%MS_HOUR;
     	int newMinute = (int) (minuteOffsetRest/MS_MINUTE);
