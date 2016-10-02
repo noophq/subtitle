@@ -167,12 +167,19 @@ public class Convert {
                 .desc("Output charset")
                 .build());
         
-
         // Output charset option
         this.options.addOption(Option.builder("dsm")
                 .required(false)
                 .longOpt("disable-strict-mode")
                 .desc("Disable strict mode")
+                .build());
+
+        // Output charset option
+        this.options.addOption(Option.builder("so")
+                .required(false)
+                .longOpt("offset")
+                .hasArg()
+                .desc("Subtitles offset")
                 .build());
     }
 
@@ -186,6 +193,13 @@ public class Convert {
     private void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("subtitle-convert", this.options);
+    }
+    
+    public static void stream(InputStream is, String inputExtension, String inputCharset, boolean disableStrictMode, int offset, int duration, OutputStream os, String outputExtension, String outputCharset) throws IOException, SubtitleParsingException {
+	SubtitleParser parser = buildParser( "dummy." + inputExtension, inputCharset, offset, duration );
+	SubtitleObject subtitle = parser.parse(is, offset, duration, !disableStrictMode);
+	SubtitleWriter writer = buildWriter( "dummy." + outputExtension, outputCharset );
+	writer.write(subtitle, os);
     }
 
     /**
@@ -211,12 +225,14 @@ public class Convert {
             String inputCharset = line.getOptionValue("ic", "utf-8");
             String outputCharset = line.getOptionValue("oc", "utf-8");
             boolean disableStrictMode = line.hasOption("disable-strict-mode");
+            int subtitleOffset = Integer.parseInt(line.getOptionValue("so", "0"));
+            int maxDuration = Integer.parseInt(line.getOptionValue("sd", "-1"));
 
             // Build parser for input file
             SubtitleParser subtitleParser = null;
 
             try {
-                subtitleParser = this.buildParser(inputFilePath, inputCharset);
+                subtitleParser = buildParser(inputFilePath, inputCharset, subtitleOffset, maxDuration);
             } catch(IOException e) {
                 System.out.println(String.format("Unable to build parser for file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
@@ -236,7 +252,7 @@ public class Convert {
             SubtitleObject inputSubtitle = null;
 
             try {
-                inputSubtitle = subtitleParser.parse(is, !disableStrictMode);
+                inputSubtitle = subtitleParser.parse(is, subtitleOffset, maxDuration, !disableStrictMode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
@@ -249,7 +265,7 @@ public class Convert {
             SubtitleWriter writer = null;
 
             try {
-                writer = this.buildWriter(outputFilePath, outputCharset);
+                writer = buildWriter(outputFilePath, outputCharset);
             } catch(IOException e) {
                 System.out.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
@@ -279,8 +295,8 @@ public class Convert {
         }
     }
 
-    private SubtitleParser buildParser(String filePath, String charset) throws IOException {
-        String ext = this.getFileExtension(filePath);
+    public static SubtitleParser buildParser(String filePath, String charset, int offset, int duration) throws IOException {
+        String ext = getFileExtension(filePath);
 
         // Get subtitle parser class
         ConvertFormat convertFormat = ConvertFormat.getEnum(ext);
@@ -300,8 +316,8 @@ public class Convert {
         }
     }
 
-    private SubtitleWriter buildWriter(String filePath, String charset) throws IOException {
-        String ext = this.getFileExtension(filePath);
+    private static SubtitleWriter buildWriter(String filePath, String charset) throws IOException {
+        String ext = getFileExtension(filePath);
 
         // Get subtitle writer class
         ConvertFormat convertFormat = ConvertFormat.getEnum(ext);
@@ -320,8 +336,10 @@ public class Convert {
             throw new IOException(String.format("Unable to instantiate class %s", convertWriter.getClassName()));
         }
     }
+    
+    
 
-    private String getFileExtension(String filePath) throws IOException {
+    private static String getFileExtension(String filePath) throws IOException {
         String ext = null;
 
         int i = filePath.lastIndexOf('.');

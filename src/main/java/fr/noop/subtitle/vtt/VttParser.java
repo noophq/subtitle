@@ -14,8 +14,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleParser;
@@ -53,11 +56,21 @@ public class VttParser implements SubtitleParser {
 
     @Override
     public VttObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, true);
+    	return parse(is, 0, true);
     }
     
     @Override
     public VttObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
+    	return parse(is, 0, true);
+    }
+    
+    @Override
+    public VttObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException {
+	return parse(is, subtitleOffset, -1, strict);
+    }
+    
+    @Override
+    public VttObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
         VttObject vttObject = new VttObject();
 
@@ -66,6 +79,7 @@ public class VttParser implements SubtitleParser {
         String textLine = "";
         CursorStatus cursorStatus = CursorStatus.NONE;
         VttCue cue = null;
+        boolean shouldIgnoreCurrentCue = false;
         String cueText = ""; // Text of the cue
 
         while ((textLine = br.readLine()) != null) {
@@ -85,9 +99,10 @@ public class VttParser implements SubtitleParser {
 
                 // New cue
                 cue = new VttCue();
+                shouldIgnoreCurrentCue = false;
                 cursorStatus = CursorStatus.CUE_ID;
-
-                if (!textLine.substring(13, 16).equals("-->")) {
+                int arrowStart = textLine.indexOf("-->");
+                if (arrowStart == -1) {
                     // First textLine is the cue number
                     cue.setId(textLine);
                     continue;
@@ -100,13 +115,20 @@ public class VttParser implements SubtitleParser {
             // Second textLine defines the start and end time codes
             // 00:01:21.456 --> 00:01:23.417
             if (cursorStatus == CursorStatus.CUE_ID) {
-                if (!textLine.substring(13, 16).equals("-->")) {
+        	int arrowStart = textLine.indexOf("-->");
+                if (arrowStart == -1) {
                     throw new SubtitleParsingException(String.format(
                             "Timecode textLine is badly formated: %s", textLine));
                 }
-
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                try {
+                    cue.setStartTime(this.parseTimeCode(textLine.substring(0, arrowStart-1), subtitleOffset));
+                    cue.setEndTime(this.parseTimeCode(textLine.substring(arrowStart + 4), subtitleOffset));
+                    if (cue.getStartTime().getTime() > maxDuration - subtitleOffset || cue.getEndTime().getTime() > maxDuration - subtitleOffset) {
+                	shouldIgnoreCurrentCue = true;
+                    }
+                } catch (InvalidParameterException e) {
+                    shouldIgnoreCurrentCue = true;
+                }
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }
@@ -126,7 +148,11 @@ public class VttParser implements SubtitleParser {
                 if (textLine.isEmpty()) {
 					if (!strict) {
 						cue.setLines(parseCueText(cueText));
-						vttObject.addCue(cue);
+						if (!shouldIgnoreCurrentCue) {
+						    vttObject.addCue(cue);
+						} else {
+						    shouldIgnoreCurrentCue = false;
+						}
 						cue = null;
 						cueText = "";
 						cursorStatus = CursorStatus.EMPTY_LINE;
@@ -143,7 +169,11 @@ public class VttParser implements SubtitleParser {
                 // Process multilines text in one time
                 // A class or a style can be applied for more than one line
                 cue.setLines(parseCueText(cueText));
-                vttObject.addCue(cue);
+                if (!shouldIgnoreCurrentCue) {
+                    vttObject.addCue(cue);
+                } else {
+		    shouldIgnoreCurrentCue = false;
+		}
                 cue = null;
                 cueText = "";
                 cursorStatus = CursorStatus.EMPTY_LINE;
@@ -291,16 +321,37 @@ public class VttParser implements SubtitleParser {
         return cueLines;
     }
 
-    private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
+    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) throws SubtitleParsingException {
         try {
-            int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-            int minute = Integer.parseInt(timeCodeString.substring(3, 5));
-            int second = Integer.parseInt(timeCodeString.substring(6, 8));
-            int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
-            return new SubtitleTimeCode(hour, minute, second, millisecond);
+            int separatorCount = StringUtils.countMatches(timeCodeString, ":");
+            if (separatorCount > 1) {
+        	// hh:mm:ss.ms
+        	int offset = timeCodeString.indexOf(":");
+        	int hour = Integer.parseInt(timeCodeString.substring(0, offset));
+        	String buffer = timeCodeString.substring(offset+1);
+        	offset = buffer.indexOf(":");
+        	int minute = Integer.parseInt(buffer.substring(0, offset));
+        	buffer = buffer.substring(offset+1);
+        	offset = buffer.indexOf(".");
+        	int second = Integer.parseInt(buffer.substring(0, offset));
+        	buffer = buffer.substring(offset+1);
+        	int millisecond = Integer.parseInt(buffer);
+        	return new SubtitleTimeCode(hour, minute, second, millisecond, subtitleOffset);
+            } else {
+        	// mm:ss.ms
+        	int offset = timeCodeString.indexOf(":");
+        	int minute = Integer.parseInt(timeCodeString.substring(0, offset));
+        	String buffer = timeCodeString.substring(offset+1);
+        	offset = buffer.indexOf(".");
+        	int second = Integer.parseInt(buffer.substring(0, offset));
+        	buffer = buffer.substring(offset+1);
+        	int millisecond = Integer.parseInt(buffer);
+        	return new SubtitleTimeCode(0, minute, second, millisecond, subtitleOffset);
+            }
         } catch (NumberFormatException e) {
             throw new SubtitleParsingException(String.format(
                     "Unable to parse time code: %s", timeCodeString));
         }
     }
+
 }

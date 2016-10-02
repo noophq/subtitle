@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitlePlainText;
@@ -42,11 +43,16 @@ public class SamiParser implements SubtitleParser {
 
     @Override
     public SamiObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, true);
+    	return parse(is, 0, true);
     }
     
     @Override
     public SamiObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
+    	return this.parse(is, 0, strict);
+    }
+    
+    @Override
+    public SamiObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException {
         // Create SAMI object
         SamiObject samiObject = new SamiObject();
 
@@ -103,7 +109,7 @@ public class SamiParser implements SubtitleParser {
                 long time;
 
                 try {
-                    time = Long.valueOf(startTime);
+                    time = Long.valueOf(startTime + subtitleOffset);
                 } catch (NumberFormatException e) {
                     throw new SubtitleParsingException(String.format(
                             "Unable to parse start time: %s",
@@ -155,9 +161,16 @@ public class SamiParser implements SubtitleParser {
         // Set end time for the last cue
         if (previousCue != null) {
             // Last cue duration is 2s
-            previousCue.setEndTime(new SubtitleTimeCode(previousCue.getStartTime().getTime() + 2000));
+            previousCue.setEndTime(new SubtitleTimeCode(previousCue.getStartTime().getTime() + 2000 + subtitleOffset));
         }
 
         return samiObject;
     }
+    
+
+    @Override
+    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict)
+	    throws IOException, SubtitleParsingException {
+	throw new SubtitleParsingException("Not implemented");
+    }    
 }

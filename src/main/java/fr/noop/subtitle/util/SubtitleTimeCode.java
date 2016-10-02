@@ -17,6 +17,7 @@ import java.time.LocalTime;
  * Created by clebeaupin on 22/09/15.
  */
 public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
+	private final int MAX_HOUR = 24;
     private final int MS_HOUR = 3600000;
     private final int MS_MINUTE = 60000;
     private final int MS_SECOND = 1000;
@@ -25,15 +26,30 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     private int second;
     private int millisecond;
 
+    public SubtitleTimeCode(int hour, int minute, int second, int millisecond, int offset) {
+    	int newTime = hour*MS_HOUR+minute*MS_MINUTE+second*MS_SECOND+millisecond + offset;
+        if (newTime < 0) {
+            throw new InvalidParameterException("Cannot create a timecode before time zero (check your offset) !");
+        }
+        int newHour = (int) ((newTime/MS_HOUR)%MAX_HOUR);
+        int minuteOffsetRest = newTime%MS_HOUR;
+    	int newMinute = (int) (minuteOffsetRest/MS_MINUTE);
+    	int secondOffsetRest = minuteOffsetRest%MS_MINUTE;
+    	int newSecond = (int) (secondOffsetRest/MS_SECOND);
+    	int newMillisecond = secondOffsetRest%MS_SECOND;  
+    	
+    	this.setHour(newHour);
+        this.setMinute(newMinute);
+        this.setSecond(newSecond);
+        this.setMillisecond(newMillisecond);
+    }
+
     public SubtitleTimeCode(int hour, int minute, int second, int millisecond) {
-        this.setHour(hour);
-        this.setMinute(minute);
-        this.setSecond(second);
-        this.setMillisecond(millisecond);
+    	this(hour, minute, second, millisecond, 0);
     }
 
     public SubtitleTimeCode(LocalTime time) {
-        this(time.getHour(), time.getMinute(), time.getSecond(), 0);
+        this(time.getHour(), time.getMinute(), time.getSecond(), 0, 0);
     }
 
     /**
@@ -99,7 +115,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
         this.millisecond = millisecond;
     }
-
+    
     /**
      *
      * @return Time in milliseconds
