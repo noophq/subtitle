@@ -40,9 +40,9 @@ public class SrtParser implements SubtitleParser {
 
     @Override
     public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, true);
+        return parse(is, true);
     }
-    
+
     @Override
     public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
@@ -67,7 +67,19 @@ public class SrtParser implements SubtitleParser {
 
                 // First textLine is the cue number
                 try {
-                    Integer.parseInt(textLine);
+
+                    /*
+                     * A BOM file, the head will have a '\uFEFF' is included , parsing errors can result.
+                     *
+                     * The real number to be resolved is in the second position.
+                     */
+                    if (isContainsBOM(textLine)) {
+                        int result = Integer.parseInt(String.valueOf(textLine.charAt(1)));
+                        textLine = String.valueOf(result);
+                    } else {
+                        int result = Integer.parseInt(textLine);
+                        textLine = String.valueOf(result);
+                    }
                 } catch (NumberFormatException e) {
                     throw new SubtitleParsingException(String.format(
                             "Unable to parse cue number: %s",
@@ -94,9 +106,7 @@ public class SrtParser implements SubtitleParser {
             }
 
             // Following lines are the cue lines
-            if (!textLine.isEmpty() && (
-                    cursorStatus == CursorStatus.CUE_TIMECODE ||
-                    cursorStatus ==  CursorStatus.CUE_TEXT)) {
+            if (!textLine.isEmpty() && (cursorStatus == CursorStatus.CUE_TIMECODE || cursorStatus == CursorStatus.CUE_TEXT)) {
                 SubtitleTextLine line = new SubtitleTextLine();
                 line.addText(new SubtitlePlainText(textLine));
                 cue.addLine(line);
@@ -121,6 +131,10 @@ public class SrtParser implements SubtitleParser {
         }
 
         return srtObject;
+    }
+
+    private boolean isContainsBOM(String textLine) {
+        return textLine.toCharArray().length == 2;
     }
 
     private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
