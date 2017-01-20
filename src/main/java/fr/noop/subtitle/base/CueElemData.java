@@ -36,4 +36,8 @@ public class CueElemData implements CueData {
     public String content() {
         return "";
     }
+
+    public String toString() {
+        return "";
+    }
 }

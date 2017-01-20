@@ -70,21 +70,18 @@ public class CueTreeNode {
     }
 
     protected void toStringPri(StringBuilder bld, boolean withStyles) {
-        if (isLeaf()) {
-            if (data != null) {
-                bld.append(data.toString());
-            }
+
+        if (data != null && withStyles) {
+            bld.append(data.startElem());
         }
-        else {
-            if (data != null && withStyles) {
-                bld.append(data.startElem());
-            }
-            for (CueTreeNode node : children) {
-                node.toStringPri(bld, withStyles);
-            }
-            if (data != null && withStyles) {
-                bld.append(data.endElem());
-            }
+        if (data != null) {
+            bld.append(data.content());
+        }
+        for (CueTreeNode node : children) {
+            node.toStringPri(bld, withStyles);
+        }
+        if (data != null && withStyles) {
+            bld.append(data.endElem());
         }
     }
 }

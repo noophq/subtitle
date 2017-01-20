@@ -28,6 +28,10 @@ public class SubtitleParsingException extends Exception {
         this(message, -1, -1);
     }
 
+    public SubtitleParsingException(ValidationIssue issue) {
+        this(issue.getMessage(), issue.getLine(), issue.getColumn());
+    }
+
     public int getLine() {
         return line;
     }
