@@ -11,6 +11,7 @@
 package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.base.BaseSubtitleCue;
+import fr.noop.subtitle.base.CueTreeNode;
 import fr.noop.subtitle.util.SubtitleTextLine;
 
 import java.util.ArrayList;
@@ -20,4 +21,13 @@ import java.util.List;
  * Created by clebeaupin on 11/10/15.
  */
 public class VttCue extends BaseSubtitleCue {
+    private CueTreeNode tree;
+
+    public void setTree(CueTreeNode tree) {
+        this.tree = tree;
+    }
+
+    public CueTreeNode getTree() {
+        return this.tree;
+    }
 }

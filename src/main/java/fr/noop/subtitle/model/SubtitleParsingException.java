@@ -14,7 +14,25 @@ package fr.noop.subtitle.model;
  * Created by clebeaupin on 12/10/15.
  */
 public class SubtitleParsingException extends Exception {
-    public SubtitleParsingException(String message) {
+    private int line;
+    private int column;
+
+    public SubtitleParsingException(String message, int line, int column) {
         super(message);
+
+        this.line = line;
+        this.column = column;
+    }
+
+    public SubtitleParsingException(String message) {
+        this(message, -1, -1);
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public int getColumn() {
+        return column;
     }
 }

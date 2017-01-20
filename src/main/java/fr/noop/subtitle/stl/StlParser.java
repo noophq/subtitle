@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import fr.noop.subtitle.base.BaseSubtitleParser;
 import org.apache.commons.lang3.StringUtils;
 
 import fr.noop.subtitle.model.SubtitleObject;
@@ -29,22 +30,12 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 /**
  * Created by clebeaupin on 21/09/15.
  */
-public class StlParser implements SubtitleParser {
+public class StlParser extends BaseSubtitleParser {
     public StlParser() {
-    }
-    
-    @Override
-    public StlObject parse(InputStream is) throws SubtitleParsingException {
-    	return parse(is, true);
     }
 
     @Override
-    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
-    	return parse(is, 0, strict);
-    }
-    
-    @Override
-    public StlObject parse(InputStream is, int subtitleOffset, boolean strict) throws SubtitleParsingException {
+    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 
@@ -272,17 +263,11 @@ public class StlParser implements SubtitleParser {
         tti.setCf((short) dis.readUnsignedByte());
 
         // Read TextField (TF)
-        byte [] tfBytes = new byte[112];
+        byte[] tfBytes = new byte[112];
         dis.readFully(tfBytes, 0, 112);
         tti.setTf(new String(tfBytes, charset));
 
         // TTI is fully parsed
         return tti;
-    }
-
-    @Override
-    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict)
-	    throws IOException, SubtitleParsingException {
-	throw new SubtitleParsingException("Not implemented");
     }
 }

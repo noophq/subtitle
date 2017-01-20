@@ -14,7 +14,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
+import fr.noop.subtitle.base.BaseSubtitleParser;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
@@ -25,7 +27,7 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 /**
  * Created by clebeaupin on 21/09/15.
  */
-public class SrtParser implements SubtitleParser {
+public class SrtParser extends BaseSubtitleParser {
     private enum CursorStatus {
         NONE,
         CUE_ID,
@@ -33,24 +35,14 @@ public class SrtParser implements SubtitleParser {
         CUE_TEXT;
     }
 
-    private String charset; // Charset of the input files
+    private Charset charset; // Charset of the input files
 
-    public SrtParser(String charset) {
+    public SrtParser(Charset charset) {
         this.charset = charset;
     }
 
     @Override
-    public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, 0, true);
-    }
-    
-    @Override
-    public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
-    	return this.parse(is, 0, strict);
-    }
-    
-    @Override
-    public SrtObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException {
+    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
         SrtObject srtObject = new SrtObject();
 
@@ -140,11 +132,5 @@ public class SrtParser implements SubtitleParser {
             throw new SubtitleParsingException(String.format(
                     "Unable to parse time code: %s", timeCodeString));
         }
-    }
-
-    @Override
-    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict)
-	    throws IOException, SubtitleParsingException {
-	throw new SubtitleParsingException("Not implemented");
     }
 }

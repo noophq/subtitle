@@ -1,0 +1,14 @@
+.metadata
+.settings
+.project
+/RemoteSystemsTempFiles
+*.iml
+target/
+.idea/
+*.ipr
+*.iws
+*.zip
+mem.*
+pom.xml.versionsBackup
+.kitchen/
+Berksfile.lock
