@@ -166,7 +166,7 @@ public class Convert {
                 .hasArg()
                 .desc("Output charset")
                 .build());
-        
+
         // Output charset option
         this.options.addOption(Option.builder("dsm")
                 .required(false)
@@ -194,12 +194,15 @@ public class Convert {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("subtitle-convert", this.options);
     }
-    
-    public static void stream(InputStream is, String inputExtension, String inputCharset, boolean disableStrictMode, int offset, int duration, OutputStream os, String outputExtension, String outputCharset) throws IOException, SubtitleParsingException {
-	SubtitleParser parser = buildParser( "dummy." + inputExtension, inputCharset, offset, duration );
-	SubtitleObject subtitle = parser.parse(is, offset, duration, !disableStrictMode);
-	SubtitleWriter writer = buildWriter( "dummy." + outputExtension, outputCharset );
-	writer.write(subtitle, os);
+
+    public static void stream(InputStream is, String inputExtension, String inputCharset,
+                              boolean disableStrictMode, int offset, int duration, OutputStream os,
+                              String outputExtension, String outputCharset
+    ) throws IOException, SubtitleParsingException {
+        SubtitleParser parser = buildParser( "dummy." + inputExtension, inputCharset, offset, duration );
+        SubtitleObject subtitle = parser.parse(is, offset, duration, !disableStrictMode);
+        SubtitleWriter writer = buildWriter( "dummy." + outputExtension, outputCharset );
+        writer.write(subtitle, os);
     }
 
     /**
@@ -336,8 +339,8 @@ public class Convert {
             throw new IOException(String.format("Unable to instantiate class %s", convertWriter.getClassName()));
         }
     }
-    
-    
+
+
 
     private static String getFileExtension(String filePath) throws IOException {
         String ext = null;
