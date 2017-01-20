@@ -35,7 +35,7 @@ public class StlParserTest {
     public void setUp() throws Exception {
         InputStream is = new FileInputStream("src/test/resources/stl/test.stl");
         StlParser stlParser = new StlParser();
-        tested = stlParser.parse(is);
+        tested = (StlObject) stlParser.parse(is);
         testedGsi = tested.getGsi();
         testedTti = tested.getTtis().get(1);
 
