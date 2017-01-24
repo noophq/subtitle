@@ -38,7 +38,7 @@ public class VttParser extends BaseSubtitleParser {
     private static final String REGION_START = "REGION";
     private static final String ARROW = "-->";
 
-    public static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)(.*)?$");
+    private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)(.*)?$");
     private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
     private static final Pattern REGION_PATTERN = Pattern.compile("(\\S+):(\\S+)");
 
@@ -66,7 +66,7 @@ public class VttParser extends BaseSubtitleParser {
 
     private int maxDuration = Integer.MAX_VALUE;
     private int subtitleOffset = 0;
-    LineNumberReader br;
+    private LineNumberReader br;
 
     public VttParser(Charset charset) {
         this.charset = charset;
@@ -223,8 +223,7 @@ public class VttParser extends BaseSubtitleParser {
         // first line must be WEBVTT ...
         String textLine = br.readLine();
         if (textLine == null || !WEBVTT.matcher(textLine).matches()) {
-            String msg = String.format("Invalid WEBVTT header", textLine);
-            notifyError(msg);
+            notifyError("Invalid WEBVTT header " + textLine);
         }
 
         // new line
@@ -370,14 +369,17 @@ public class VttParser extends BaseSubtitleParser {
                         break;
                     case "region":
                         // region id
-                        // FIXME - verify against REGIONs
+                        VttRegion region = vttObject.getRegion(value);
+                        if (region == null) {
+                            notifyWarning("No REGION with id " + value);
+                        }
                         break;
                     default:
-                        notifyWarning("Unknown cue setting " + name + ":" + value);
+                        notifyWarning("Unrecognized cue setting " + name + ":" + value);
                         break;
                 }
             } catch (NumberFormatException e) {
-                notifyWarning("Invalid cue setting: " + settings);
+                notifyWarning("Invalid cue setting number format: " + settings);
             }
         }
     }
@@ -469,7 +471,7 @@ public class VttParser extends BaseSubtitleParser {
 
     /**
      * Parse the cue text and validate the tags, ...
-     * @return
+     * @return The cue tags tree structure
      * @throws SubtitleParsingException
      * @throws IOException
      */

@@ -95,10 +95,10 @@ public class StlParser extends BaseSubtitleParser {
         int frame = Integer.parseInt(timeCodeString.substring(6, 8));
 
         // Frame duration in milliseconds
-        int frameDuration = (1000/frameRate);
+        int frameDuration = (1000 / frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame*frameDuration, subtitleOffset);
+        return new SubtitleTimeCode(hour, minute, second, frame * frameDuration, subtitleOffset);
     }
 
     private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException {
