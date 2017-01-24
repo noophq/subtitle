@@ -41,6 +41,14 @@ public class SrtParser extends BaseSubtitleParser {
         this.charset = charset;
     }
 
+    public int getLineNumber() {
+        return 0; // TODO
+    }
+
+    public int getColumn() {
+        return 0; // TODO
+    }
+
     @Override
     public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
@@ -82,7 +90,7 @@ public class SrtParser extends BaseSubtitleParser {
             if (cursorStatus == CursorStatus.CUE_ID) {
                 if (!textLine.substring(13, 16).equals("-->")) {
                     throw new SubtitleParsingException(String.format(
-                            "Timecode textLine is badly formated: %s", textLine));
+                            "Timecode '" + textLine + "' is badly formated: %s", textLine));
                 }
 
                 cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12), subtitleOffset));
@@ -128,9 +136,9 @@ public class SrtParser extends BaseSubtitleParser {
             int second = Integer.parseInt(timeCodeString.substring(6, 8));
             int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
             return new SubtitleTimeCode(hour, minute, second, millisecond, subtitleOffset);
+
         } catch (NumberFormatException e) {
-            throw new SubtitleParsingException(String.format(
-                    "Unable to parse time code: %s", timeCodeString));
+            throw new SubtitleParsingException("Invalid time format: " + timeCodeString);
         }
     }
 }

@@ -42,6 +42,14 @@ public class SamiParser extends BaseSubtitleParser {
         this.charset = charset;
     }
 
+    public int getLineNumber() {
+        return 0; // TODO
+    }
+
+    public int getColumn() {
+        return 0; // TODO
+    }
+
     @Override
     public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
         // Create SAMI object

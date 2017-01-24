@@ -19,14 +19,15 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
 public class VttWriter implements SubtitleWriter {
-    private String charset; // Charset used to encode file
+    private Charset charset; // Charset used to encode file
 
-    public VttWriter(String charset) {
+    public VttWriter(Charset charset) {
         this.charset = charset;
     }
 

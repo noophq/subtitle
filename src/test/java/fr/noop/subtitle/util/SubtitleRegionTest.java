@@ -14,8 +14,6 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-import java.security.InvalidParameterException;
-
 /**
  * Created by clebeaupin on 08/10/15.
  */
@@ -33,12 +31,12 @@ public class SubtitleRegionTest {
         assertEquals(1250, (int) (tested.getX() * 100));
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetXException1() throws Exception {
         tested.setX(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetXException2() throws Exception {
         tested.setX(101);
     }
@@ -54,12 +52,12 @@ public class SubtitleRegionTest {
         assertEquals(2250, (int) (tested.getY() * 100));
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetYException1() throws Exception {
         tested.setX(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetYException2() throws Exception {
         tested.setX(101);
     }

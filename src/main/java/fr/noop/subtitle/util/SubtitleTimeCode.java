@@ -10,34 +10,34 @@
 
 package fr.noop.subtitle.util;
 
-import java.security.InvalidParameterException;
 import java.time.LocalTime;
 
 /**
  * Created by clebeaupin on 22/09/15.
  */
 public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
-	private final int MAX_HOUR = 24;
-    private final int MS_HOUR = 3600000;
-    private final int MS_MINUTE = 60000;
-    private final int MS_SECOND = 1000;
+	private static final int MAX_HOUR = 24;
+    private static final int MS_HOUR = 3600000;
+    private static final int MS_MINUTE = 60000;
+    private static final int MS_SECOND = 1000;
+
     private int hour;
     private int minute;
     private int second;
     private int millisecond;
 
     public SubtitleTimeCode(int hour, int minute, int second, int millisecond, int offset) {
-    	int newTime = hour*MS_HOUR+minute*MS_MINUTE+second*MS_SECOND+millisecond + offset;
+    	int newTime = hour * MS_HOUR + minute * MS_MINUTE + second * MS_SECOND + millisecond + offset;
         if (newTime < 0) {
-            throw new InvalidParameterException("Cannot create a timecode before time zero (check your offset) !");
+            throw new IllegalArgumentException("Cannot create a timecode before time zero (check your offset) !");
         }
-        int newHour = (int) ((newTime/MS_HOUR)%MAX_HOUR);
-        int minuteOffsetRest = newTime%MS_HOUR;
-    	int newMinute = (int) (minuteOffsetRest/MS_MINUTE);
-    	int secondOffsetRest = minuteOffsetRest%MS_MINUTE;
-    	int newSecond = (int) (secondOffsetRest/MS_SECOND);
-    	int newMillisecond = secondOffsetRest%MS_SECOND;  
-    	
+        int newHour = (int) ((newTime / MS_HOUR) % MAX_HOUR);
+        int minuteOffsetRest = newTime % MS_HOUR;
+    	int newMinute = (int) (minuteOffsetRest / MS_MINUTE);
+    	int secondOffsetRest = minuteOffsetRest % MS_MINUTE;
+    	int newSecond = (int) (secondOffsetRest / MS_SECOND);
+    	int newMillisecond = secondOffsetRest % MS_SECOND;
+
     	this.setHour(newHour);
         this.setMinute(newMinute);
         this.setSecond(newSecond);
@@ -58,9 +58,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
      */
     public SubtitleTimeCode(long time) {
         this.hour = (int) (time/MS_HOUR);
-        this.minute = (int) ((time-(this.hour*MS_HOUR))/MS_MINUTE);
-        this.second = (int) ((time-(this.hour*MS_HOUR+this.minute*MS_MINUTE))/MS_SECOND);
-        this.millisecond = (int) (time-(this.hour*MS_HOUR+this.minute*MS_MINUTE+this.second*MS_SECOND));
+        this.minute = (int) ((time - (this.hour * MS_HOUR)) / MS_MINUTE);
+        this.second = (int) ((time - (this.hour * MS_HOUR + this.minute * MS_MINUTE)) / MS_SECOND);
+        this.millisecond = (int) (time - (this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     public void setHour(int hour) {
         if (hour < 0) {
-            throw new InvalidParameterException("Hour value must be greater or equal to 0");
+            throw new IllegalArgumentException("Hour value must be greater or equal to 0");
         }
 
         this.hour = hour;
@@ -86,7 +86,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     public void setMinute(int minute) {
         if (minute < 0 || minute > 59) {
-            throw new InvalidParameterException("Minute value must be between 0 and 59");
+            throw new IllegalArgumentException("Minute value must be between 0 and 59");
         }
 
         this.minute = minute;
@@ -98,7 +98,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     public void setSecond(int second) {
         if (second < 0 || second > 59) {
-            throw new InvalidParameterException("A second value must be between 0 and 59");
+            throw new IllegalArgumentException("A second value must be between 0 and 59");
         }
 
         this.second = second;
@@ -110,18 +110,18 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     public void setMillisecond(int millisecond) {
         if (millisecond < 0 || millisecond > 999) {
-            throw new InvalidParameterException("A Millisecond value must be between 0 and 999");
+            throw new IllegalArgumentException("A Millisecond value must be between 0 and 999");
         }
 
         this.millisecond = millisecond;
     }
-    
+
     /**
      *
      * @return Time in milliseconds
      */
     public long getTime() {
-        return this.hour*MS_HOUR+this.minute*MS_MINUTE+this.second*MS_SECOND+this.getMillisecond();
+        return this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND + this.getMillisecond();
     }
 
     public int compareTo(SubtitleTimeCode toCompare) {

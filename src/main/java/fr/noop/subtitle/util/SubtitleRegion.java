@@ -10,8 +10,6 @@
 
 package fr.noop.subtitle.util;
 
-import java.security.InvalidParameterException;
-
 /**
  * Created by clebeaupin on 22/09/15.
  *
@@ -65,7 +63,7 @@ public class SubtitleRegion {
 
     public void setX(float x) {
         if (x < 0.0f || x > 100.0f) {
-            throw new InvalidParameterException("X value must be defined in percentage between 0 and 100");
+            throw new IllegalArgumentException("X value must be defined in percentage between 0 and 100");
         }
 
         this.x = x;
@@ -77,7 +75,7 @@ public class SubtitleRegion {
 
     public void setY(float y) {
         if (y < 0.0f || y > 100.0f) {
-            throw new InvalidParameterException("Y value must be defined in percentage between 0 and 100");
+            throw new IllegalArgumentException("Y value must be defined in percentage between 0 and 100");
         }
 
         this.y = y;

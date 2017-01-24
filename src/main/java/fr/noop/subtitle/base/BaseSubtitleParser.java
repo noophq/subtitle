@@ -15,9 +15,10 @@ import java.io.InputStream;
 //@Slf4j
 public abstract class BaseSubtitleParser implements SubtitleParser {
     private ValidationListener[] listeners;
+    private int issues;
 
     public BaseSubtitleParser() {
-
+        issues = 0;
     }
 
     @Override
@@ -48,22 +49,32 @@ public abstract class BaseSubtitleParser implements SubtitleParser {
         listeners = newListeners;
     }
 
-    protected void notifyWarning(String msg, int lineNr) {
+    protected void notifyWarning(String msg) {
+        issues++;
         if (listeners != null) {
-            ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.WARNING, msg, lineNr, 0);
+            ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.WARNING, msg, getLineNumber(), getColumn());
             for (ValidationListener listener : listeners) {
                 listener.onValidation(issue);
             }
         }
     }
 
-    protected void notifyError(String msg, int lineNr) throws SubtitleParsingException {
-        ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.WARNING, msg, lineNr, 0);
+    protected void notifyError(String msg) throws SubtitleParsingException {
+        issues++;
+        ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.ERROR, msg, getLineNumber(), getColumn());
         if (listeners != null) {
             for (ValidationListener listener : listeners) {
                 listener.onValidation(issue);
             }
         }
-        throw new SubtitleParsingException(issue);
+        //throw new SubtitleParsingException(issue);
     }
+
+    public int getIssueCount() {
+        return issues;
+    }
+
+    public abstract int getLineNumber();
+
+    public abstract int getColumn();
 }

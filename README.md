@@ -1,7 +1,7 @@
 Subtitle library
 ================
 
-fr.noop.subtitle provides parsers and writers for different subtitle formats:
+fr.noop.subtitle provides parsers, writers and validators for different subtitle formats:
 
 - vtt
 - srt
@@ -28,12 +28,19 @@ Supported advanced features:
 - voices
 - styles
 - classes
+- regions
 
 Usage:
 
     import fr.noop.subtitle.vtt.*;
     ...
-    VttParser parser = new VttParser("utf-8");
+    VttParser parser = new VttParser(StandardCharsets.UTF_8);
+    parser.addValidationListener(new ValidationListener() {
+    	@Override
+    	public void onValidation(ValidationIssue issue) {
+    		System.out.println(issue.toString());
+    	}
+    });
     VttObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.vtt"));
     
 Writer
@@ -47,7 +54,7 @@ Usage:
     ...
     VttObject subtitle;
     ...
-    VttWriter writer = new VttWriter("utf-8");
+    VttWriter writer = new VttWriter(StandardCharsets.UTF_8);
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.vtt"));
 
 SRT
@@ -60,7 +67,7 @@ Usage:
 
     import fr.noop.subtitle.srt.*;
     ...
-    SrtParser parser = new SrtParser("utf-8");
+    SrtParser parser = new SrtParser(StandardCharsets.UTF_8);
     SrtObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.srt"));
     
 Writer
@@ -72,7 +79,7 @@ Usage:
     ...
     SrtObject subtitle;
     ...
-    SrtWriter writer = new SrtWriter("utf-8");
+    SrtWriter writer = new SrtWriter(StandardCharsets.UTF_8);
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.srt"));
     
 SAMI
@@ -85,7 +92,7 @@ Usage:
 
     import fr.noop.subtitle.sami.*;
     ...
-    SamiParser parser = new SamiParser("utf-8");
+    SamiParser parser = new SamiParser(StandardCharsets.UTF_8);
     SamiObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.smi"));
     
 Writer
@@ -97,7 +104,7 @@ Usage:
     ...
     SamiObject subtitle;
     ...
-    SamiWriter writer = new SamiWriter("utf-8");
+    SamiWriter writer = new SamiWriter(StandardCharsets.UTF_8);
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.smi"));
     
 STL

@@ -33,12 +33,12 @@ public class SubtitleTimeCodeTest  {
     public void testOffsetPositiveToString() throws Exception {
         assertEquals("02:26:07.043", testedOffsetPositive.toString());
     }
-    
+
     @Test
     public void testOffsetNegativeToString() throws Exception {
         assertEquals("06:23:12.010", testedOffsetNegative.toString());
     }
-    
+
     @Test
     public void testGetHour() throws Exception {
         assertEquals(1, tested.getHour());
@@ -72,17 +72,17 @@ public class SubtitleTimeCodeTest  {
         assertEquals(12, testedOffsetNegative.getHour());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetHourException() throws Exception {
         tested.setHour(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetHourException() throws Exception {
     	testedOffsetPositive.setHour(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetHourException() throws Exception {
     	testedOffsetNegative.setHour(-1);
     }
@@ -120,32 +120,32 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, testedOffsetNegative.getMinute());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetMinuteException1() throws Exception {
         tested.setMinute(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetMinuteException1() throws Exception {
     	testedOffsetPositive.setMinute(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetMinuteException1() throws Exception {
     	testedOffsetNegative.setMinute(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetMinuteException2() throws Exception {
         tested.setMinute(60);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetMinuteException2() throws Exception {
     	testedOffsetPositive.setMinute(60);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetMinuteException2() throws Exception {
     	testedOffsetNegative.setMinute(60);
     }
@@ -180,32 +180,32 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, testedOffsetNegative.getSecond());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetSecondException1() throws Exception {
         tested.setSecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetSecondException1() throws Exception {
     	testedOffsetPositive.setSecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetSecondException1() throws Exception {
     	testedOffsetNegative.setSecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetSecondException2() throws Exception {
         tested.setSecond(60);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetSecondException2() throws Exception {
     	testedOffsetPositive.setSecond(60);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetSecondException2() throws Exception {
     	testedOffsetNegative.setSecond(60);
     }
@@ -243,32 +243,32 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, testedOffsetNegative.getMillisecond());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetMillisecondException1() throws Exception {
         tested.setMillisecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetMillisecondException1() throws Exception {
     	testedOffsetPositive.setMillisecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetMillisecondException1() throws Exception {
     	testedOffsetNegative.setMillisecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testSetMillisecondException2() throws Exception {
         tested.setMillisecond(1000);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetPositiveSetMillisecondException2() throws Exception {
     	testedOffsetPositive.setMillisecond(1000);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void testOffsetNegativeSetMillisecondException2() throws Exception {
     	testedOffsetNegative.setMillisecond(1000);
     }
@@ -320,7 +320,7 @@ public class SubtitleTimeCodeTest  {
         SubtitleTimeCode expected = new SubtitleTimeCode(0, 13, 9, 7);
         assertEquals(expected.getTime(), tested.subtract(toSubtract).getTime());
     }
-    
+
     @Test
     public void testOffsetPositiveSubtract() throws Exception {
         // Subtract 1 hour, 10 minutes, 3 seconds and 3 frames
@@ -328,7 +328,7 @@ public class SubtitleTimeCodeTest  {
         SubtitleTimeCode expected = new SubtitleTimeCode(1, 16, 4, 40);
         assertEquals(expected.getTime(), testedOffsetPositive.subtract(toSubtract).getTime());
     }
-    
+
     @Test
     public void testOffsetNegativeSubtract() throws Exception {
         // Subtract 1 hour, 10 minutes, 3 seconds and 3 frames ::6, 23, 12, 10

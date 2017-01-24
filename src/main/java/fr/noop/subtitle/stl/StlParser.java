@@ -14,6 +14,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +32,16 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
  * Created by clebeaupin on 21/09/15.
  */
 public class StlParser extends BaseSubtitleParser {
+
     public StlParser() {
+    }
+
+    public int getLineNumber() {
+        return 0; // TODO
+    }
+
+    public int getColumn() {
+        return 0; // TODO
     }
 
     @Override
@@ -104,7 +114,7 @@ public class StlParser extends BaseSubtitleParser {
         return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
     }
 
-    private String readString(DataInputStream dis, int length, String charset) throws IOException {
+    private String readString(DataInputStream dis, int length, Charset charset) throws IOException {
         byte [] bytes = new byte[length];
         dis.readFully(bytes, 0, length);
 
@@ -226,7 +236,7 @@ public class StlParser extends BaseSubtitleParser {
 
     private StlTti readTti(DataInputStream dis, StlGsi gsi) throws IOException {
         // Get charset from gsi
-        String charset = gsi.getCct().getCharset();
+        Charset charset = gsi.getCct().getCharset();
 
         // Get frame rate from gsi
         int frameRate = gsi.getDfc().getFrameRate();

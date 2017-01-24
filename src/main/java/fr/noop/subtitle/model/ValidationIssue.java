@@ -46,6 +46,6 @@ public class ValidationIssue {
     }
 
     public String toString() {
-        return severity + ":" + message + "(" + line + ":" + column + ")";
+        return severity + ": " + message + " (" + line + ":" + column + ")";
     }
 }

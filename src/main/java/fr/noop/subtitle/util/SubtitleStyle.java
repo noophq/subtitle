@@ -57,12 +57,6 @@ public class SubtitleStyle {
         OBLIQUE;
     }
 
-    // Text decoration
-    public enum FontWeight {
-        NORMAL,
-        BOLD;
-    }
-
     // Store all style properties
     private Map<Property, Object> properties = new HashMap<>();
 

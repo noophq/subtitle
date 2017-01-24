@@ -26,7 +26,7 @@ public abstract class BaseSubtitleObject implements SubtitleObject {
     private Map<Property, Object> properties;
 
     public BaseSubtitleObject() {
-        this.cues = new ArrayList<SubtitleCue>();
+        this.cues = new ArrayList<>();
         this.properties = new HashMap<>();
     }
 

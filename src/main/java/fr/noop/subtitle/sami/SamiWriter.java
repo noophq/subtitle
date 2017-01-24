@@ -13,6 +13,7 @@ package fr.noop.subtitle.sami;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleObject;
@@ -22,9 +23,9 @@ import fr.noop.subtitle.model.SubtitleWriter;
  * Created by clebeaupin on 11/10/15.
  */
 public class SamiWriter implements SubtitleWriter {
-    private String charset; // Charset used to encode file
+    private Charset charset; // Charset used to encode file
 
-    public SamiWriter(String charset) {
+    public SamiWriter(Charset charset) {
         this.charset = charset;
     }
 

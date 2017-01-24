@@ -12,6 +12,8 @@ package fr.noop.subtitle.stl;
 
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -128,16 +130,16 @@ public class StlGsi {
 
     // Character Code Table (CCT)
     public enum Cct {
-        LATIN(0x3030, "ISO-6937-2"),
-        LATIN_CYRILLIC(0x3031, "ISO-8859-5"),
-        LATIN_ARABIC(0x3032, "ISO-8859-6"),
-        LATIN_GREEK(0x3033, "ISO-8859-7"),
-        LATIN_HEBREW(0x3034, "ISO-8859-8");
+        LATIN(0x3030, Charset.forName("ISO-6937-2")),
+        LATIN_CYRILLIC(0x3031, Charset.forName("ISO-8859-5")),
+        LATIN_ARABIC(0x3032, Charset.forName("ISO-8859-6")),
+        LATIN_GREEK(0x3033, Charset.forName("ISO-8859-7")),
+        LATIN_HEBREW(0x3034, Charset.forName("ISO-8859-8"));
 
         private int value;
-        private String charset;
+        private Charset charset;
 
-        Cct(int value, String charset) {
+        Cct(int value, Charset charset) {
             this.value = value;
             this.charset = charset;
         }
@@ -146,7 +148,7 @@ public class StlGsi {
             return this.value;
         }
 
-        public String getCharset() {
+        public Charset getCharset() {
             return this.charset;
         }
 

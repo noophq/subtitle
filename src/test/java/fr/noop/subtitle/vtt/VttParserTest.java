@@ -22,7 +22,17 @@ import org.junit.Test;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class VttParserTest {
 
@@ -62,8 +72,8 @@ public class VttParserTest {
 
     }
 
-	@Test
-	public void testCueText() {
+
+	private void testCueText(String text) {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
 		parser.addValidationListener(new ValidationListener() {
 			@Override
@@ -71,14 +81,81 @@ public class VttParserTest {
 				System.out.println(event.toString());
 			}
 		});
-		StringBuilder bld = new StringBuilder("<v Bill>plain text<b>bold text</b> end text");
 
-		try {
-			CueTreeNode node = parser.parseCueTree(bld, 0);
+
+		try (LineNumberReader lnrd = new LineNumberReader(new StringReader(text))) {
+			parser.setSource(lnrd);
+			CueTreeNode node = parser.parseCueTextTree();
 			System.out.println(node.toStyledString());
 
 		} catch (SubtitleParsingException e) {
 			Assert.fail(e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void testCueFile(String file) {
+		VttParser parser = new VttParser(StandardCharsets.UTF_8);
+		parser.addValidationListener(new ValidationListener() {
+			@Override
+			public void onValidation(ValidationIssue event) {
+				System.out.println(event.toString());
+			}
+		});
+
+		try (InputStream is = new FileInputStream(file)) {
+			parser.parse(is);
+
+		} catch (SubtitleParsingException e) {
+			//Assert.fail(e.getMessage());
+		} catch (IOException e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCueText1() {
+		testCueText("<v Bill>plain text<b>bold text</b> end text");
+	}
+
+	@Test
+	public void testCueText2() {
+		testCueText("<v Bill>plain text<b>bold text</b end text");
+	}
+
+	@Test
+	public void testCueText3() {
+		testCueText("<v Bill>plain text<b bold text</b> end text");
+	}
+
+	@Test
+	public void testCueText4() {
+		testCueText("<v Bill>plain text b> bold text</b> end text");
+	}
+
+	@Test
+	public void testCueText5() {
+		testCueText("<v Bill>plain &lt; &gt; &nbsp; end text</v>");
+	}
+
+	@Test
+	public void testCueText6() {
+		testCueText("plain &lt; &gt; &nb");
+	}
+
+	@Test
+	public void testAllCueFiles() throws IOException {
+		Path testDir = Paths.get("src/test/resources/vtt/webvtt-file-parsing");
+
+		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(testDir)) {
+			for (Path path : directoryStream) {
+			    Path fileName = path.getFileName();
+			    if (fileName.toString().endsWith(".vtt")) {
+                    System.out.println("File: " + fileName.toString());
+                    testCueFile(path.toString());
+                }
+			}
 		}
 	}
 }
