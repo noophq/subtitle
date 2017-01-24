@@ -67,6 +67,7 @@ public class SrtParser implements SubtitleParser {
 
                 // First textLine is the cue number
                 try {
+                    textLine.replace("\uFEFF","");//Remove Unicode BOM Character
                     Integer.parseInt(textLine);
                 } catch (NumberFormatException e) {
                     throw new SubtitleParsingException(String.format(
