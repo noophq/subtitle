@@ -661,6 +661,16 @@ public class VttParser extends BaseSubtitleParser {
     }
 
     private void validateTag(String tagName) {
+        int dotIdx = tagName.indexOf('.');
+        int spaceIdx = tagName.indexOf(' ');
+
+        int min = Math.min(dotIdx, spaceIdx);
+        if (min == -1) {
+            min = Math.max(dotIdx, spaceIdx);
+        }
+        if (min > 0) {
+            tagName = tagName.substring(0, min);
+        }
         switch (tagName) {
             case "b":
             case "c":

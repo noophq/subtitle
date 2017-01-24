@@ -13,7 +13,7 @@ public class CueElemData implements CueData {
 
 
     public CueElemData(String wholeName) {
-        int voiceStartIndex = wholeName.indexOf(" ");
+        int voiceStartIndex = wholeName.indexOf(' ');
         if (voiceStartIndex == -1) {
             voice = "";
         } else {

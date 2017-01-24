@@ -36,6 +36,20 @@ import java.nio.file.Paths;
 
 public class VttParserTest {
 
+    static class CountingValidationListener implements ValidationListener {
+        int count;
+
+        @Override
+        public void onValidation(ValidationIssue event) {
+            count++;
+            System.out.println(event.toString());
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
+
     @Test
     public void testFormatTimecode() throws SubtitleParsingException {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
@@ -73,15 +87,10 @@ public class VttParserTest {
     }
 
 
-	private void testCueText(String text) {
+	private void testCueText(String text, int maxErrors) {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
-		parser.addValidationListener(new ValidationListener() {
-			@Override
-			public void onValidation(ValidationIssue event) {
-				System.out.println(event.toString());
-			}
-		});
-
+        CountingValidationListener listener = new CountingValidationListener();
+		parser.addValidationListener(listener);
 
 		try (LineNumberReader lnrd = new LineNumberReader(new StringReader(text))) {
 			parser.setSource(lnrd);
@@ -93,16 +102,14 @@ public class VttParserTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		String msg = "Error count exceeded: " + listener.getCount() + " <= " + maxErrors;
+		Assert.assertTrue(msg, listener.getCount() <= maxErrors);
 	}
 
-	private void testCueFile(String file) {
+	private void testCueFile(String file, int maxErrors) {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
-		parser.addValidationListener(new ValidationListener() {
-			@Override
-			public void onValidation(ValidationIssue event) {
-				System.out.println(event.toString());
-			}
-		});
+        CountingValidationListener listener = new CountingValidationListener();
+        parser.addValidationListener(listener);
 
 		try (InputStream is = new FileInputStream(file)) {
 			parser.parse(is);
@@ -112,36 +119,39 @@ public class VttParserTest {
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
+
+        String msg = "Error count exceeded: " + listener.getCount() + " <= " + maxErrors;
+        Assert.assertTrue(msg, listener.getCount() <= maxErrors);
 	}
 
 	@Test
 	public void testCueText1() {
-		testCueText("<v Bill>plain text<b>bold text</b> end text");
+		testCueText("<v Bill>plain text<b>bold text</b> end text", 1);
 	}
 
 	@Test
 	public void testCueText2() {
-		testCueText("<v Bill>plain text<b>bold text</b end text");
+		testCueText("<v Bill>plain text<b>bold text</b end text", 3);
 	}
 
 	@Test
 	public void testCueText3() {
-		testCueText("<v Bill>plain text<b bold text</b> end text");
+		testCueText("<v Bill>plain text<b bold text</b> end text", 2);
 	}
 
 	@Test
 	public void testCueText4() {
-		testCueText("<v Bill>plain text b> bold text</b> end text");
+		testCueText("<v Bill>plain text b> bold text</b> end text", 2);
 	}
 
 	@Test
 	public void testCueText5() {
-		testCueText("<v Bill>plain &lt; &gt; &nbsp; end text</v>");
+		testCueText("<v Bill>plain &lt; &gt; &nbsp; end text</v>", 0);
 	}
 
 	@Test
 	public void testCueText6() {
-		testCueText("plain &lt; &gt; &nb");
+		testCueText("plain &lt; &gt; &nb", 1);
 	}
 
 	// @Test (expected = IllegalArgumentException.class)
@@ -154,7 +164,7 @@ public class VttParserTest {
 			    Path fileName = path.getFileName();
 			    if (fileName.toString().endsWith(".vtt")) {
                     System.out.println("File: " + fileName.toString());
-                    testCueFile(path.toString());
+                    testCueFile(path.toString(), Integer.MAX_VALUE);
                 }
 			}
 		}
@@ -162,6 +172,6 @@ public class VttParserTest {
 
     @Test
     public void testNulls() throws IOException {
-        testCueFile("src/test/resources/vtt/webvtt-file-parsing/nulls.vtt");
+        testCueFile("src/test/resources/vtt/webvtt-file-parsing/nulls.vtt", Integer.MAX_VALUE);
     }
 }
