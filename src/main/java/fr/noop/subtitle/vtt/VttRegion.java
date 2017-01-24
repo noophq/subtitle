@@ -7,15 +7,15 @@ import java.io.LineNumberReader;
  */
 public class VttRegion {
     private String id;
-    private float width = -1;
+    private float width = -1f;
     private int lines = -1;
     private boolean scrollUp = false;
 
-    private int viewportanchor;
-    private int regionanchor;
+    private float[] viewportanchor;
+    private float[] regionanchor;
 
     public VttRegion() {
-
+        // N/A
     }
 
     public String getId() {
@@ -26,6 +26,27 @@ public class VttRegion {
     public void setId(String id) {
         this.id = id;
     }
+
+    public void setWidth(float v) {
+        width = v;
+    }
+
+    public void setLines(int i) {
+        lines = i;
+    }
+
+    public void setViewPortAnchor(float[] anchor) {
+        viewportanchor = anchor;
+    }
+
+    public void setRegionAnchor(float[] anchor) {
+        regionanchor = anchor;
+    }
+
+    public void setScrollUp(boolean up) {
+        scrollUp = up;
+    }
+
 
     public String toString() {
         StringBuilder bld = new StringBuilder("REGION\n");
@@ -40,12 +61,20 @@ public class VttRegion {
         if (scrollUp) {
             bld.append("scroll:up\n");
         }
-//        if (viewportanchor) {
-//            bld.append("viewportanchor:xxx \n");
-//        }
-//        if (regionanchor) {
-//            bld.append("regionanchor:xxx \n");
-//        }
+        if (viewportanchor != null) {
+            bld.append("viewportanchor:");
+            bld.append(viewportanchor[0] * 100);
+            bld.append("%,");
+            bld.append(viewportanchor[1] * 100);
+            bld.append("%\n");
+        }
+        if (regionanchor != null) {
+            bld.append("regionanchor:");
+            bld.append(regionanchor[0] * 100);
+            bld.append("%,");
+            bld.append(regionanchor[1] * 100);
+            bld.append("%\n");
+        }
 
         return bld.toString();
     }

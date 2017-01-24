@@ -265,43 +265,60 @@ public class VttParser extends BaseSubtitleParser {
                     break;
                 case "width":
                     try {
-                        parsePercentage(value);
+                        region.setWidth(parsePercentage(value));
                     } catch (NumberFormatException e) {
                         notifyWarning("Invalid region " + name + ": " + value);
                     }
                     break;
                 case "lines":
                     try {
-                        int l = Integer.parseInt(value);
+                        region.setLines(Integer.parseInt(value));
                     } catch (NumberFormatException e) {
                         notifyWarning("Invalid region " + name + ": " + value);
                     }
                     break;
                 case "viewportanchor":
+                    float[] vret = parseFloatCouple(value);
+                    if (vret != null) {
+                        region.setViewPortAnchor(vret);
+                    }
+                    break;
                 case "regionanchor":
-                    String parts[] = value.split(",");
-                    if (parts.length == 2) {
-                        try {
-                            parsePercentage(parts[0]);
-                            parsePercentage(parts[1]);
-                        } catch (NumberFormatException e) {
-                            notifyWarning("Invalid region " + name + ": " + value);
-                        }
-                    } else {
-                        notifyWarning("Invalid region " + name + " value: " + value);
+                    float[] aret = parseFloatCouple(value);
+                    if (aret != null) {
+                        region.setRegionAnchor(aret);
                     }
                     break;
                 case "scroll":
                     if (!value.equals("up")) {
                         notifyWarning("Invalid region " + name + " value: " + value);
                     }
+                    else {
+                        region.setScrollUp(true);
+                    }
                     break;
                 default:
                     notifyWarning("Unknown region setting: " + name + ":" + value);
                     break;
             }
-
         }
+    }
+
+    private float[] parseFloatCouple(String value) {
+        String parts[] = value.split(",");
+        if (parts.length == 2) {
+            float[] ret = new float[2];
+            try {
+                ret[0] = parsePercentage(parts[0]);
+                ret[1] = parsePercentage(parts[1]);
+                return ret;
+            } catch (NumberFormatException e) {
+                notifyWarning("Invalid region setting: " + value);
+            }
+        } else {
+            notifyWarning("Invalid region setting: " + value);
+        }
+        return null;
     }
 
     private void parseCueId(VttCue cue, String textLine) throws SubtitleParsingException {
@@ -431,9 +448,13 @@ public class VttParser extends BaseSubtitleParser {
      */
     private float parsePercentage(String s) throws NumberFormatException {
         if (!s.endsWith("%")) {
-            throw new NumberFormatException("Percentages must end with %");
+            throw new NumberFormatException("Percentage must end with %: " + s);
         }
-        return Float.parseFloat(s.substring(0, s.length() - 1)) / 100;
+        float f = Float.parseFloat(s.substring(0, s.length() - 1)) / 100f;
+        if (f < 0f || f > 1f) {
+            throw new NumberFormatException("Percentage must be within 0..100: " + s);
+        }
+        return f;
     }
 
 
