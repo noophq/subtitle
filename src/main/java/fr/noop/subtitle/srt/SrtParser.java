@@ -61,7 +61,7 @@ public class SrtParser extends BaseSubtitleParser {
         SrtCue cue = null;
 
         while ((textLine = br.readLine()) != null) {
-            textLine = textLine.trim();
+            textLine = textLine.trim().replace('\u0000', '\uFFFD');;
 
             if (cursorStatus == CursorStatus.NONE) {
                 if (textLine.isEmpty()) {

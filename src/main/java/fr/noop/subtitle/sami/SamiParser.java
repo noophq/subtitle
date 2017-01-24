@@ -63,7 +63,7 @@ public class SamiParser extends BaseSubtitleParser {
         SamiCue previousCue = null;
 
         while ((textLine = br.readLine()) != null) {
-            textLine = textLine.trim();
+            textLine = textLine.trim().replace('\u0000', '\uFFFD');
             // Lower case text line
             String lcTextLine = textLine.toLowerCase();
 

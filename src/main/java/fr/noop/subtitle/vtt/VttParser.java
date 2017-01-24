@@ -130,6 +130,7 @@ public class VttParser extends BaseSubtitleParser {
         StringBuilder bld = new StringBuilder();
         String textLine;
         while ((textLine = br.readLine()) != null) {
+            textLine = textLine.replace('\u0000', '\uFFFD');
             if (textLine.trim().isEmpty()) {
                 break;
             }
@@ -147,7 +148,6 @@ public class VttParser extends BaseSubtitleParser {
         // reset state
         inCues = false;
         vttObject = new VttObject(); // Create vtt object
-        boolean shouldIgnoreCurrentCue = false; // ???
 
         // Read each lines
         try (LineNumberReader lnrd = new LineNumberReader(new InputStreamReader(is, this.charset))) {
@@ -158,7 +158,7 @@ public class VttParser extends BaseSubtitleParser {
             String textLine;
             while ((textLine = br.readLine()) != null) {
                 // All Vtt files start with WEBVTT
-
+                textLine = textLine.replace('\u0000', '\uFFFD');
                 CursorStatus event = getNextEvent(textLine, inCues);
 
                 VttCue cue = null;
@@ -169,6 +169,7 @@ public class VttParser extends BaseSubtitleParser {
                         if ((textLine = br.readLine()) == null) {
                             break;
                         }
+                        textLine = textLine.replace('\u0000', '\uFFFD');
                         // $FALLTHROUGH
                     case CUE_TIMECODE:
                         // textLine defines the start and end time codes
@@ -189,7 +190,7 @@ public class VttParser extends BaseSubtitleParser {
                     case NOTE:
                         VttNote vttNote = new VttNote();
                         parseNote(vttNote);
-                        //vttObject.getNotes().add(vttNote);
+                        vttObject.addNote(vttNote);
                         break;
                     case REGION:
                         VttRegion vttRegion = new VttRegion();
@@ -224,27 +225,25 @@ public class VttParser extends BaseSubtitleParser {
         String textLine = br.readLine();
         if (textLine == null || !WEBVTT.matcher(textLine).matches()) {
             notifyError("Invalid WEBVTT header " + textLine);
+            return;
         }
 
-        // new line
-        textLine = br.readLine();
-        if (textLine != null) {
-            CursorStatus event = getNextEvent(textLine, inCues);
-            if (event != CursorStatus.EMPTY_LINE) {
-                notifyError("Empty line expected after WEBVTT header");
-            }
-        }
+        // read up to two new lines
+        readBlockLines();
     }
 
     private void parseNote(VttNote note) throws SubtitleParsingException, IOException {
-        StringBuilder cueText = readBlockLines();
-        if (cueText.indexOf(ARROW) >= 0) {
+        StringBuilder noteText = readBlockLines();
+        if (noteText.indexOf(ARROW) >= 0) {
             notifyError("'" + ARROW + "' found inside comment block");
+        }
+        else {
+            note.setNote(noteText.toString());
         }
     }
 
     private void parseStyle(VttStyle style) throws SubtitleParsingException, IOException {
-        StringBuilder cueText = readBlockLines();
+        StringBuilder styleText = readBlockLines();
         // TODO
     }
 
@@ -479,7 +478,7 @@ public class VttParser extends BaseSubtitleParser {
             case "left":
                 return SubtitleStyle.TextAlign.LEFT;
             case "center":
-            case "middle":
+            //case "middle":
                 return SubtitleStyle.TextAlign.CENTER;
             case "end":
             case "right":
@@ -501,7 +500,7 @@ public class VttParser extends BaseSubtitleParser {
         StringBuilder cueText = readBlockLines();
 
         if (cueText.length() == 0) {
-            notifyError("Empty subtitle is not allowed in WebVTT for cue");
+            notifyError("Empty cue is not allowed");
         }
 
         CueTreeNode tree = new CueTreeNode();

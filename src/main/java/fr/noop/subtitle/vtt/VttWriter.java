@@ -47,6 +47,7 @@ public class VttWriter implements SubtitleWriter {
                 else {
                     writer.write(obj.toString());
                 }
+                writer.write("\n");
             }
         }
     }
@@ -71,8 +72,6 @@ public class VttWriter implements SubtitleWriter {
 
         // Write text
         writer.write(cue.getText());
-        writer.write("\n");
-        // Write empty line
         writer.write("\n");
     }
 

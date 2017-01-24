@@ -63,6 +63,10 @@ public class VttObject extends BaseSubtitleObject {
         styles.add(vttStyle);
     }
 
+    public void addNote(VttNote vttNote) {
+        objects.add(vttNote);
+    }
+
     Iterable<Object> getObjects() {
         return objects;
     }

@@ -159,4 +159,9 @@ public class VttParserTest {
 			}
 		}
 	}
+
+    @Test
+    public void testNulls() throws IOException {
+        testCueFile("src/test/resources/vtt/webvtt-file-parsing/nulls.vtt");
+    }
 }

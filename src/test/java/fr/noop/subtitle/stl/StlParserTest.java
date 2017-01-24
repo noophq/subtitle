@@ -12,7 +12,6 @@ package fr.noop.subtitle.stl;
 
 import static org.junit.Assert.*;
 
-import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.util.SubtitleStyledText;
 import org.junit.*;
@@ -20,7 +19,7 @@ import org.junit.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Date;
+
 
 /**
  * Created by clebeaupin on 24/11/15.
