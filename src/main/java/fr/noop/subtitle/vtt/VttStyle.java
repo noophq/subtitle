@@ -320,5 +320,10 @@ public class VttStyle {
 //        }
 //    }
 
+    public String toString() {
+        StringBuilder bld = new StringBuilder("STYLE\n");
+
+        return bld.toString();
+    }
 }
 

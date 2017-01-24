@@ -10,7 +10,6 @@
 
 package fr.noop.subtitle.srt;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
 import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleWriter;
@@ -18,7 +17,8 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -33,31 +33,28 @@ public class SrtWriter implements SubtitleWriter {
 
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
-        try {
+        try (Writer writer = new OutputStreamWriter(os, charset)) {
             int subtitleIndex = 0;
 
             for (SubtitleCue cue : subtitleObject.getCues()) {
                 subtitleIndex++;
 
                 // Write number of subtitle
-                String number = String.format("%d\n", subtitleIndex);
-                os.write(number.getBytes(this.charset));
+                writer.write(String.format("%d", subtitleIndex));
+                writer.write("\n");
 
                 // Write Start time and end time
-                String startToEnd = String.format("%s --> %s \n",
-                        this.formatTimeCode(cue.getStartTime()),
-                        this.formatTimeCode(cue.getEndTime()));
-                os.write(startToEnd.getBytes(this.charset));
+                writer.write(this.formatTimeCode(cue.getStartTime()));
+                writer.write(" --> ");
+                writer.write(this.formatTimeCode(cue.getEndTime()));
+                writer.write("\n");
 
                 // Write text
-                String text = String.format("%s\n", cue.getText());
-                os.write(text.getBytes(this.charset));
-
+                writer.write(cue.getText());
+                writer.write("\n");
                 // Write emptyline
-                os.write("\n".getBytes(this.charset));
+                writer.write("\n");
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new IOException("Encoding error in input subtitle");
         }
     }
 

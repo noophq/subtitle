@@ -12,7 +12,8 @@ package fr.noop.subtitle.sami;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 import fr.noop.subtitle.model.SubtitleCue;
@@ -31,51 +32,54 @@ public class SamiWriter implements SubtitleWriter {
 
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
-        try {
+        try (Writer writer = new OutputStreamWriter(os, charset)) {
             // Start SAMI
-            os.write(new String("<SAMI>\n").getBytes(this.charset));
+            writer.write("<SAMI>\n");
 
             // Write header
+            writeHeader(subtitleObject, writer);
 
             // Write cues
-            this.writeCues(subtitleObject, os);
+            writeCues(subtitleObject, writer);
 
             // End SAMI
-            os.write(new String("</SAMI>\n").getBytes(this.charset));
-        } catch (UnsupportedEncodingException e) {
-            throw new IOException("Encoding error in input subtitle");
+            writer.write("</SAMI>\n");
         }
     }
 
-    private void writeHeader(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+    private void writeHeader(SubtitleObject subtitleObject, Writer writer) throws IOException {
         // Start HEAD
-        os.write(new String("<Head>\n").getBytes(this.charset));
+        writer.write("<Head>\n");
 
         if (subtitleObject.hasProperty(SubtitleObject.Property.TITLE)) {
             // Write title
-            os.write(String.format("  <Title>%s</Title>\n",
-                    subtitleObject.getProperty(SubtitleObject.Property.TITLE)
-            ).getBytes(this.charset));
+            writer.write("  <Title>");
+            writer.write(subtitleObject.getProperty(SubtitleObject.Property.TITLE).toString());
+            writer.write("</Title>\n");
         }
 
         // End HEAD
-        os.write(new String("</Head>\n").getBytes(this.charset));
+        writer.write("</Head>\n");
     }
 
-    private void writeCues(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+    private void writeCues(SubtitleObject subtitleObject, Writer writer) throws IOException {
         // Start BODY
-        os.write(new String("<Body>\n").getBytes(this.charset));
+        writer.write("<Body>\n");
 
         for (SubtitleCue cue : subtitleObject.getCues()) {
             // Write Start time
 
-            os.write(String.format("  <SYNC Start=%d>\n", cue.getStartTime().getTime()).getBytes(this.charset));
+            writer.write("  <SYNC Start=");
+            writer.write(String.format("%d", cue.getStartTime().getTime()));
+            writer.write(">\n");
 
             // Write text
-            os.write(String.format("    <P>%s\n", cue.getText()).getBytes(this.charset));
+            writer.write("    <P>");
+            writer.write(cue.getText());
+            writer.write("\n");
         }
 
         // End BODY
-        os.write(new String("</Body>\n").getBytes(this.charset));
+        writer.write("</Body>\n");
     }
 }

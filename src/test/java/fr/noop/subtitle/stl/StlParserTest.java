@@ -40,7 +40,7 @@ public class StlParserTest {
         testedTti = tested.getTtis().get(1);
 
         // First tti is not empty so it is not considered as a cue
-        testedCue = (StlCue) tested.getCues().get(0);
+        testedCue = (StlCue) tested.getCue(0);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class StlParserTest {
     public void testCueRegion2() throws Exception {
         // Make sure that 2 cues having a different number of lines
         // have equal regions
-        StlCue testedCue2 = (StlCue) tested.getCues().get(1);
+        StlCue testedCue2 = (StlCue) tested.getCue(1);
         assertEquals(testedCue.getRegion(), testedCue2.getRegion());
     }
 }

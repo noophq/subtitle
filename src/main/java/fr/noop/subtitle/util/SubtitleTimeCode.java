@@ -23,7 +23,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     private long milliseconds;
 
     public SubtitleTimeCode(int hour, int minute, int second, int millisecond, int offset) {
-    	long milliseconds = hour * MS_HOUR + minute * MS_MINUTE + second * MS_SECOND + millisecond + offset;
+    	milliseconds = hour * MS_HOUR + minute * MS_MINUTE + second * MS_SECOND + millisecond + offset;
         if (milliseconds < 0) {
             throw new IllegalArgumentException("Cannot create a timecode before time zero (check your offset) !");
         }

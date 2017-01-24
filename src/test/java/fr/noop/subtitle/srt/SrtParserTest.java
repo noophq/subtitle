@@ -17,6 +17,6 @@ public class SrtParserTest {
         FileInputStream is = new FileInputStream("src/test/resources/srt/no-eof-nl.srt");
         SrtObject srtObject = (SrtObject) srtParser.parse(is);
 
-        Assert.assertEquals(2, srtObject.getCues().size());
+        Assert.assertEquals(2, srtObject.getCuesCount());
     }
 }

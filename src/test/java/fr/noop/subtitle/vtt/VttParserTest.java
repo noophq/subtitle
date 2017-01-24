@@ -144,6 +144,7 @@ public class VttParserTest {
 		testCueText("plain &lt; &gt; &nb");
 	}
 
+	// @Test (expected = IllegalArgumentException.class)
 	@Test
 	public void testAllCueFiles() throws IOException {
 		Path testDir = Paths.get("src/test/resources/vtt/webvtt-file-parsing");

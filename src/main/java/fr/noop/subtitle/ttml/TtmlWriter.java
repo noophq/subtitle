@@ -37,7 +37,7 @@ public class TtmlWriter implements SubtitleWriter {
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) {
         TtmlObject ttmlObject = new TtmlObject(subtitleObject);
-        
+
         // Prepare XML
         XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 

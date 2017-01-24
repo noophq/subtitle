@@ -10,7 +10,6 @@
 
 package fr.noop.subtitle.model;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +17,21 @@ import java.util.Map;
  */
 public interface SubtitleObject {
     // Properties
-    public enum Property {
+    enum Property {
         TITLE,
         DESCRIPTION,
         COPYRIGHT,
         FRAME_RATE;
     }
 
-    public boolean hasProperty(Property property);
-    public Object getProperty(Property property);
-    public Map<Property, Object> getProperties();
-    public List<SubtitleCue> getCues();
+    boolean hasProperty(Property property);
+
+    Object getProperty(Property property);
+
+    Iterable<Map.Entry<Property, Object>> getProperties();
+
+    Iterable<SubtitleCue> getCues();
+
+    int getCuesCount();
+
 }

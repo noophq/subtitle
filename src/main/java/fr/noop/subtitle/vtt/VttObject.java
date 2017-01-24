@@ -11,9 +11,11 @@
 package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.base.BaseSubtitleObject;
+import fr.noop.subtitle.model.SubtitleCue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +26,23 @@ public class VttObject extends BaseSubtitleObject {
     private Map<String, VttRegion> regions;
     private List<VttStyle> styles;
 
+    private List<Object> objects;
+
     public VttObject() {
         super();
 
         regions = new HashMap<>();
         styles = new ArrayList<>();
+        objects = new ArrayList<>();
+    }
+
+    public void addCue(SubtitleCue cue) {
+        objects.add(cue);
+        super.addCue(cue);
+    }
+
+    public Iterable<VttRegion> getRegions() {
+        return regions.values();
     }
 
     public VttRegion getRegion(String id) {
@@ -36,20 +50,20 @@ public class VttObject extends BaseSubtitleObject {
     }
 
     public boolean addRegion(VttRegion vttRegion) {
+        objects.add(vttRegion);
         return regions.put(vttRegion.getId(), vttRegion) == null;
     }
 
-    public List<VttStyle> getStyles() {
+    public Iterable<VttStyle> getStyles() {
         return styles;
     }
 
-    public VttCue getLastCue() {
-        int idx = getCues().size() - 1;
-        if (idx < 0) {
-            return null;
-        }
-        return (VttCue) getCues().get(idx);
+    public void addStyles(VttStyle vttStyle) {
+        objects.add(vttStyle);
+        styles.add(vttStyle);
     }
 
-
+    Iterable<Object> getObjects() {
+        return objects;
+    }
 }

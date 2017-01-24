@@ -48,12 +48,12 @@ public class TtmlObject  extends BaseSubtitleObject {
     public TtmlObject(SubtitleObject subtitleObject) {
         super();
 
-        for (Map.Entry<Property, Object> entry : subtitleObject.getProperties().entrySet()) {
+        for (Map.Entry<Property, Object> entry : subtitleObject.getProperties()) {
             this.setProperty(entry.getKey(), entry.getValue());
         }
 
-        for (int cueIndex=0; cueIndex<subtitleObject.getCues().size(); cueIndex++) {
-            SubtitleCue cue = subtitleObject.getCues().get(cueIndex);
+        int cueIndex = 1;
+        for (SubtitleCue cue : subtitleObject.getCues()) {
             TtmlCue ttmlCue = new TtmlCue(cue);
 
             // Register cue region
@@ -94,7 +94,7 @@ public class TtmlObject  extends BaseSubtitleObject {
             }
 
             // Set cue id
-            ttmlCue.setId(String.format("cue-%d", cueIndex+1));
+            ttmlCue.setId(String.format("cue-%d", cueIndex++));
             this.addCue(ttmlCue);
         }
     }
@@ -120,12 +120,12 @@ public class TtmlObject  extends BaseSubtitleObject {
 
     public String getStyleId(SubtitleStyle style) {
         String styleSignature = this.buildStyleSignature(style);
-        return this.styleMapping.getOrDefault(styleSignature, null);
+        return styleMapping.get(styleSignature);
     }
 
     public String getRegionId(SubtitleRegion region) {
         String regionSignature = this.buildRegionSignature(region);
-        return this.regionMapping.getOrDefault(regionSignature, null);
+        return regionMapping.get(regionSignature);
     }
 
     public Map<String, SubtitleStyle> getStyles() {

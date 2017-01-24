@@ -77,7 +77,7 @@ public class VttParser extends BaseSubtitleParser {
     }
 
     public int getColumn() {
-        return 0;
+        return 0; // TODO
     }
 
     // unit tests only
@@ -204,7 +204,7 @@ public class VttParser extends BaseSubtitleParser {
                     case STYLE:
                         VttStyle vttStyle = new VttStyle();
                         parseStyle(vttStyle);
-                        vttObject.getStyles().add(vttStyle);
+                        vttObject.addStyles(vttStyle);
                         break;
                     case EMPTY_LINE:
                         // nothing to do
@@ -325,7 +325,7 @@ public class VttParser extends BaseSubtitleParser {
                 notifyWarning("Invalid cue start time");
             }
 
-            VttCue lastCue = vttObject.getLastCue();
+            VttCue lastCue = (VttCue) vttObject.getLastCue();
             if (lastCue != null) {
                 SubtitleTimeCode lastStartTime = lastCue.getStartTime();
                 if (lastStartTime != null) {

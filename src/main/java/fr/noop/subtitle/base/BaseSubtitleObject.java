@@ -34,13 +34,27 @@ public abstract class BaseSubtitleObject implements SubtitleObject {
         this.cues.add(cue);
     }
 
-    public List<SubtitleCue> getCues() {
+    public Iterable<SubtitleCue> getCues() {
         return this.cues;
     }
 
-    public void setCues(List<SubtitleCue> cues) {
-        this.cues = cues;
+    public SubtitleCue getLastCue() {
+        int idx = cues.size() - 1;
+        if (idx < 0) {
+            return null;
+        }
+        return cues.get(idx);
     }
+
+    @Override
+    public int getCuesCount() {
+        return cues.size();
+    }
+
+    public SubtitleCue getCue(int idx) {
+        return cues.get(idx);
+    }
+
 
     @Override
     public Object getProperty(Property property) {
@@ -53,15 +67,12 @@ public abstract class BaseSubtitleObject implements SubtitleObject {
     }
 
     @Override
-    public Map<Property, Object> getProperties() {
-        return this.properties;
+    public Iterable<Map.Entry<Property, Object>> getProperties() {
+        return this.properties.entrySet();
     }
+
     public void setProperty(Property property, Object value) {
         this.properties.put(property, value);
     }
 
-
-    public void setProperties(Map<Property, Object> properties) {
-        this.properties = properties;
-    }
 }

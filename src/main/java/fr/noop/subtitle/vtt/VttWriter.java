@@ -10,7 +10,6 @@
 
 package fr.noop.subtitle.vtt;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
 import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleWriter;
@@ -18,7 +17,8 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -33,34 +33,47 @@ public class VttWriter implements SubtitleWriter {
 
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
-        try {
+        VttObject vtt = (VttObject) subtitleObject;
+
+        try (Writer writer = new OutputStreamWriter(os, charset)) {
             // Write header
-            os.write(new String("WEBVTT\n\n").getBytes(this.charset));
+            writer.write("WEBVTT\n\n");
 
-            // Write cues
-            for (SubtitleCue cue : subtitleObject.getCues()) {
-                if (cue.getId() != null) {
-                    // Write number of subtitle
-                    String number = String.format("%s\n", cue.getId());
-                    os.write(number.getBytes(this.charset));
+            // Write regions
+            for (Object obj : vtt.getObjects()) {
+                if (obj instanceof SubtitleCue) {
+                    writeCue(writer, (SubtitleCue) obj);
                 }
-
-                // Write Start time and end time
-                String startToEnd = String.format("%s --> %s \n",
-                        this.formatTimeCode(cue.getStartTime()),
-                        this.formatTimeCode(cue.getEndTime()));
-                os.write(startToEnd.getBytes(this.charset));
-
-                // Write text
-                String text = String.format("%s\n", cue.getText());
-                os.write(text.getBytes(this.charset));
-
-                // Write empty line
-                os.write("\n".getBytes(this.charset));
+                else {
+                    writer.write(obj.toString());
+                }
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new IOException("Encoding error in input subtitle");
         }
+    }
+
+    private void writeCue(Writer writer, SubtitleCue cue) throws IOException {
+        if (cue.getId() != null) {
+            // Write number of subtitle
+            writer.write(cue.getId());
+            writer.write("\n");
+        }
+
+        // Write Start time and end time
+        writer.write(this.formatTimeCode(cue.getStartTime()));
+        writer.write(" --> ");
+        writer.write(this.formatTimeCode(cue.getEndTime()));
+
+        // FIXME - write VTT cue settings if any
+//        VttCue vttCue = (VttCue) cue;
+//        writer.write(vttCue.));
+
+        writer.write("\n");
+
+        // Write text
+        writer.write(cue.getText());
+        writer.write("\n");
+        // Write empty line
+        writer.write("\n");
     }
 
     private String formatTimeCode(SubtitleTimeCode timeCode) {

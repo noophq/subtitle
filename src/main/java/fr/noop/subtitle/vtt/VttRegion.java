@@ -7,8 +7,8 @@ import java.io.LineNumberReader;
  */
 public class VttRegion {
     private String id;
-    private float width;
-    private int lines;
+    private float width = -1;
+    private int lines = -1;
     private boolean scrollUp = false;
 
     private int viewportanchor;
@@ -22,7 +22,31 @@ public class VttRegion {
         return id;
     }
 
+    // FIXME - class should be immutable
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String toString() {
+        StringBuilder bld = new StringBuilder("REGION\n");
+
+        bld.append("id:").append(id).append("\n");
+        if (width > 0) {
+            bld.append("width:").append(width * 100).append("%\n");
+        }
+        if (lines > 0) {
+            bld.append("lines:").append(lines).append("\n");
+        }
+        if (scrollUp) {
+            bld.append("scroll:up\n");
+        }
+//        if (viewportanchor) {
+//            bld.append("viewportanchor:xxx \n");
+//        }
+//        if (regionanchor) {
+//            bld.append("regionanchor:xxx \n");
+//        }
+
+        return bld.toString();
     }
 }
