@@ -1,7 +1,7 @@
 Subtitle library
 ================
 
-fr.noop.subtitle provides parsers, writers and validators for different subtitle formats:
+provides validators for different subtitle formats:
 
 - vtt
 - srt

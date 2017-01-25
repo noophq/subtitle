@@ -29,8 +29,4 @@ public class CuePlainData implements CueData {
     public String content() {
         return content;
     }
-
-    public String toString() {
-        return content;
-    }
 }

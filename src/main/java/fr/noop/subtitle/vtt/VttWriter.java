@@ -41,7 +41,7 @@ public class VttWriter implements SubtitleWriter {
 
             // Write regions
             for (Object obj : vtt.getObjects()) {
-                if (obj instanceof SubtitleCue) {
+                if (obj instanceof SubtitleCue) { // FIXME - do not use instanceof here
                     writeCue(writer, (SubtitleCue) obj);
                 }
                 else {

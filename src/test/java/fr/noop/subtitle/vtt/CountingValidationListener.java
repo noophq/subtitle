@@ -1,0 +1,32 @@
+package fr.noop.subtitle.vtt;
+
+import fr.noop.subtitle.model.ValidationIssue;
+import fr.noop.subtitle.model.ValidationListener;
+import org.junit.Assert;
+
+/**
+ * Created by jdvorak on 25.1.2017.
+ * Helper class for testing
+ */
+public class CountingValidationListener implements ValidationListener {
+    int count;
+
+    @Override
+    public void onValidation(ValidationIssue event) {
+        count++;
+        System.out.println(event.toString());
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void checkAssert(int maxErrors) {
+        String msg1 = "Error count exceeded: " + getCount() + " <= " + maxErrors;
+        Assert.assertTrue(msg1, getCount() <= maxErrors);
+        if (maxErrors == 0 && getCount() > 0) {
+            String msg2 = "Errors detected in valid data: " + getCount();
+            Assert.assertTrue(msg2, getCount() > 0);
+        }
+    }
+}

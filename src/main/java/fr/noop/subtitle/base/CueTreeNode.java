@@ -84,4 +84,40 @@ public class CueTreeNode {
             bld.append(data.endElem());
         }
     }
+
+    /**
+     * Return first node with given tag name in parent chain.
+     * @param tagName The tag name
+     * @return null or node with given tag name
+     */
+    public CueTreeNode findParentByTag(String tagName) {
+        if (tagName == null) {
+            return null;
+        }
+        CueTreeNode node = this;
+        while (node != null && !tagName.equals(node.getTag())) {
+            node = node.getParent();
+        }
+        return node;
+    }
+
+    /**
+     *
+     * @return True if this node has some sub tags
+     */
+    public boolean hasSubTags() {
+        for (CueTreeNode child : children) {
+            if (child.getData() instanceof CueElemData) { // FIXME - do not use instanceof here
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getTag() {
+        if (data == null) {
+            return null;
+        }
+        return data.getTag();
+    }
 }

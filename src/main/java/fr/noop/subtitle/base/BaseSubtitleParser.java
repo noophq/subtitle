@@ -59,7 +59,7 @@ public abstract class BaseSubtitleParser implements SubtitleParser {
         }
     }
 
-    protected void notifyError(String msg) throws SubtitleParsingException {
+    protected void notifyError(String msg) {
         issues++;
         ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.ERROR, msg, getLineNumber(), getColumn());
         if (listeners != null) {
