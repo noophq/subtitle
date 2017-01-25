@@ -13,6 +13,8 @@ package fr.noop.subtitle.util;
 import java.security.InvalidParameterException;
 import java.time.LocalTime;
 
+import fr.noop.subtitle.exception.InvalidTimeRangeException;
+
 /**
  * Created by clebeaupin on 22/09/15.
  */
@@ -25,14 +27,14 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     private int second;
     private int millisecond;
 
-    public SubtitleTimeCode(int hour, int minute, int second, int millisecond) {
+    public SubtitleTimeCode(int hour, int minute, int second, int millisecond) throws InvalidTimeRangeException {
         this.setHour(hour);
         this.setMinute(minute);
         this.setSecond(second);
         this.setMillisecond(millisecond);
     }
 
-    public SubtitleTimeCode(LocalTime time) {
+    public SubtitleTimeCode(LocalTime time) throws InvalidTimeRangeException {
         this(time.getHour(), time.getMinute(), time.getSecond(), 0);
     }
 
@@ -56,9 +58,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return this.hour;
     }
 
-    public void setHour(int hour) {
+    public void setHour(int hour) throws InvalidTimeRangeException {
         if (hour < 0) {
-            throw new InvalidParameterException("Hour value must be greater or equal to 0");
+            throw new InvalidTimeRangeException("Hour value must be greater or equal to 0");
         }
 
         this.hour = hour;
@@ -68,9 +70,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return this.minute;
     }
 
-    public void setMinute(int minute) {
+    public void setMinute(int minute) throws InvalidTimeRangeException {
         if (minute < 0 || minute > 59) {
-            throw new InvalidParameterException("Minute value must be between 0 and 59");
+            throw new InvalidTimeRangeException("Minute value must be between 0 and 59");
         }
 
         this.minute = minute;
@@ -80,9 +82,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return this.second;
     }
 
-    public void setSecond(int second) {
+    public void setSecond(int second) throws InvalidTimeRangeException {
         if (second < 0 || second > 59) {
-            throw new InvalidParameterException("A second value must be between 0 and 59");
+            throw new InvalidTimeRangeException("A second value must be between 0 and 59");
         }
 
         this.second = second;
@@ -92,9 +94,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return this.millisecond;
     }
 
-    public void setMillisecond(int millisecond) {
+    public void setMillisecond(int millisecond) throws InvalidTimeRangeException {
         if (millisecond < 0 || millisecond > 999) {
-            throw new InvalidParameterException("A Millisecond value must be between 0 and 999");
+            throw new InvalidTimeRangeException("A Millisecond value must be between 0 and 999");
         }
 
         this.millisecond = millisecond;

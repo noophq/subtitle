@@ -13,10 +13,12 @@ package fr.noop.subtitle.model;
 import java.io.IOException;
 import java.io.InputStream;
 
+import fr.noop.subtitle.exception.InvalidTimeRangeException;
+
 /**
  * Created by clebeaupin on 02/10/15.
  */
 public interface SubtitleParser {
-    public SubtitleObject parse(InputStream is) throws IOException, SubtitleParsingException;
-    public SubtitleObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException;
+    public SubtitleObject parse(InputStream is) throws IOException, SubtitleParsingException, InvalidTimeRangeException;
+    public SubtitleObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException, InvalidTimeRangeException;
 }

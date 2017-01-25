@@ -21,6 +21,7 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
+import fr.noop.subtitle.exception.InvalidTimeRangeException;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -32,11 +33,11 @@ public class StlParser implements SubtitleParser {
     public StlParser() {
     }
     
-    public StlObject parse(InputStream is) throws SubtitleParsingException {
+    public StlObject parse(InputStream is) throws SubtitleParsingException, InvalidTimeRangeException {
     	return parse(is, true);
     }
 
-    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
+    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException, InvalidTimeRangeException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 
@@ -79,7 +80,7 @@ public class StlParser implements SubtitleParser {
         }
     }
 
-    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate) throws IOException {
+    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate) throws IOException, InvalidTimeRangeException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
@@ -92,7 +93,7 @@ public class StlParser implements SubtitleParser {
         return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
     }
 
-    private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException {
+    private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException, InvalidTimeRangeException {
         int hour = dis.readUnsignedByte();
         int minute = dis.readUnsignedByte();
         int second = dis.readUnsignedByte();
@@ -121,7 +122,7 @@ public class StlParser implements SubtitleParser {
         return StringUtils.strip(new String(bytes));
     }
 
-    private StlGsi readGsi(DataInputStream dis) throws IOException {
+    private StlGsi readGsi(DataInputStream dis) throws IOException, InvalidTimeRangeException {
         // Read and extract metadata from GSI block
         // GSI block is 1024 bytes long
         StlGsi gsi = new StlGsi();
@@ -225,7 +226,7 @@ public class StlParser implements SubtitleParser {
         return gsi;
     }
 
-    private StlTti readTti(DataInputStream dis, StlGsi gsi) throws IOException {
+    private StlTti readTti(DataInputStream dis, StlGsi gsi) throws IOException, InvalidTimeRangeException {
         // Get charset from gsi
         String charset = gsi.getCct().getCharset();
 

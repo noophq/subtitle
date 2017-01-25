@@ -10,17 +10,20 @@
 
 package fr.noop.subtitle.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.*;
+import org.junit.Test;
 
-import java.security.InvalidParameterException;
+import fr.noop.subtitle.exception.InvalidTimeRangeException;
 
 /**
  * Created by clebeaupin on 07/10/15.
  */
 public class SubtitleTimeCodeTest  {
     private SubtitleTimeCode tested = new SubtitleTimeCode(1, 23, 12, 10);
+
+    public SubtitleTimeCodeTest() throws InvalidTimeRangeException {
+    }
 
     @Test
     public void testToString() throws Exception {
@@ -38,7 +41,7 @@ public class SubtitleTimeCodeTest  {
         assertEquals(2, tested.getHour());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetHourException() throws Exception {
         tested.setHour(-1);
     }
@@ -54,12 +57,12 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, tested.getMinute());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetMinuteException1() throws Exception {
         tested.setMinute(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetMinuteException2() throws Exception {
         tested.setMinute(60);
     }
@@ -75,12 +78,12 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, tested.getSecond());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetSecondException1() throws Exception {
         tested.setSecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetSecondException2() throws Exception {
         tested.setSecond(60);
     }
@@ -96,12 +99,12 @@ public class SubtitleTimeCodeTest  {
         assertEquals(50, tested.getMillisecond());
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetMillisecondException1() throws Exception {
         tested.setMillisecond(-1);
     }
 
-    @Test (expected = InvalidParameterException.class)
+    @Test (expected = InvalidTimeRangeException.class)
     public void testSetMillisecondException2() throws Exception {
         tested.setMillisecond(1000);
     }

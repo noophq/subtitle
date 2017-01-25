@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import fr.noop.subtitle.exception.InvalidTimeRangeException;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitlePlainText;
@@ -39,12 +40,12 @@ public class SrtParser implements SubtitleParser {
     }
 
     @Override
-    public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException {
+    public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException, InvalidTimeRangeException {
     	return parse(is, true);
     }
     
     @Override
-    public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
+    public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException, InvalidTimeRangeException {
         // Create srt object
         SrtObject srtObject = new SrtObject();
 
@@ -124,7 +125,7 @@ public class SrtParser implements SubtitleParser {
         return srtObject;
     }
 
-    private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
+    private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException, InvalidTimeRangeException {
         try {
             int hour = Integer.parseInt(timeCodeString.substring(0, 2));
             int minute = Integer.parseInt(timeCodeString.substring(3, 5));
