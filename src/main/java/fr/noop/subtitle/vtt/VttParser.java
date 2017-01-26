@@ -88,13 +88,27 @@ public class VttParser implements SubtitleParser {
                 cue = new VttCue();
                 cursorStatus = CursorStatus.CUE_ID;
 
-                if (!textLine.substring(13, 16).equals("-->")) {
-                    // First textLine is the cue number
-                    cue.setId(textLine);
-                    continue;
+                if(strict){
+                    //Don't allow ID cue numbers
+                    if (!textLine.substring(13, 16).equals("-->")) {
+                        // First textLine is the cue number
+                        cue.setId(textLine);
+                        continue;
+                    }
+                }else{
+                    //Check for cue id numbers
+                    try {
+                        textLine = textLine.replace("\uFEFF","");//Remove Unicode BOM Character
+                        Integer.parseInt(textLine);
+                        cue.setId(textLine);
+                        continue;
+                    } catch (NumberFormatException e) {
+                        throw new SubtitleParsingException(String.format(
+                                "Unable to parse cue number: %s",
+                                textLine));
+                    }
                 }
 
-                // There is no cue number
             }
 
 
