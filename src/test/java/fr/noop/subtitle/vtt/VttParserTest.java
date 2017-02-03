@@ -23,6 +23,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -65,7 +66,7 @@ public class VttParserTest {
 
     }
 
-	private void testVttFile(String file, int maxErrors) {
+	private void testVttFile(String file, int errors) {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
         CountingValidationListener listener = new CountingValidationListener();
         parser.addValidationListener(listener);
@@ -79,36 +80,33 @@ public class VttParserTest {
 			Assert.fail(e.getMessage());
 		}
 
-        listener.checkAssert(maxErrors);
+        listener.checkAssert(errors);
 	}
 
 	private void testFolder(String dir) throws IOException {
 		Path testDir = Paths.get(dir);
 
+		Properties props = new Properties();
+		try (InputStream is = new FileInputStream(Paths.get(testDir.toString(), "vtt.properties").toString())) {
+			props.load(is);
+		}
+
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(testDir)) {
 			for (Path path : directoryStream) {
 			    Path fileName = path.getFileName();
-			    if (fileName.toString().endsWith(".vtt")) {
-                    System.out.println("File: " + fileName.toString());
-                    testVttFile(path.toString(), Integer.MAX_VALUE);
+			    String fileStr = fileName.toString();
+			    if (fileStr.endsWith(".vtt")) {
+                    System.out.println("File: " + fileStr);
+                    String errStr = props.getProperty(fileStr);
+                    int errors = Integer.parseInt(errStr);
+                    testVttFile(path.toString(), errors);
                 }
 			}
 		}
 	}
 
-    // @Test (expected = IllegalArgumentException.class)
     @Test
-    public void testWebVTTFileParsing() throws IOException {
-        testFolder("src/test/resources/vtt/webvtt-file-parsing");
-    }
-
-    @Test
-    public void testMy() throws IOException {
-        testFolder("src/test/resources/vtt/my");
-    }
-
-    @Test
-    public void testNulls() throws IOException {
-        testVttFile("src/test/resources/vtt/webvtt-file-parsing/nulls.vtt", Integer.MAX_VALUE);
+    public void testFiles() throws IOException {
+        testFolder("src/test/resources/vtt");
     }
 }

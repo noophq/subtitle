@@ -34,6 +34,11 @@ public class CountingValidationListener implements ValidationListener {
         }
     }
 
+    public void exactAssert(int errors) {
+        String msg = "Error count does not match: " + getCount() + " <> " + errors;
+        Assert.assertTrue(msg, getCount() == errors);
+    }
+
     public void reset() {
         count = 0; // reset the count
     }
