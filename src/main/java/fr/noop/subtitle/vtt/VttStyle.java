@@ -16,8 +16,10 @@
 
 package fr.noop.subtitle.vtt;
 
-import java.io.LineNumberReader;
-import java.util.regex.Pattern;
+import fr.noop.subtitle.model.ValidationReporter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides a CSS parser for STYLE blocks in Webvtt files. Supports only a subset of the CSS
@@ -25,305 +27,524 @@ import java.util.regex.Pattern;
  */
 public class VttStyle {
 
+    enum Token {
+        IDENT, NUMBER, QUOTED_STR, LPAREN, RPAREN, SLASH, EQ, H_LPAREN, H_RPAREN, S_LPAREN, S_RPAREN, COLON, SEMICOLON, COMMA, PERIOD, SHARP, STAR, CUE, WS, EOF, ERROR
+    }
+
+    private static final String[] PSEUDO = { "cue", "cue-region" };
+
+    private static final String PROPERTY_COLOR = "color";
     private static final String PROPERTY_BGCOLOR = "background-color";
     private static final String PROPERTY_FONT_FAMILY = "font-family";
     private static final String PROPERTY_FONT_WEIGHT = "font-weight";
     private static final String PROPERTY_TEXT_DECORATION = "text-decoration";
+
     private static final String VALUE_BOLD = "bold";
     private static final String VALUE_UNDERLINE = "underline";
-    private static final String BLOCK_START = "{";
-    private static final String BLOCK_END = "}";
     private static final String PROPERTY_FONT_STYLE = "font-style";
     private static final String VALUE_ITALIC = "italic";
 
-    private static final Pattern VOICE_NAME_PATTERN = Pattern.compile("\\[voice=\"([^\"]*)\"\\]");
+
+    private ValidationReporter reporter;
+    private StyleReader input; // parsing position
+
+    private final List<VttCssRule> rules;
+    private VttCssRule currentRule;
+
+    private Token token;
+    private String tokenStr;
 
 
-    public VttStyle() {
-
+    public VttStyle(ValidationReporter reporter, VttObject vttObject) {
+        this.reporter = reporter;
+        rules = new ArrayList<>();
     }
 
-    /**
-     * Takes a CSS style block and consumes up to the first empty line found. Attempts to parse the
-     * contents of the style block.
-     *
-     * @param input The input from which the style block should be read.
-     */
-    public void parse(LineNumberReader input) {
-        // TODO - implement it
+    private void finishProperty(String prop, String value) {
+        // FIXME - validate CSS property names and values
 
-//        int initialInputPosition = input.getPosition();
-//        skipStyleBlock(input);
-//        styleInput.reset(input.data, input.getPosition());
-//        styleInput.setPosition(initialInputPosition);
-//        String selector = parseSelector(styleInput, stringBuilder);
-//        if (selector == null || !BLOCK_START.equals(parseNextToken(styleInput, stringBuilder))) {
-//            return null;
-//        }
-//        WebvttCssStyle style = new WebvttCssStyle();
-//        applySelectorToStyle(style, selector);
-//        String token = null;
-//        boolean blockEndFound = false;
-//        while (!blockEndFound) {
-//            int position = styleInput.getPosition();
-//            token = parseNextToken(styleInput, stringBuilder);
-//            blockEndFound = token == null || BLOCK_END.equals(token);
-//            if (!blockEndFound) {
-//                styleInput.setPosition(position);
-//                parseStyleDeclaration(styleInput, style, stringBuilder);
-//            }
-//        }
-//        return BLOCK_END.equals(token) ? style : null; // Check that the style block ended correctly.
+        switch (prop) {
+            case PROPERTY_COLOR:
+            case PROPERTY_BGCOLOR:
+                parseCssColor(value);
+                break;
+            case PROPERTY_TEXT_DECORATION:
+                if (VALUE_UNDERLINE.equals(value)) {
+                    //style.setUnderline(true);
+                }
+                break;
+            case PROPERTY_FONT_FAMILY:
+                //style.setFontFamily(value);
+                break;
+            case PROPERTY_FONT_WEIGHT:
+                if (VALUE_BOLD.equals(value)) {
+                    //style.setBold(true);
+                }
+                break;
+            case PROPERTY_FONT_STYLE:
+                if (VALUE_ITALIC.equals(value)) {
+                    //style.setItalic(true);
+                }
+                break;
+        }
+
+        if (currentRule != null) {
+            currentRule.addProperty(prop, value);
+        }
     }
 
-//    /**
-//     * Returns a string containing the selector. The input is expected to have the form
-//     * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
-//     *
-//     * @param input From which the selector is obtained.
-//     * @return A string containing the target, empty string if the selector is universal
-//     *     (targets all cues) or null if an error was encountered.
-//     */
-//    private static String parseSelector(LineNumberReader input, StringBuilder stringBuilder) {
-//        skipWhitespaceAndComments(input);
-//        if (input.bytesLeft() < 5) {
-//            return null;
-//        }
-//        String cueSelector = input.readString(5);
-//        if (!"::cue".equals(cueSelector)) {
-//            return null;
-//        }
-//        int position = input.getPosition();
-//        String token = parseNextToken(input, stringBuilder);
-//        if (token == null) {
-//            return null;
-//        }
-//        if (BLOCK_START.equals(token)) {
-//            input.setPosition(position);
-//            return "";
-//        }
-//        String target = null;
-//        if ("(".equals(token)) {
-//            target = readCueTarget(input);
-//        }
-//        token = parseNextToken(input, stringBuilder);
-//        if (!")".equals(token) || token == null) {
-//            return null;
-//        }
-//        return target;
-//    }
-//
-//    /**
-//     * Reads the contents of ::cue() and returns it as a string.
-//     */
-//    private static String readCueTarget(LineNumberReader input) {
-//        int position = input.getPosition();
-//        int limit = input.limit();
-//        boolean cueTargetEndFound = false;
-//        while (position < limit && !cueTargetEndFound) {
-//            char c = (char) input.data[position++];
-//            cueTargetEndFound = c == ')';
-//        }
-//        return input.readString(--position - input.getPosition()).trim();
-//        // --offset to return ')' to the input.
-//    }
-//
-//    private static void parseStyleDeclaration(LineNumberReader input, WebvttCssStyle style,
-//                                              StringBuilder stringBuilder) {
-//        skipWhitespaceAndComments(input);
-//        String property = parseIdentifier(input, stringBuilder);
-//        if ("".equals(property)) {
-//            return;
-//        }
-//        if (!":".equals(parseNextToken(input, stringBuilder))) {
-//            return;
-//        }
-//        skipWhitespaceAndComments(input);
-//        String value = parsePropertyValue(input, stringBuilder);
-//        if (value == null || "".equals(value)) {
-//            return;
-//        }
-//        int position = input.getPosition();
-//        String token = parseNextToken(input, stringBuilder);
-//        if (";".equals(token)) {
-//            // The style declaration is well formed.
-//        } else if (BLOCK_END.equals(token)) {
-//            // The style declaration is well formed and we can go on, but the closing bracket had to be
-//            // fed back.
-//            input.setPosition(position);
-//        } else {
-//            // The style declaration is not well formed.
-//            return;
-//        }
-//        // At this point we have a presumably valid declaration, we need to parse it and fill the style.
-//        if ("color".equals(property)) {
-//            style.setFontColor(ColorParser.parseCssColor(value));
-//        } else if (PROPERTY_BGCOLOR.equals(property)) {
-//            style.setBackgroundColor(ColorParser.parseCssColor(value));
-//        } else if (PROPERTY_TEXT_DECORATION.equals(property)) {
-//            if (VALUE_UNDERLINE.equals(value)) {
-//                style.setUnderline(true);
-//            }
-//        } else if (PROPERTY_FONT_FAMILY.equals(property)) {
-//            style.setFontFamily(value);
-//        } else if (PROPERTY_FONT_WEIGHT.equals(property)) {
-//            if (VALUE_BOLD.equals(value)) {
-//                style.setBold(true);
-//            }
-//        } else if (PROPERTY_FONT_STYLE.equals(property)) {
-//            if (VALUE_ITALIC.equals(value)) {
-//                style.setItalic(true);
-//            }
-//        }
-//        // TODO: Fill remaining supported styles.
-//    }
-//
-//    // Visible for testing.
-//  /* package */ static void skipWhitespaceAndComments(LineNumberReader input) {
-//        boolean skipping = true;
-//        while (input.bytesLeft() > 0 && skipping) {
-//            skipping = maybeSkipWhitespace(input) || maybeSkipComment(input);
-//        }
-//    }
-//
-//    // Visible for testing.
-//  /* package */ static String parseNextToken(LineNumberReader input, StringBuilder stringBuilder) {
-//        skipWhitespaceAndComments(input);
-//        if (input.bytesLeft() == 0) {
-//            return null;
-//        }
-//        String identifier = parseIdentifier(input, stringBuilder);
-//        if (!"".equals(identifier)) {
-//            return identifier;
-//        }
-//        // We found a delimiter.
-//        return "" + (char) input.readUnsignedByte();
-//    }
-//
-//    private static boolean maybeSkipWhitespace(LineNumberReader input) {
-//        switch(peekCharAtPosition(input, input.getPosition())) {
-//            case '\t':
-//            case '\r':
-//            case '\n':
-//            case '\f':
-//            case ' ':
-//                input.skipBytes(1);
-//                return true;
-//            default:
-//                return false;
-//        }
-//    }
-//
-//    // Visible for testing.
-//  /* package */ static void skipStyleBlock(LineNumberReader input) {
-//        // The style block cannot contain empty lines, so we assume the input ends when a empty line
-//        // is found.
-//        String line;
-//        do {
-//            line = input.readLine();
-//        } while (!TextUtils.isEmpty(line));
-//    }
-//
-//    private static char peekCharAtPosition(LineNumberReader input, int position) {
-//        return (char) input.data[position];
-//    }
-//
-//    private static String parsePropertyValue(LineNumberReader input, StringBuilder stringBuilder) {
-//        StringBuilder expressionBuilder = new StringBuilder();
-//        String token;
-//        int position;
-//        boolean expressionEndFound = false;
-//        // TODO: Add support for "Strings in quotes with spaces".
-//        while (!expressionEndFound) {
-//            position = input.getPosition();
-//            token = parseNextToken(input, stringBuilder);
-//            if (token == null) {
-//                // Syntax error.
-//                return null;
-//            }
-//            if (BLOCK_END.equals(token) || ";".equals(token)) {
-//                input.setPosition(position);
-//                expressionEndFound = true;
-//            } else {
-//                expressionBuilder.append(token);
-//            }
-//        }
-//        return expressionBuilder.toString();
-//    }
-//
-//    private static boolean maybeSkipComment(LineNumberReader input) {
-//        int position = input.getPosition();
-//        int limit = input.limit();
-//        byte[] data = input.data;
-//        if (position + 2 <= limit && data[position++] == '/' && data[position++] == '*') {
-//            while (position + 1 < limit) {
-//                char skippedChar = (char) data[position++];
-//                if (skippedChar == '*') {
-//                    if (((char) data[position]) == '/') {
-//                        position++;
-//                        limit = position;
-//                    }
-//                }
-//            }
-//            input.skipBytes(limit - input.getPosition());
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    private static String parseIdentifier(LineNumberReader input, StringBuilder stringBuilder) {
-//        stringBuilder.setLength(0);
-//        int position = input.getPosition();
-//        int limit = input.limit();
-//        boolean identifierEndFound = false;
-//        while (position  < limit && !identifierEndFound) {
-//            char c = (char) input.data[position];
-//            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '#'
-//                    || c == '-' || c == '.' || c == '_') {
-//                position++;
-//                stringBuilder.append(c);
-//            } else {
-//                identifierEndFound = true;
-//            }
-//        }
-//        input.skipBytes(position - input.getPosition());
-//        return stringBuilder.toString();
-//    }
-//
-//    /**
-//     * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form
-//     * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
-//     */
-//    private void applySelectorToStyle(WebvttCssStyle style, String selector) {
-//        if ("".equals(selector)) {
-//            return; // Universal selector.
-//        }
-//        int voiceStartIndex = selector.indexOf('[');
-//        if (voiceStartIndex != -1) {
-//            Matcher matcher = VOICE_NAME_PATTERN.matcher(selector.substring(voiceStartIndex));
-//            if (matcher.matches()) {
-//                style.setTargetVoice(matcher.group(1));
-//            }
-//            selector = selector.substring(0, voiceStartIndex);
-//        }
-//        String[] classDivision = selector.split("\\.");
-//        String tagAndIdDivision = classDivision[0];
-//        int idPrefixIndex = tagAndIdDivision.indexOf('#');
-//        if (idPrefixIndex != -1) {
-//            style.setTargetTagName(tagAndIdDivision.substring(0, idPrefixIndex));
-//            style.setTargetId(tagAndIdDivision.substring(idPrefixIndex + 1)); // We discard the '#'.
-//        } else {
-//            style.setTargetTagName(tagAndIdDivision);
-//        }
-//        if (classDivision.length > 1) {
-//            style.setTargetClasses(Arrays.copyOfRange(classDivision, 1, classDivision.length));
-//        }
-//    }
+    private void parseCssColor(String value) {
+        if (value.matches("#[0-9a-fA-F]+")) {
+            // hex format
+        } else if ((value.startsWith("rgb(") || value.startsWith("hsl(")) && value.endsWith(")")) {
+            // 3 numbers or percentages
+        } else if ((value.startsWith("rgba(") || value.startsWith("hsla(")) && value.endsWith(")")) {
+            // 3 numbers or percentages + alpha
+        } else if (value.matches("[a-zA-Z]+")) {
+            // color name
+        } else {
+            reporter.notifyWarning("Invalid CSS color syntax: '" + value + "'");
+        }
+    }
 
-    public String toString() {
-        StringBuilder bld = new StringBuilder("STYLE\n");
+
+    public void parse(StringBuilder bld) {
+        input = new StyleReader(bld);
+        style();
+    }
+
+    private void style() {
+        nextToken();
+        ws();
+        currentRule = new VttCssRule();
+
+        while (selectors()) {
+
+            ws();
+            if (!props()) {
+                reporter.notifyError("no properties");
+                return;
+            }
+            ws();
+            rules.add(currentRule);
+        }
+        ws();
+        expect(Token.EOF);
+    }
+
+    private boolean props() {
+        if (!expect(Token.S_LPAREN)) {
+            return false;
+        }
+        ws();
+        if (!propDef()) {
+            return false;
+        }
+        ws();
+        while (propDef()) {
+            ws();
+        }
+
+        return expect(Token.S_RPAREN);
+    }
+
+    private boolean propDef() {
+        String propName = tokenStr;
+        if (!propName()) {
+            return false;
+        }
+        ws();
+        if (!expect(Token.COLON)) {
+            return false;
+        }
+        ws();
+        String propValue = propValue();
+        if (propValue == null) {
+            reporter.notifyError("expected prop-value");
+            return false;
+        }
+        ws();
+        if (!expect(Token.SEMICOLON)) {
+            return false;
+        }
+
+        finishProperty(propName, propValue);
+        return true;
+    }
+
+    private boolean propName() {
+        return accept(Token.IDENT);
+    }
+
+    private String propValue() {
+        StringBuilder bld = new StringBuilder();
+
+        do {
+            bld.append(tokenStr);
+            nextToken();
+            if (is(Token.SLASH)) {
+                ws();
+                reporter.notifyError("Comment inside property value");
+                return null;
+            }
+
+        } while (!is(Token.SEMICOLON) && !is(Token.EOF));
 
         return bld.toString();
+    }
+
+    private String pseudo() {
+        if (!accept(Token.COLON)) {
+            return null;
+        }
+        if (!expect(Token.COLON)) {
+            return null;
+        }
+        String pseudo = tokenStr;
+        if (!accept(Token.IDENT)) {
+            reporter.notifyError("expected identifier");
+            return null;
+        }
+        return pseudo;
+    }
+
+    private boolean xws() {
+        while (accept(Token.WS)) {
+            //
+        }
+        return true;
+    }
+
+    private boolean ws() {
+        xws();
+        if (accept(Token.SLASH) && accept(Token.STAR)) {
+
+            // skip comment
+            int c;
+            do {
+                do {
+                    c = input.read();
+                } while (c != '*' && c != -1);
+
+                if (c == -1) {
+                    reporter.notifyError("disclosed comment");
+                    return false;
+                }
+
+                c = input.read();
+            } while (c != '/' && c != -1);
+
+            if (c == -1) {
+                reporter.notifyError("disclosed comment");
+                return false;
+            }
+        }
+        xws();
+        return true;
+    }
+
+    private boolean selectors() {
+        int i = 0;
+        while (selector()) {
+            i++;
+            ws();
+            if (!accept(Token.COMMA)) {
+                break;
+            }
+            ws();
+        }
+        return i > 0;
+    }
+
+    private boolean selector() {
+        // ::cue(v#anId.class1.class2[voice="Robert"] )
+
+        VttCssSelector.VttCssSelectorBuilder bld = VttCssSelector.builder();
+
+        String pseudo = pseudo();
+        boolean found = false;
+        if (pseudo != null) {
+            for (String value : PSEUDO) {
+                if (value.equals(pseudo)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                reporter.notifyError("Mismatched pseudo element name " + pseudo);
+            }
+        }
+        if (!found) {
+            return false;
+        }
+
+        bld.pseudo(pseudo);
+
+        ws();
+        if (accept(Token.LPAREN)) {
+            int elems = 0;
+            ws();
+            if (pseudoSelector()) { // pseudo selector
+                elems++;
+            }
+
+            String t = tokenStr;
+            if (accept(Token.IDENT)) { // element
+                bld.elem(t);
+                elems++;
+            }
+
+            if (accept(Token.SHARP)) {
+                t = tokenStr;
+                if (!expect(Token.IDENT)) { // id
+                    return false;
+                }
+                bld.id(t);
+                elems++;
+            }
+
+            List<String> classes = new ArrayList<>();
+            while (accept(Token.PERIOD)) { // classes
+                t = tokenStr;
+                if (!expect(Token.IDENT)) {
+                    return false;
+                }
+                classes.add(t);
+                elems++;
+            }
+            bld.classes(classes);
+            ws();
+            List<String> attrs = new ArrayList<>();
+            while (accept(Token.H_LPAREN)) {
+                String attrName = tokenStr;
+                if (!expect(Token.IDENT)) {
+                    return false;
+                }
+                ws();
+                if (!expect(Token.EQ)) {
+                    return false;
+                }
+                ws();
+                String attrValue = tokenStr;
+                if (!expect(Token.QUOTED_STR)) {
+                    return false;
+                }
+                ws();
+                if (!expect(Token.H_RPAREN)) {
+                    return false;
+                }
+                ws();
+                attrs.add(attrName + "=" + attrValue);
+                elems++;
+            }
+            bld.attrs(attrs);
+
+            ws();
+            if (!expect(Token.RPAREN)) {
+                return false;
+            }
+            else if (elems == 0) {
+                reporter.notifyError("Empty selector definition");
+            }
+        }
+
+        if (currentRule != null) {
+            currentRule.addSelector(bld.build());
+        }
+        return true;
+    }
+
+    private boolean pseudoSelector() {
+        // pseudo selectors like :past :lang(en)
+        if (accept(Token.COLON)) {
+            if (!expect(Token.IDENT)) {
+                return false;
+            }
+            if (accept(Token.LPAREN)) {
+                if (!expect(Token.IDENT)) {
+                    return false;
+                }
+                if (!expect(Token.RPAREN)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean is(Token tok) {
+        return token == tok;
+    }
+
+    private boolean accept(Token tok) {
+        if (token == tok) {
+            nextToken();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean expect(Token tok) {
+        if (!accept(tok)) {
+            reporter.notifyError("unexpected symbol " + tokenStr + " (" + token + ") instead of " + tok);
+            return false;
+        }
+        return true;
+    }
+
+    private void nextToken() {
+        // depends on state
+        StringBuilder bld = new StringBuilder();
+        int c = input.read();
+        Token tok = null;
+        
+        switch (c) {
+            case -1:
+                tok = Token.EOF;
+                break;
+            case '(':
+                tok = Token.LPAREN;
+                break;
+            case ')':
+                tok = Token.RPAREN;
+                break;
+            case '[':
+                tok = Token.H_LPAREN;
+                break;
+            case ']':
+                tok = Token.H_RPAREN;
+                break;
+            case '{':
+                tok = Token.S_LPAREN;
+                break;
+            case '}':
+                tok = Token.S_RPAREN;
+                break;
+            case ':':
+                tok = Token.COLON;
+                break;
+            case ';':
+                tok = Token.SEMICOLON;
+                break;
+            case '=':
+                tok = Token.EQ;
+                break;
+            case ',':
+                tok = Token.COMMA;
+                break;
+            case '.':
+                tok = Token.PERIOD;
+                break;
+            case '#':
+                tok = Token.SHARP;
+                break;
+            case '/':
+                tok = Token.SLASH;
+                break;
+            case '*':
+                tok = Token.STAR;
+                break;
+        }
+        if (tok == null) {
+            if (Character.isWhitespace(c)) {
+                do {
+                    c = input.lookNext();
+                    if (Character.isWhitespace(c)) {
+                        c = input.read();
+                    } else {
+                        break;
+                    }
+                } while (true);
+
+                tok = Token.WS;
+            } else if (Character.isDigit(c)) {
+                do {
+                    bld.append((char) c);
+                    c = input.lookNext();
+                    if (Character.isDigit(c)) {
+                        c = input.read();
+                    } else {
+                        break;
+                    }
+                } while (true);
+
+                tok = Token.NUMBER;
+            } else if (Character.isLetter(c)) {
+                do {
+                    bld.append((char) c);
+                    c = input.lookNext();
+                    if (Character.isLetterOrDigit(c) || c == '-' || c == '_') {
+                        c = input.read();
+                    } else {
+                        break;
+                    }
+                } while (true);
+
+                tok = Token.IDENT;
+            } else if (c == '"') {
+                bld.append((char) c);
+                do {
+                    c = input.read();
+                    if (c == -1) {
+                        reporter.notifyError("expected closing quote");
+                    } else {
+                        bld.append((char) c);
+                    }
+                } while (c != -1 && c != '"');
+
+                tok = Token.QUOTED_STR;
+            } else {
+                bld.append((char) c);
+                tok = Token.ERROR; // unrecognized
+            }
+        } else {
+            bld.append((char) c);
+        }
+
+        token = tok;
+        tokenStr = bld.toString();
+        //System.out.println("    TOKEN: " + token);
+    }
+
+
+    static class StyleReader {
+        StringBuilder bld;
+        int idx;
+        int line;
+        int column;
+
+        StyleReader(StringBuilder bld) {
+            this.bld = bld;
+        }
+
+        int read() {
+            if (idx >= bld.length()) {
+                return -1; // eof
+            }
+            char c = bld.charAt(idx++);
+            if (c == '\n') {
+                line++;
+                column = 0;
+            }
+            column++;
+            return c;
+        }
+
+        int lookNext() {
+            if (idx >= bld.length()) {
+                return -1; // eof
+            }
+            return bld.charAt(idx);
+        }
+
+        int getLine() {
+            return line;
+        }
+
+        int getColumn() {
+            return column;
+        }
     }
 }
 
