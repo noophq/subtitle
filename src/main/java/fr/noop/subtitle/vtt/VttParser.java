@@ -139,11 +139,11 @@ public class VttParser implements SubtitleParser {
 			        	throw new SubtitleParsingException(String.format(
 			        			"Empty subtitle is not allowed in WebVTT for cue at timecode: %s", cue.getStartTime()));
 					}
-                    continue;
                 }
+                continue;
             }
 
-            if (cursorStatus == CursorStatus.CUE_TEXT) {
+            if (cursorStatus == CursorStatus.CUE_TEXT && textLine.isEmpty()) {
                 // End of cue
                 // Process multilines text in one time
                 // A class or a style can be applied for more than one line
