@@ -1,29 +1,28 @@
 package fr.noop.subtitle.vtt;
 
-import fr.noop.subtitle.base.CueTreeNode;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+
+// FIXME - rename the class to VttCueTest
 
 /**
  * Created by jdvorak on 20.1.2017.
  */
-public class VttCueParserTest {
+public class VttCueTest {
 
     private void testCueText(String text, int maxErrors) {
         VttParser parser = new VttParser(StandardCharsets.UTF_8);
+        VttCue cue = new VttCue(parser, null);
+
         CountingValidationListener listener = new CountingValidationListener();
         parser.addValidationListener(listener);
 
-        try (LineNumberReader lnrd = new LineNumberReader(new StringReader(text))) {
-            parser.setSource(lnrd);
-            CueTreeNode node = parser.parseCueTextTree();
-            System.out.println(node.toStyledString());
+        try {
+            cue.parseCueTextTree(new StringBuilder(text));
 
         } catch (SubtitleParsingException e) {
             Assert.fail(e.getMessage());

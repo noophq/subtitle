@@ -5,6 +5,7 @@ import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.model.ValidationIssue;
 import fr.noop.subtitle.model.ValidationListener;
+import fr.noop.subtitle.model.ValidationReporter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,7 @@ import java.io.InputStream;
  * Created by jdvorak on 20.1.2017.
  */
 //@Slf4j
-public abstract class BaseSubtitleParser implements SubtitleParser {
+public abstract class BaseSubtitleParser implements SubtitleParser, ValidationReporter {
     private ValidationListener[] listeners;
     private int issues;
 
@@ -49,7 +50,7 @@ public abstract class BaseSubtitleParser implements SubtitleParser {
         listeners = newListeners;
     }
 
-    protected void notifyWarning(String msg) {
+    public void notifyWarning(String msg) {
         issues++;
         if (listeners != null) {
             ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.WARNING, msg, getLineNumber(), getColumn());
@@ -59,7 +60,7 @@ public abstract class BaseSubtitleParser implements SubtitleParser {
         }
     }
 
-    protected void notifyError(String msg) {
+    public void notifyError(String msg) {
         issues++;
         ValidationIssue issue = new ValidationIssue(ValidationIssue.Severity.ERROR, msg, getLineNumber(), getColumn());
         if (listeners != null) {

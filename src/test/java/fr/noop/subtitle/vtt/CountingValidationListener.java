@@ -28,5 +28,13 @@ public class CountingValidationListener implements ValidationListener {
             String msg2 = "Errors detected in valid data: " + getCount();
             Assert.assertTrue(msg2, getCount() > 0);
         }
+        if (maxErrors > 0 && getCount() == 0) {
+            String msg2 = "Errors not detected in invalid data: ";
+            Assert.assertTrue(msg2, getCount() > 0);
+        }
+    }
+
+    public void reset() {
+        count = 0; // reset the count
     }
 }

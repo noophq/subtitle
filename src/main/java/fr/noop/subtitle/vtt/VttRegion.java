@@ -1,11 +1,16 @@
 package fr.noop.subtitle.vtt;
 
-import java.io.LineNumberReader;
+import fr.noop.subtitle.model.ValidationReporter;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by jdvorak on 23.1.2017.
  */
 public class VttRegion {
+    private static final Pattern REGION_PATTERN = Pattern.compile("(\\S+):(\\S+)");
+
     private String id;
     private float width = -1f;
     private int lines = -1;
@@ -13,9 +18,10 @@ public class VttRegion {
 
     private float[] viewportanchor;
     private float[] regionanchor;
+    private ValidationReporter reporter;
 
-    public VttRegion() {
-        // N/A
+    public VttRegion(ValidationReporter reporter) {
+        this.reporter = reporter;
     }
 
     public String getId() {
@@ -45,6 +51,78 @@ public class VttRegion {
 
     public void setScrollUp(boolean up) {
         scrollUp = up;
+    }
+
+    public void parse(StringBuilder regionText) {
+
+        Matcher m = REGION_PATTERN.matcher(regionText);
+        while (m.find()) {
+            String name = m.group(1);
+            String value = m.group(2);
+
+            switch (name) {
+                case "id":
+                    if (value.contains(VttParser.ARROW)) {
+                        reporter.notifyWarning("Invalid region " + name + ": " + value);
+                    }
+                    setId(value);
+                    break;
+                case "width":
+                    try {
+                        setWidth(VttParser.parsePercentage(value));
+                    } catch (NumberFormatException e) {
+                        reporter.notifyWarning("Invalid region " + name + ": " + value);
+                    }
+                    break;
+                case "lines":
+                    try {
+                        setLines(Integer.parseInt(value));
+                    } catch (NumberFormatException e) {
+                        reporter.notifyWarning("Invalid region " + name + ": " + value);
+                    }
+                    break;
+                case "viewportanchor":
+                    float[] vret = parseFloatCouple(value);
+                    if (vret != null) {
+                        setViewPortAnchor(vret);
+                    }
+                    break;
+                case "regionanchor":
+                    float[] aret = parseFloatCouple(value);
+                    if (aret != null) {
+                        setRegionAnchor(aret);
+                    }
+                    break;
+                case "scroll":
+                    if (!value.equals("up")) {
+                        reporter.notifyWarning("Invalid region " + name + " value: " + value);
+                    }
+                    else {
+                        setScrollUp(true);
+                    }
+                    break;
+                default:
+                    reporter.notifyWarning("Unknown region setting: " + name + ":" + value);
+                    break;
+            }
+        }
+    }
+
+    private float[] parseFloatCouple(String value) {
+        String parts[] = value.split(",");
+        if (parts.length == 2) {
+            float[] ret = new float[2];
+            try {
+                ret[0] = VttParser.parsePercentage(parts[0]);
+                ret[1] = VttParser.parsePercentage(parts[1]);
+                return ret;
+            } catch (NumberFormatException e) {
+                reporter.notifyWarning("Invalid region setting: " + value);
+            }
+        } else {
+            reporter.notifyWarning("Invalid region setting: " + value);
+        }
+        return null;
     }
 
 

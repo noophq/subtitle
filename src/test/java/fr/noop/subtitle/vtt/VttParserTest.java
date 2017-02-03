@@ -31,32 +31,33 @@ public class VttParserTest {
     @Test
     public void testFormatTimecode() throws SubtitleParsingException {
 		VttParser parser = new VttParser(StandardCharsets.UTF_8);
+		VttCue cue = new VttCue(parser, null);
 
-		SubtitleTimeCode tc = parser.parseTimeCode("00:10.000", 0);
+		SubtitleTimeCode tc = cue.parseTimeCode("00:10.000", 0);
 		assertEquals(0, tc.getHour());
 		assertEquals(0, tc.getMinute());
 		assertEquals(10, tc.getSecond());
 		assertEquals(0, tc.getMillisecond());
 
-		tc = parser.parseTimeCode("00:13.000", 0);
+		tc = cue.parseTimeCode("00:13.000", 0);
 		assertEquals(0, tc.getHour());
 		assertEquals(0, tc.getMinute());
 		assertEquals(13, tc.getSecond());
 		assertEquals(0, tc.getMillisecond());
 
-		tc = parser.parseTimeCode("02:13.880", 0);
+		tc = cue.parseTimeCode("02:13.880", 0);
 		assertEquals(0, tc.getHour());
 		assertEquals(2, tc.getMinute());
 		assertEquals(13, tc.getSecond());
 		assertEquals(880, tc.getMillisecond());
 
-		tc = parser.parseTimeCode("1:27:10.200", 0);
+		tc = cue.parseTimeCode("1:27:10.200", 0);
 		assertEquals(1, tc.getHour());
 		assertEquals(27, tc.getMinute());
 		assertEquals(10, tc.getSecond());
 		assertEquals(200, tc.getMillisecond());
 
-		tc = parser.parseTimeCode("02:27:10.200", 0);
+		tc = cue.parseTimeCode("02:27:10.200", 0);
 		assertEquals(2, tc.getHour());
 		assertEquals(27, tc.getMinute());
 		assertEquals(10, tc.getSecond());
