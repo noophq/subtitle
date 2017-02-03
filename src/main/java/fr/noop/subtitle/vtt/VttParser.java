@@ -78,8 +78,7 @@ public class VttParser implements SubtitleParser {
                 continue;
             }
 
-            if (cursorStatus == CursorStatus.SIGNATURE ||
-                    cursorStatus == CursorStatus.EMPTY_LINE) {
+            if (cursorStatus == CursorStatus.SIGNATURE || cursorStatus == CursorStatus.EMPTY_LINE) {
                 if (textLine.isEmpty()) {
                     continue;
                 }
@@ -88,24 +87,18 @@ public class VttParser implements SubtitleParser {
                 cue = new VttCue();
                 cursorStatus = CursorStatus.CUE_ID;
 
-                if(strict){
-                    //Don't allow ID cue numbers
-                    if (!textLine.substring(13, 16).equals("-->")) {
-                        // First textLine is the cue number
-                        cue.setId(textLine);
-                        continue;
-                    }
-                }else{
-                    //Check for cue id numbers
+                //Check for cue id numbers
+                try {
+                    textLine = textLine.replace("\uFEFF","");//Remove Unicode BOM Character
+                    Integer.parseInt(textLine);
+                    cue.setId(textLine);
+                    continue;
+                } catch (NumberFormatException n) {
                     try {
-                        textLine = textLine.replace("\uFEFF","");//Remove Unicode BOM Character
-                        Integer.parseInt(textLine);
-                        cue.setId(textLine);
+                        checkTimelineTextline(textLine);
+                    }catch (Exception e){//Case there is any information between the WEBVTT header and the first cue, ignore it
+                        cursorStatus = CursorStatus.SIGNATURE;
                         continue;
-                    } catch (NumberFormatException e) {
-                        throw new SubtitleParsingException(String.format(
-                                "Unable to parse cue number: %s",
-                                textLine));
                     }
                 }
 
@@ -115,10 +108,7 @@ public class VttParser implements SubtitleParser {
             // Second textLine defines the start and end time codes
             // 00:01:21.456 --> 00:01:23.417
             if (cursorStatus == CursorStatus.CUE_ID) {
-                if (!textLine.substring(13, 16).equals("-->")) {
-                    throw new SubtitleParsingException(String.format(
-                            "Timecode textLine is badly formated: %s", textLine));
-                }
+                checkTimelineTextline(textLine);
 
                 cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
                 cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
@@ -149,11 +139,11 @@ public class VttParser implements SubtitleParser {
 			        	throw new SubtitleParsingException(String.format(
 			        			"Empty subtitle is not allowed in WebVTT for cue at timecode: %s", cue.getStartTime()));
 					}
-				}
-                continue;
+                    continue;
+                }
             }
 
-            if (cursorStatus == CursorStatus.CUE_TEXT && textLine.isEmpty()) {
+            if (cursorStatus == CursorStatus.CUE_TEXT) {
                 // End of cue
                 // Process multilines text in one time
                 // A class or a style can be applied for more than one line
@@ -168,8 +158,14 @@ public class VttParser implements SubtitleParser {
         	throw new SubtitleParsingException(String.format(
         			"Unexpected line: %s", textLine));
         }
-
         return vttObject;
+    }
+
+    private void checkTimelineTextline(String textLine) throws SubtitleParsingException {
+        if (!textLine.substring(13, 16).equals("-->")) {
+            throw new SubtitleParsingException(String.format(
+                    "Timecode textLine is badly formated: %s", textLine));
+        }
     }
 
     private List<SubtitleLine> parseCueText(String cueText) {
