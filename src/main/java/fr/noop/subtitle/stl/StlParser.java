@@ -10,6 +10,11 @@
 
 package fr.noop.subtitle.stl;
 
+import fr.noop.subtitle.base.BaseSubtitleParser;
+import fr.noop.subtitle.model.SubtitleObject;
+import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitleTimeCode;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -19,14 +24,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import fr.noop.subtitle.base.BaseSubtitleParser;
-import org.apache.commons.lang3.StringUtils;
-
-import fr.noop.subtitle.model.SubtitleObject;
-import fr.noop.subtitle.model.SubtitleParser;
-import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.util.SubtitleTimeCode;
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -119,7 +116,7 @@ public class StlParser extends BaseSubtitleParser {
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
-        return StringUtils.strip(new String(bytes, charset));
+        return new String(bytes, charset).trim();
     }
 
     private String readString(DataInputStream dis, int length) throws IOException {
@@ -127,7 +124,7 @@ public class StlParser extends BaseSubtitleParser {
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
-        return StringUtils.strip(new String(bytes));
+        return new String(bytes).trim();
     }
 
     private StlGsi readGsi(DataInputStream dis, int subtitleOffset) throws IOException {

@@ -14,21 +14,30 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.model.SubtitleWriter;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
-import org.apache.commons.lang3.ArrayUtils;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import java.io.*;
 
 public class Convert {
     private Options options = new Options();
 
     private enum ConvertFormat {
-        TTML(new String[] {"xml"}),
-        SAMI(new String[] {"smi"}),
-        VTT(new String[] {"vtt"}),
-        SRT(new String[] {"srt"}),
-        STL(new String[] {"stl"});
+        TTML(new String[] { "xml" }),
+        SAMI(new String[] { "smi" }),
+        VTT(new String[] { "vtt" }),
+        SRT(new String[] { "srt" }),
+        STL(new String[] { "stl" });
 
         private String[] availableExtensions;
 
@@ -41,10 +50,13 @@ public class Convert {
         }
 
         public static ConvertFormat getEnum(String extension) {
-            for(ConvertFormat v : values())
-                if (ArrayUtils.contains(v.getAvailableExtensions(), extension)) {
-                    return v;
+            for(ConvertFormat v : values()) {
+                for(String ext : v.getAvailableExtensions()) {
+                    if (ext.equals(extension)) {
+                        return v;
+                    }
                 }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -81,10 +93,11 @@ public class Convert {
         }
 
         public static ConvertParser getEnum(ConvertFormat format) {
-            for(ConvertParser v : values())
+            for(ConvertParser v : values()) {
                 if (v.getFormat() == format) {
                     return v;
                 }
+            }
             throw new IllegalArgumentException();
         }
     }
