@@ -22,7 +22,7 @@ public class CountingValidationListener implements ValidationListener {
     }
 
     public void checkAssert(int maxErrors) {
-        String msg1 = "Error count exceeded: " + getCount() + " <= " + maxErrors;
+        String msg1 = "Error count exceeded: " + getCount() + " >= " + maxErrors;
         Assert.assertTrue(msg1, getCount() <= maxErrors);
         if (maxErrors == 0 && getCount() > 0) {
             String msg2 = "Errors detected in valid data: " + getCount();

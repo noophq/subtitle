@@ -1,13 +1,13 @@
 package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitleReader;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-
-// FIXME - rename the class to VttCueTest
 
 /**
  * Created by jdvorak on 20.1.2017.
@@ -15,14 +15,16 @@ import java.nio.charset.StandardCharsets;
 public class VttCueTest {
 
     private void testCueText(String text, int maxErrors) {
+        System.out.println("TESTING: " + text);
         VttParser parser = new VttParser(StandardCharsets.UTF_8);
         VttCue cue = new VttCue(parser, null);
 
         CountingValidationListener listener = new CountingValidationListener();
         parser.addValidationListener(listener);
 
-        try {
-            cue.parseCueTextTree(new StringBuilder(text));
+        try (SubtitleReader reader = new SubtitleReader(new StringReader(text))) {
+            parser.setSource(reader);
+            cue.parseCueText(reader);
 
         } catch (SubtitleParsingException e) {
             Assert.fail(e.getMessage());
@@ -67,7 +69,7 @@ public class VttCueTest {
     // missing ; in entity
     @Test
     public void testCueText6() {
-        testCueText("plain &lt; &gt; &nb", 1);
+        testCueText("plain &lt; &gt; &nb", 2);
         testCueText("plain &lt &gt;", 1);
     }
 
@@ -96,7 +98,7 @@ public class VttCueTest {
     // timestamp in cue tesxt
     @Test
     public void testCueText10() {
-        testCueText("start text <01:01:01.234> late text", 1);
+        testCueText("start text <01:01:01.234> late text", 0);
     }
 
 }

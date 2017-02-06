@@ -17,7 +17,9 @@
 package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.model.ValidationReporter;
+import fr.noop.subtitle.util.SubtitleReader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,36 @@ import java.util.List;
 public class VttStyle {
 
     enum Token {
-        IDENT, NUMBER, QUOTED_STR, LPAREN, RPAREN, SLASH, EQ, H_LPAREN, H_RPAREN, S_LPAREN, S_RPAREN, COLON, SEMICOLON, COMMA, PERIOD, SHARP, STAR, CUE, WS, EOF, ERROR
+        IDENT("<id>"),
+        NUMBER("<number>"),
+        QUOTED_STR("<quoted>"),
+        LPAREN("("),
+        RPAREN(")"),
+        SLASH("/"),
+        EQ("="),
+        H_LPAREN("["),
+        H_RPAREN("]"),
+        S_LPAREN("{"),
+        S_RPAREN("}"),
+        COLON(":"),
+        SEMICOLON(";"),
+        COMMA(","),
+        PERIOD("."),
+        SHARP("#"),
+        STAR("*"),
+        WS("<ws>"),
+        EOF("<eof>"),
+        ERROR("<error>");
+
+        private String val;
+
+        Token(String val) {
+            this.val = val;
+        }
+
+        public String getString() {
+            return val;
+        }
     }
 
     private static final String[] PSEUDO = { "cue", "cue-region" };
@@ -46,7 +77,7 @@ public class VttStyle {
 
 
     private ValidationReporter reporter;
-    private StyleReader input; // parsing position
+    private SubtitleReader input; // parsing position
 
     private final List<VttCssRule> rules;
     private VttCssRule currentRule;
@@ -108,12 +139,12 @@ public class VttStyle {
     }
 
 
-    public void parse(StringBuilder bld) {
-        input = new StyleReader(bld);
+    public void parse(SubtitleReader reader) throws IOException {
+        input = reader;
         style();
     }
 
-    private void style() {
+    private void style() throws IOException {
         nextToken();
         ws();
         currentRule = new VttCssRule();
@@ -129,10 +160,12 @@ public class VttStyle {
             rules.add(currentRule);
         }
         ws();
-        expect(Token.EOF);
+        if (!is(Token.EOF)) {
+            reporter.notifyError("unexpected symbol '" + tokenStr + "' instead of '" + token.EOF.getString() + "'");
+        }
     }
 
-    private boolean props() {
+    private boolean props() throws IOException {
         if (!expect(Token.S_LPAREN)) {
             return false;
         }
@@ -148,7 +181,7 @@ public class VttStyle {
         return expect(Token.S_RPAREN);
     }
 
-    private boolean propDef() {
+    private boolean propDef() throws IOException {
         String propName = tokenStr;
         if (!propName()) {
             return false;
@@ -159,12 +192,13 @@ public class VttStyle {
         }
         ws();
         String propValue = propValue();
-        if (propValue == null) {
+        if (propValue == null || propValue.isEmpty()) {
             reporter.notifyError("expected prop-value");
             return false;
         }
         ws();
-        if (!expect(Token.SEMICOLON)) {
+        if (!expect(Token.SEMICOLON) && !is(Token.S_RPAREN)) {
+            // neither ';' nor '}' after a prop def
             return false;
         }
 
@@ -172,14 +206,14 @@ public class VttStyle {
         return true;
     }
 
-    private boolean propName() {
+    private boolean propName() throws IOException {
         return accept(Token.IDENT);
     }
 
-    private String propValue() {
+    private String propValue() throws IOException {
         StringBuilder bld = new StringBuilder();
 
-        do {
+        while (!is(Token.SEMICOLON) && !is(Token.S_RPAREN) && !is(Token.EOF)) {
             bld.append(tokenStr);
             nextToken();
             if (is(Token.SLASH)) {
@@ -187,13 +221,11 @@ public class VttStyle {
                 reporter.notifyError("Comment inside property value");
                 return null;
             }
-
-        } while (!is(Token.SEMICOLON) && !is(Token.EOF));
-
+        }
         return bld.toString();
     }
 
-    private String pseudo() {
+    private String pseudo() throws IOException {
         if (!accept(Token.COLON)) {
             return null;
         }
@@ -208,14 +240,14 @@ public class VttStyle {
         return pseudo;
     }
 
-    private boolean xws() {
+    private boolean xws() throws IOException {
         while (accept(Token.WS)) {
             //
         }
         return true;
     }
 
-    private boolean ws() {
+    private boolean ws() throws IOException {
         xws();
         if (accept(Token.SLASH) && accept(Token.STAR)) {
 
@@ -243,7 +275,7 @@ public class VttStyle {
         return true;
     }
 
-    private boolean selectors() {
+    private boolean selectors() throws IOException {
         int i = 0;
         while (selector()) {
             i++;
@@ -256,7 +288,7 @@ public class VttStyle {
         return i > 0;
     }
 
-    private boolean selector() {
+    private boolean selector() throws IOException {
         // ::cue(v#anId.class1.class2[voice="Robert"] )
 
         VttCssSelector.VttCssSelectorBuilder bld = VttCssSelector.builder();
@@ -271,7 +303,7 @@ public class VttStyle {
                 }
             }
             if (!found) {
-                reporter.notifyError("Mismatched pseudo element name " + pseudo);
+                reporter.notifyError("Mismatched pseudo element name '" + pseudo + "'");
             }
         }
         if (!found) {
@@ -354,7 +386,7 @@ public class VttStyle {
         return true;
     }
 
-    private boolean pseudoSelector() {
+    private boolean pseudoSelector() throws IOException {
         // pseudo selectors like :past :lang(en)
         if (accept(Token.COLON)) {
             if (!expect(Token.IDENT)) {
@@ -377,7 +409,7 @@ public class VttStyle {
         return token == tok;
     }
 
-    private boolean accept(Token tok) {
+    private boolean accept(Token tok) throws IOException {
         if (token == tok) {
             nextToken();
             return true;
@@ -385,15 +417,15 @@ public class VttStyle {
         return false;
     }
 
-    private boolean expect(Token tok) {
+    private boolean expect(Token tok) throws IOException {
         if (!accept(tok)) {
-            reporter.notifyError("unexpected symbol " + tokenStr + " (" + token + ") instead of " + tok);
+            reporter.notifyError("unexpected symbol '" + tokenStr + "' instead of '" + tok.getString() + "'");
             return false;
         }
         return true;
     }
 
-    private void nextToken() {
+    private void nextToken() throws IOException {
         // depends on state
         StringBuilder bld = new StringBuilder();
         int c = input.read();
@@ -448,7 +480,18 @@ public class VttStyle {
         }
         if (tok == null) {
             if (Character.isWhitespace(c)) {
+                int nlCount = 0;
+                tok = Token.WS;
                 do {
+                    if (c == '\n') {
+                        nlCount++;
+                        if (nlCount > 1) {
+                            tok = Token.EOF;
+                            bld.append("<eof>");
+                            break; // two new lines - the rest of input does not belong to CSS block
+                        }
+                    }
+
                     c = input.lookNext();
                     if (Character.isWhitespace(c)) {
                         c = input.read();
@@ -457,7 +500,6 @@ public class VttStyle {
                     }
                 } while (true);
 
-                tok = Token.WS;
             } else if (Character.isDigit(c)) {
                 do {
                     bld.append((char) c);
@@ -505,46 +547,6 @@ public class VttStyle {
         token = tok;
         tokenStr = bld.toString();
         //System.out.println("    TOKEN: " + token);
-    }
-
-
-    static class StyleReader {
-        StringBuilder bld;
-        int idx;
-        int line;
-        int column;
-
-        StyleReader(StringBuilder bld) {
-            this.bld = bld;
-        }
-
-        int read() {
-            if (idx >= bld.length()) {
-                return -1; // eof
-            }
-            char c = bld.charAt(idx++);
-            if (c == '\n') {
-                line++;
-                column = 0;
-            }
-            column++;
-            return c;
-        }
-
-        int lookNext() {
-            if (idx >= bld.length()) {
-                return -1; // eof
-            }
-            return bld.charAt(idx);
-        }
-
-        int getLine() {
-            return line;
-        }
-
-        int getColumn() {
-            return column;
-        }
     }
 }
 

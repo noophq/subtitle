@@ -1,14 +1,17 @@
 package fr.noop.subtitle.vtt;
 
+import fr.noop.subtitle.util.SubtitleReader;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 
 /**
  * Created by jdvorak on 01/02/2017.
  */
 public class VttStyleTest {
-    public static final String[] CSS_OK = new String[]{
+    public static final String[] CSS_OK = new String[] {
             "::cue { some-style: somevalue; }",
             "::cue(.class1.class2) { some-style: somevalue; }",
             "::cue(tag) { some-style: somevalue; }",
@@ -24,9 +27,12 @@ public class VttStyleTest {
             "::cue(:lang(en)) { some-style: somevalue; }",
             "::cue(:past) { some-style: somevalue; }",
             "::cue-region { color: yellow; }",
+
+            "::cue { color:\n yellow; \n}\n", // new lines
+            "::cue { color:\n yellow; \n}\n\nsome ignored text", // new lines
     };
 
-    public static final String[] CSS_ERR = new String[]{
+    public static final String[] CSS_ERR = new String[] {
             "::cuex { some-style: somevalue; }",
             "::cue() { some-style: somevalue; }",
             "::cue(..class1.class2) { some-style: somevalue; }",
@@ -41,10 +47,11 @@ public class VttStyleTest {
             "::cue((:past) { some-style: somevalue; }",
             "::cue-region {{ color: yellow; }",
             "::cue { color: yellow; })",
+            "::cue { newlines: \n\ninvalid; }", // new lines break
             ":::cue { color: yellow; })",
-            ":::cue ( color: yellow; }",
-            ":::cue ( color:\n yellow; }",
-            ":::c\nue ( color: yellow; }",
+            "::cue ( color: yellow; }",
+            "::cue ( color:\n yellow; }",
+            "::c\nue ( color: yellow; }",
     };
 
 
@@ -71,7 +78,7 @@ public class VttStyleTest {
 
 
 
-    private void testParserPri(String[] styles, int errs) {
+    private void testParserPri(String[] styles, int errs) throws IOException {
         VttParser parser = new VttParser(StandardCharsets.UTF_8);
         VttCue cue = new VttCue(parser, null);
 
@@ -83,18 +90,18 @@ public class VttStyleTest {
         for (String css : styles) {
             System.out.println(css);
             listener.reset();
-            style.parse(new StringBuilder(css));
+            style.parse(new SubtitleReader(new StringReader(css)));
             listener.checkAssert(errs);
         }
     }
 
     @Test
-    public void testOkStyles() {
+    public void testOkStyles() throws IOException {
         testParserPri(CSS_OK, 0);
     }
 
     @Test
-    public void testErrorStyles() {
+    public void testErrorStyles() throws IOException {
         testParserPri(CSS_ERR, 100);
     }
 

@@ -109,4 +109,9 @@ public class VttParserTest {
     public void testFiles() throws IOException {
         testFolder("src/test/resources/vtt");
     }
+
+//	@Test
+//	public void testStyle() throws IOException {
+//		testVttFile("src/test/resources/vtt/css_styles.vtt", 6);
+//	}
 }

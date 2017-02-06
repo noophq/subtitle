@@ -12,11 +12,10 @@ package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.base.BaseSubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitleReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
@@ -24,6 +23,7 @@ import java.util.regex.Pattern;
  * Created by clebeaupin on 11/10/15.
  */
 public class VttParser extends BaseSubtitleParser {
+    // \uFEFF - BOM character
     private static final Pattern WEBVTT = Pattern.compile("^\uFEFF?WEBVTT(( |\t).*)?$");
 
     private static final String COMMENT_START = "NOTE";
@@ -32,7 +32,7 @@ public class VttParser extends BaseSubtitleParser {
     public static final String ARROW = "-->";
 
 
-    private enum CursorStatus {
+    private enum VttEvent {
         NONE,
         REGION,
         STYLE,
@@ -46,24 +46,23 @@ public class VttParser extends BaseSubtitleParser {
     private Charset charset; // Charset of the input files
     private VttObject vttObject; // current VttObject
 
-    private int maxDuration = Integer.MAX_VALUE;
-    private LineNumberReader br;
+    private SubtitleReader reader; // the reader
 
     public VttParser(Charset charset) {
         this.charset = charset;
     }
 
     public int getLineNumber() {
-        return (br == null) ? 0 : br.getLineNumber();
+        return (reader == null) ? 0 : reader.getLineNumber();
     }
 
     public int getColumn() {
-        return 0; // TODO
+        return (reader == null) ? 0 : reader.getColumn();
     }
 
     // unit tests only
-    protected void setSource(LineNumberReader lnrd) {
-        br = lnrd;
+    protected void setSource(SubtitleReader lnrd) {
+        reader = lnrd;
     }
 
 
@@ -73,31 +72,31 @@ public class VttParser extends BaseSubtitleParser {
      *
      * @return The kind of event found.
      */
-    private CursorStatus getNextEvent(String line, boolean cues) throws SubtitleParsingException {
-        CursorStatus foundEvent = CursorStatus.NONE;
+    private VttEvent getNextEvent(String line, boolean cues) throws SubtitleParsingException {
+        VttEvent foundEvent = VttEvent.NONE;
 
         if (line == null) {
-            foundEvent = CursorStatus.EOF;
+            foundEvent = VttEvent.EOF;
         } else if (line.startsWith(STYLE_START)) {
             if (cues) {
                 String msg = STYLE_START + " inside cues";
                 notifyError(msg);
             }
-            foundEvent = CursorStatus.STYLE;
+            foundEvent = VttEvent.STYLE;
         } else if (line.startsWith(COMMENT_START)) {
-            foundEvent = CursorStatus.NOTE;
+            foundEvent = VttEvent.NOTE;
         } else if (line.startsWith(REGION_START)) {
             if (cues) {
                 String msg = REGION_START + " inside cues";
                 notifyError(msg);
             }
-            foundEvent = CursorStatus.REGION;
+            foundEvent = VttEvent.REGION;
         } else if (line.contains(ARROW)) {
-            foundEvent = CursorStatus.CUE_TIMECODE;
+            foundEvent = VttEvent.CUE_TIMECODE;
         } else if (!line.trim().isEmpty()) {
-            foundEvent = CursorStatus.CUE_ID;
+            foundEvent = VttEvent.CUE_ID;
         } else {
-            foundEvent = CursorStatus.EMPTY_LINE;
+            foundEvent = VttEvent.EMPTY_LINE;
         }
 
         return foundEvent;
@@ -110,7 +109,7 @@ public class VttParser extends BaseSubtitleParser {
     private StringBuilder readBlockLines() throws IOException {
         StringBuilder bld = new StringBuilder();
         String textLine;
-        while ((textLine = br.readLine()) != null) {
+        while ((textLine = reader.readLine()) != null) {
             textLine = textLine.replace('\u0000', '\uFFFD');
             if (textLine.trim().isEmpty()) {
                 break;
@@ -132,23 +131,23 @@ public class VttParser extends BaseSubtitleParser {
         VttCue currentVttCue = null;
 
         // Read each lines
-        try (LineNumberReader lnrd = new LineNumberReader(new InputStreamReader(is, this.charset))) {
+        try (SubtitleReader lnrd = new SubtitleReader(is, this.charset)) {
 
-            br = lnrd;
+            reader = lnrd;
             parseWebVTT();
 
             String textLine;
-            while ((textLine = br.readLine()) != null) {
+            while ((textLine = reader.readLine()) != null) {
                 // All Vtt files start with WEBVTT
                 textLine = textLine.replace('\u0000', '\uFFFD');
-                CursorStatus event = getNextEvent(textLine, inCues);
+                VttEvent event = getNextEvent(textLine, inCues);
 
                 currentVttCue = null;
                 switch (event) {
                     case CUE_ID:
                         currentVttCue = new VttCue(this, vttObject);
                         currentVttCue.parseCueId(textLine); // ???
-                        if ((textLine = br.readLine()) == null) {
+                        if ((textLine = reader.readLine()) == null) {
                             break;
                         }
                         textLine = textLine.replace('\u0000', '\uFFFD');
@@ -165,8 +164,7 @@ public class VttParser extends BaseSubtitleParser {
                         // End of cue
                         // Process multilines text in one time
                         // A class or a style can be applied for more than one line
-                        StringBuilder bld = readBlockLines();
-                        currentVttCue.parseCueTextTree(bld);
+                        currentVttCue.parseCueText(reader);
                         vttObject.addCue(currentVttCue);
                         break;
                     case NOTE:
@@ -204,13 +202,13 @@ public class VttParser extends BaseSubtitleParser {
 
     private void parseWebVTT() throws IOException, SubtitleParsingException {
         // first line must be WEBVTT ...
-        String textLine = br.readLine();
+        String textLine = reader.readLine();
         if (textLine == null || !WEBVTT.matcher(textLine).matches()) {
             notifyError("Invalid WEBVTT header " + textLine);
             return;
         }
 
-        // read up to two new lines
+        // read lines up to two new lines
         readBlockLines();
     }
 
@@ -220,8 +218,7 @@ public class VttParser extends BaseSubtitleParser {
     }
 
     private void parseStyle(VttStyle style) throws SubtitleParsingException, IOException {
-        StringBuilder styleText = readBlockLines();
-        style.parse(styleText);
+        style.parse(reader);
     }
 
     private void parseRegion(VttRegion region) throws SubtitleParsingException, IOException {

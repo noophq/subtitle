@@ -18,6 +18,7 @@ import fr.noop.subtitle.base.CueTimeStampData;
 import fr.noop.subtitle.base.CueTreeNode;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.model.ValidationReporter;
+import fr.noop.subtitle.util.SubtitleReader;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
@@ -237,60 +238,96 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
+//    void content(SubtitleReader cueText) throws SubtitleParsingException, IOException {
+//        while (!eof) {
+//            text();
+//            tag();
+//            text();
+//        }
+//    }
+//
+//    private void tag() {
+//        String s = startTag();
+//        content(s);
+//        endTag(s);
+//    }
+
+
     /**
      * Parse the cue text and validate the tags, ...
      * @return The cue tags tree structure
      * @throws SubtitleParsingException
      * @throws IOException
      */
-    void parseCueTextTree(StringBuilder cueText) throws SubtitleParsingException, IOException {
+    void parseCueText(SubtitleReader reader) throws SubtitleParsingException, IOException {
         // FIXME - read by lines/chars instead of whole block to keep better track of current line
-
-        if (cueText.length() == 0) {
-            reporter.notifyError("Empty cue is not allowed");
-        }
 
         tree = new CueTreeNode();
         CueTreeNode current = tree;
         TagStatus tagStatus = TagStatus.NONE; // tag parsing status
-        int startTag = -1; // where the current tag starts
-        int startText = -1; // where the current plain text block starts
+        StringBuilder tagBuilder = new StringBuilder(); // tag name
+        StringBuilder textBuilder = new StringBuilder(); // plain text
+        int len = 0;
+        boolean wasNL = false;
 
         // Process:
         // - voice
         // - class
         // - styles
-        int i = 0;
-        while (i < cueText.length()) {
-            char c = cueText.charAt(i);
+        do {
+            int c = reader.read();
+            len++;
+            if (c == -1) {
+                if (len == 0) {
+                    reporter.notifyError("Empty cue is not allowed");
+                }
+                break; // end of file
+            }
+            else if (c == '\n') {
+                if (wasNL) {
+                    break; // double new line
+                }
+                wasNL = true;
+            }
+            else if (c != ' ' && c != '\t') {
+                wasNL = false;
+            }
+
+
+            if (c == '-') {
+                reader.mark(2);
+                if (reader.read() == '-' && reader.read() == '>') {
+                    reporter.notifyError("Detected '" + VttParser.ARROW + "' inside cue text");
+                }
+                else {
+                    reader.reset();
+                }
+            }
 
             if (c == '<') {
                 if (tagStatus == TagStatus.OPEN || tagStatus == TagStatus.CLOSE) {
-                    reporter.notifyWarning("Probably disclosed tag: <" + cueText.substring(startTag));
+                    reporter.notifyWarning("Probably disclosed tag: <");
                 }
 
-                int endText = i;
-                if (i + 1 < cueText.length()) {
-                    c = cueText.charAt(i + 1);
+                c = reader.lookNext();
+                if (c != -1) {
                     if (c == '/') {
-                        i++;
+                        reader.read();
+                        len++;
                         tagStatus = TagStatus.CLOSE;
                     } else {
                         tagStatus = TagStatus.OPEN;
                     }
-                    startTag = i + 1;
+                    tagBuilder.setLength(0);
                 }
 
                 // Add accumulated plain text if any
-                if (startText >= 0) {
-                    String text = cueText.substring(startText, endText);
-                    CueTreeNode plainChild = new CueTreeNode(new CuePlainData(text));
+                if (textBuilder.length() > 0) {
+                    CueTreeNode plainChild = new CueTreeNode(new CuePlainData(textBuilder.toString()));
                     current.add(plainChild);
-                    startText = -1;
+                    textBuilder.setLength(0);
                 }
-
             } else if (c == '>') {
-                int endTag = i;
                 if (tagStatus == TagStatus.NONE) {
                     reporter.notifyError("Invalid character outside a cue tag: '>'");
                 }
@@ -298,21 +335,24 @@ public class VttCue extends BaseSubtitleCue {
                 // Close tag
                 if (tagStatus == TagStatus.OPEN) {
                     // create cue element
-                    String tag = cueText.substring(startTag, endTag);
-                    if (tag.isEmpty()) {
+
+                    if (tagBuilder.length() == 0) {
                         reporter.notifyWarning("The cue tag is empty");
                     }
                     else {
-                        CueData cueTag = startTag(current, tag);
+                        CueData cueTag = startTag(current, tagBuilder.toString());
                         CueTreeNode elemChild = new CueTreeNode(cueTag);
                         current.add(elemChild);
-                        // move down
-                        current = elemChild;
+                        if (!(cueTag instanceof CueTimeStampData)) {
+                            // FIXME - avoid instanceof
+                            // move down, but not for timestamp
+                            current = elemChild;
+                        }
                     }
                 } else if (tagStatus == TagStatus.CLOSE) {
                     // close cue element
                     // match with start tag
-                    String tag = cueText.substring(startTag, endTag);
+                    String tag = tagBuilder.toString();
                     // try to find a matching tag in parent
                     CueTreeNode matchNode = current.findParentByTag(tag);
                     if (matchNode != current) {
@@ -331,44 +371,50 @@ public class VttCue extends BaseSubtitleCue {
                     }
                     current = closing;
                 }
-                startText = i + 1;
+                textBuilder.setLength(0);
                 tagStatus = TagStatus.NONE;
 
             } else if (c == '&') {
-                if (startText < 0) {
-                    startText = i;
+                StringBuilder entity = new StringBuilder();
+                while (c != -1 && c != ';' && !Character.isWhitespace(c)) {
+                    entity.append((char) c);
+                    c = reader.read();
                 }
-                int ss = i + 1;
-                while (i < cueText.length() && c != ';' && c != ' ') {
-                    c = cueText.charAt(i++);
+                if (c != ';') {
+                    reporter.notifyWarning("Missing ';' in entity " + entity);
                 }
-                int se = (i == cueText.length()) ? i : i - 1;
-                String charEntity = cueText.substring(ss, se);
-                parseEntity(charEntity);
-            } else {
-                if (startText < 0) {
-                    startText = i;
+                parseEntity(entity.toString());
+            }
+            else {
+                switch (tagStatus) {
+                    case CLOSE:
+                    case OPEN:
+                        tagBuilder.append((char) c);
+                        break;
+                    case NONE:
+                        textBuilder.append((char) c);
+                        break;
                 }
             }
-            i++;
-        }
+        } while (true);
 
         if (tagStatus != TagStatus.NONE) {
-            reporter.notifyWarning("Disclosed tag: <" + cueText.substring(startTag));
+            reporter.notifyWarning("Disclosed tag: <" + tagBuilder.toString());
             // FIXME - normalize to "&lt;text"
             // CueTreeNode plainChild = new CueTreeNode(new CuePlainData("&lt;" + cueText.substring(startTag)));
             // current.add(plainChild);
         }
 
         // Add last accumulated plain text if any
-        if (startText >= 0 && startText < cueText.length() - 1) {
-            String text = cueText.substring(startText, cueText.length());
-            CueTreeNode plainChild = new CueTreeNode(new CuePlainData(text));
+        if (textBuilder.length() > 0) {
+            CueTreeNode plainChild = new CueTreeNode(new CuePlainData(textBuilder.toString()));
             current.add(plainChild);
         }
 
         while (current != null && current != tree) {
-            reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
+            if (!current.isLeaf()) {
+                reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
+            }
             current = current.getParent();
         }
     }
@@ -407,13 +453,13 @@ public class VttCue extends BaseSubtitleCue {
 
     private void parseEntity(String entity) {
         switch (entity) {
-            case "lt": // <
-            case "gt": // >
-            case "nbsp": // ' '
-            case "amp": // &
+            case "&lt": // <
+            case "&gt": // >
+            case "&nbsp": // ' '
+            case "&amp": // &
                 break;
             default:
-                reporter.notifyWarning("Unsupported entity: '&" + entity + ";'");
+                reporter.notifyWarning("Unsupported entity: '" + entity + ";'");
                 break;
         }
     }
