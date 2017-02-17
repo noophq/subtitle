@@ -22,10 +22,10 @@ import java.util.Map;
  * Created by clebeaupin on 11/10/15.
  */
 public class VttObject extends BaseSubtitleObject {
-    private Map<String, VttRegion> regions;
-    private List<VttStyle> styles;
+    private final Map<String, VttRegion> regions;
+    private final List<VttStyle> styles;
 
-    private List<Object> objects;
+    private final List<Object> objects;
 
     public VttObject() {
         super();
@@ -35,6 +35,7 @@ public class VttObject extends BaseSubtitleObject {
         objects = new ArrayList<>();
     }
 
+    @Override
     public void addCue(SubtitleCue cue) {
         objects.add(cue);
         super.addCue(cue);
@@ -66,7 +67,8 @@ public class VttObject extends BaseSubtitleObject {
         objects.add(vttNote);
     }
 
-    Iterable<Object> getObjects() {
+    @Override
+    public Iterable<?> getObjects() {
         return objects;
     }
 }

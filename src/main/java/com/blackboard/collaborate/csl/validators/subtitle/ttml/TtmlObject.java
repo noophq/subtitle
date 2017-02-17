@@ -27,16 +27,16 @@ import java.util.Map;
  */
 public class TtmlObject  extends BaseSubtitleObject {
     // Style signature => style id
-    private Map<String, String> styleMapping = new HashMap<>();
+    private final Map<String, String> styleMapping = new HashMap<>();
 
     // Style id => style object
-    private Map<String, SubtitleStyle> styles = new HashMap<>();
+    private final Map<String, SubtitleStyle> styles = new HashMap<>();
 
     // Region signature => region Id
-    private Map<String, String> regionMapping = new HashMap<>();
+    private final Map<String, String> regionMapping = new HashMap<>();
 
     // Regions id => region object
-    private Map<String, SubtitleRegion> regions = new HashMap<>();
+    private final Map<String, SubtitleRegion> regions = new HashMap<>();
 
     public TtmlObject() {
         super();
@@ -106,7 +106,7 @@ public class TtmlObject  extends BaseSubtitleObject {
     }
 
     private String buildStyleSignature(SubtitleStyle style) {
-        return String.format("%s-%s-%s-%s-%s",
+        return String.format("%s-%s-%s-%s-%s-%s",
                 style.getProperty(SubtitleStyle.Property.DIRECTION),
                 style.getProperty(SubtitleStyle.Property.TEXT_ALIGN),
                 style.getProperty(SubtitleStyle.Property.COLOR),

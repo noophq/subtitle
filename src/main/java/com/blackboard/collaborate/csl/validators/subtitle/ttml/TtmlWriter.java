@@ -23,17 +23,11 @@ import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,16 +41,21 @@ public class TtmlWriter implements SubtitleWriter {
     private final static String NS_TTS = "http://www.w3.org/ns/ttml#styling";
     private final static String NS_XML = "http://www.w3.org/XML/1998/namespace";
 
+    private final Writer writer;
+
+    public TtmlWriter(OutputStream outputStream, Charset charset) {
+        this.writer = new OutputStreamWriter(outputStream, charset);
+    }
+
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os) {
+    public void write(SubtitleObject subtitleObject) throws IOException {
         TtmlObject ttmlObject = new TtmlObject(subtitleObject);
 
         // Prepare XML
         XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
 
         try {
-            StringWriter sw = new StringWriter();
-            XMLStreamWriter xsw = outputFactory.createXMLStreamWriter(sw);
+            XMLStreamWriter xsw = outputFactory.createXMLStreamWriter(writer);
             xsw.writeStartDocument("utf-8", "1.0");
             xsw.setPrefix("tt", NS_TT);
             xsw.setPrefix("ttp", NS_TTP);
@@ -99,24 +98,24 @@ public class TtmlWriter implements SubtitleWriter {
             // End of tt
             xsw.writeEndElement();
 
-            byte[] bytes = sw.toString().getBytes();
-            InputStream is = new ByteArrayInputStream(bytes);
-            StreamSource ss = new StreamSource(is);
-            StreamResult sr = new StreamResult(os);
-
-            // Create pretty xml
-            try {
-                Transformer transformer = TransformerFactory.newInstance().newTransformer();
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-                transformer.transform(ss, sr);
-            } catch (TransformerConfigurationException e) {
-
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            }
+//            byte[] bytes = sw.toString().getBytes();
+//            InputStream is = new ByteArrayInputStream(bytes);
+//            StreamSource ss = new StreamSource(is);
+//            StreamResult sr = new StreamResult(os);
+//
+//            // Create pretty xml
+//            try {
+//                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+//                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+//                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+//                transformer.transform(ss, sr);
+//            } catch (TransformerConfigurationException e) {
+//                // ???
+//            } catch (TransformerException e) {
+//                e.printStackTrace();
+//            }
         } catch (XMLStreamException e) {
-
+            throw new IOException(e);
         }
     }
 
@@ -270,5 +269,10 @@ public class TtmlWriter implements SubtitleWriter {
                 timeCode.getMinute(),
                 timeCode.getSecond(),
                 timeCode.getMillisecond());
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.writer.close();
     }
 }

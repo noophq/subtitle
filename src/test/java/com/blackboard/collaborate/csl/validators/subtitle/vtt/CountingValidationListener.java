@@ -2,19 +2,27 @@ package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
 import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationIssue;
 import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationListener;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jdvorak on 25.1.2017.
  * Helper class for testing
  */
+@Slf4j
 public class CountingValidationListener implements ValidationListener {
-    int count;
+    private int count;
+    private List<ValidationIssue> issues = new ArrayList<>();
+
 
     @Override
     public void onValidation(ValidationIssue event) {
         count++;
-        System.out.println(event.toString());
+        issues.add(event);
+        log.debug(event.toString());
     }
 
     public int getCount() {
@@ -34,8 +42,14 @@ public class CountingValidationListener implements ValidationListener {
         }
     }
 
-    public void exactAssert(int errors) {
-        String msg = "Error count does not match: " + getCount() + " <> " + errors;
+    public void exactAssert(String file, int errors) {
+        String msg = "Error count does not match: " + file + ": " + getCount() + " <> " + errors;
+        if (getCount() != errors) {
+            System.out.println();
+            for (ValidationIssue issue : issues) {
+                System.err.println("  " + issue.toString());
+            }
+        }
         Assert.assertTrue(msg, getCount() == errors);
     }
 

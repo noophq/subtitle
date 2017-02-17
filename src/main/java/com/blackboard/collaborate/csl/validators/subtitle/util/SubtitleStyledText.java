@@ -17,13 +17,14 @@ import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleStyled;
  * Created by clebeaupin on 12/10/15.
  */
 public class SubtitleStyledText extends SubtitlePlainText implements SubtitleStyled {
-    private SubtitleStyle style;
+    private final SubtitleStyle style;
 
     public SubtitleStyledText(String text, SubtitleStyle style) {
         super(text);
         this.style = style;
     }
 
+    @Override
     public SubtitleStyle getStyle() {
         return this.style;
     }

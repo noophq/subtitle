@@ -1,108 +1,210 @@
 package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
+import com.blackboard.collaborate.csl.validators.subtitle.base.ValidationReporterImpl;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Created by jdvorak on 01/02/2017.
  */
 public class VttStyleTest {
-    public static final String[] CSS_OK = new String[] {
-            "::cue { some-style: somevalue; }",
-            "::cue(.class1.class2) { some-style: somevalue; }",
-            "::cue(tag) { some-style: somevalue; }",
-            "::cue(#id) { some-style: somevalue; }",
-            "::cue(tag#id) { some-style: somevalue; }",
-            "::cue(.class.class) { some-style: somevalue; }",
-            "::cue(tag.class) { some-style: somevalue; }",
-            "::cue(tag#id.class1.class2) { some-style: somevalue; some-other:othervalue; }",
-            "::cue(tag#id.class1.class2[voice=\"someone\"]) { some-style: somevalue; some-other:othervalue; /* abcdef */ }",
-            "::cue { font: 26px Arial, Helvetica, sans-serif; }",
 
-            "::cue([lang=\"en-US\"]) { some-style: somevalue; }",
-            "::cue(:lang(en)) { some-style: somevalue; }",
-            "::cue(:past) { some-style: somevalue; }",
-            "::cue-region { color: yellow; }",
-
-            "::cue { color:\n yellow; \n}\n", // new lines
-            "::cue { color:\n yellow; \n}\n\nsome ignored text", // new lines
-    };
-
-    public static final String[] CSS_ERR = new String[] {
-            "::cuex { some-style: somevalue; }",
-            "::cue() { some-style: somevalue; }",
-            "::cue(..class1.class2) { some-style: somevalue; }",
-            "::cue(ta&g#) { some-style: somevalue; }",
-            "::cue(tag#i!d) { some-style: somevalue; }",
-            "::cue(tag#.class) { some-style:: somevalue; }",
-            "::cue(tag#id.class1.class2) { some-style: somevalue; some-other; }",
-            "::cue(tag#id.cl/* abcdef */ass1.class2[voice=\"someone\"]) { some-style: somevalue; some-other:othervalue; }",
-            "::cue { font: 26px Ari/* abcdef al, Helvetica, sans-serif; }",
-
-            "::cue(:past)) { some-style: somevalue; }",
-            "::cue((:past) { some-style: somevalue; }",
-            "::cue-region {{ color: yellow; }",
-            "::cue { color: yellow; })",
-            "::cue { newlines: \n\ninvalid; }", // new lines break
-            ":::cue { color: yellow; })",
-            "::cue ( color: yellow; }",
-            "::cue ( color:\n yellow; }",
-            "::c\nue ( color: yellow; }",
-    };
-
-
-//    @Test
-//    public void testTokenizer() {
-//        StringTokenizer st = new StringTokenizer(str, "{}:,;()# =", true);
-//
-//        while (st.hasMoreElements()) {
-//            System.out.println(st.nextElement());
-//        }
-//    }
-//
-//    @Test
-//    public void testScanner() {
-//        try (Scanner scan = new Scanner(new StringReader(str))) {
-//            scan.useDelimiter(Pattern.compile("\\s*[{}()#:=;]\\s*|\\s*/\\*\\s*|\\s*\\*/\\s*"));
-//
-//            while (scan.hasNext()) {
-//                System.out.println("'" + scan.next() + "'");
-//                //scan.skip("\\s*/\\*\\s*|\\s*\\*/\\s*")
-//            }
-//        }
-//    }
-
-
-
-    private void testParserPri(String[] styles, int errs) throws IOException {
-        VttParser parser = new VttParser(StandardCharsets.UTF_8);
-        VttCue cue = new VttCue(parser, null);
-
+    private void testParserPri(String css, int errors) {
         CountingValidationListener listener = new CountingValidationListener();
-        parser.addValidationListener(listener);
 
-        VttStyle style = new VttStyle(parser, null);
+        System.out.println("TESTING: " + css);
+        try (SubtitleReader reader = new SubtitleReader(new StringReader(css))) {
+            ValidationReporterImpl reporter = new ValidationReporterImpl(reader);
+            reporter.addValidationListener(listener);
 
-        for (String css : styles) {
-            System.out.println(css);
-            listener.reset();
-            style.parse(new SubtitleReader(new StringReader(css)));
-            listener.checkAssert(errs);
+            VttStyle style = new VttStyle(reporter, null);
+
+            style.parse(reader);
+            listener.exactAssert("", errors);
         }
+        catch (AssertionError e) {
+            System.out.println(" ...ERROR");
+            throw e;
+        } catch (IOException e) {
+            System.out.println(" ...ERROR");
+            Assert.fail(e.getMessage());
+        }
+        System.out.println(" ...OK");
+    }
+    
+    @Test
+    public void testOkStyle1() {
+        testParserPri("::cue { some-style: somevalue; }", 0);
     }
 
     @Test
-    public void testOkStyles() throws IOException {
-        testParserPri(CSS_OK, 0);
+    public void testOkStyle2() {
+        testParserPri("::cue(.class1.class2) { some-style: somevalue; }", 0);
     }
 
     @Test
-    public void testErrorStyles() throws IOException {
-        testParserPri(CSS_ERR, 100);
+    public void testOkStyle3() {
+        testParserPri("::cue(tag) { some-style: somevalue; }", 0);
     }
 
+    @Test
+    public void testOkStyle4() {
+        testParserPri("::cue(#id) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle5() {
+        testParserPri("::cue(tag#id) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle6() {
+        testParserPri("::cue(.class.class) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle7() {
+        testParserPri("::cue(tag.class) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle8() {
+        testParserPri("::cue(tag#id.class1.class2) { some-style: somevalue; some-other:othervalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle9() {
+        testParserPri("::cue(tag#id.class1.class2[voice=\"someone\"]) { some-style: somevalue; some-other:othervalue; /* abcdef */ }", 0);
+    }
+
+    @Test
+    public void testOkStyle10() {
+        testParserPri("::cue { font: 26px Arial, Helvetica, sans-serif; }", 0);
+    }
+    
+    @Test
+    public void testOkStyle11() {
+        testParserPri("::cue([lang=\"en-US\"]) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle12() {
+        testParserPri("::cue(:lang(en)) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle13() {
+        testParserPri("::cue(:past) { some-style: somevalue; }", 0);
+    }
+
+    @Test
+    public void testOkStyle14() {
+        testParserPri("::cue-region { color: yellow; }", 0);
+    }
+
+
+    @Test
+    public void testOkStyle15() {
+        testParserPri("::cue { color:\n yellow; \n}\n", 0); // new lines
+    }
+    
+    @Test
+    public void testOkStyle16() {
+        testParserPri("::cue { color:\n yellow; \n}\n\nsome ignored text", 0); // new lines
+    }
+    
+    @Test
+    public void testErrorStyle1() {
+        testParserPri("::cuex { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle2() {
+        testParserPri("::cue() { some-style: somevalue; }", 1);
+    }
+
+    @Test
+    public void testErrorStyle3() {
+        testParserPri("::cue(..class1.class2) { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle4() {
+        testParserPri("::cue(ta&g#) { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle5() {
+        testParserPri("::cue(tag#i!d) { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle6() {
+        testParserPri("::cue(tag#.class) { some-style:: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle7() {
+        testParserPri("::cue(tag#id.class1.class2) { some-style: somevalue; some-other; }", 3);
+    }
+
+    @Test
+    public void testErrorStyle8() {
+        testParserPri("::cue(tag#id.cl/* abcdef */ass1.class2[voice=\"someone\"]) { some-style: somevalue; some-other:othervalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle9() {
+        testParserPri("::cue { font: 26px Ari/* abcdef al, Helvetica, sans-serif; }", 4);
+    }
+    
+    @Test
+    public void testErrorStyle10() {
+        testParserPri("::cue(:past)) { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle11() {
+        testParserPri("::cue((:past) { some-style: somevalue; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle12() {
+        testParserPri("::cue-region {{ color: yellow; }", 1);
+    }
+
+    @Test
+    public void testErrorStyle13() {
+        testParserPri("::cue { color: yellow; })", 1);
+    }
+
+    @Test
+    public void testErrorStyle14() {
+        testParserPri("::cue { newlines: \n\ninvalid; }", 2);
+    }
+
+    // new lines break
+    @Test
+    public void testErrorStyle15() {
+        testParserPri(":::cue { color: yellow; })", 2);
+    }
+
+    @Test
+    public void testErrorStyle16() {
+        testParserPri("::cue ( color: yellow; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle17() {
+        testParserPri("::cue ( color:\n yellow; }", 2);
+    }
+
+    @Test
+    public void testErrorStyle18() {
+        testParserPri("::c\nue ( color: yellow; }", 2);
+    }
 }

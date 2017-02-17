@@ -20,7 +20,7 @@ import java.util.List;
  * Created by clebeaupin on 06/10/15.
  */
 public class SubtitleTextLine implements SubtitleLine {
-    List<SubtitleText> texts;
+    private final List<SubtitleText> texts;
 
     public SubtitleTextLine() {
         this.texts = new ArrayList<>();
@@ -30,6 +30,7 @@ public class SubtitleTextLine implements SubtitleLine {
         this.texts = texts;
     }
 
+    @Override
     public List<SubtitleText> getTexts() {
         return this.texts;
     }
@@ -38,18 +39,19 @@ public class SubtitleTextLine implements SubtitleLine {
         this.texts.add(text);
     }
 
+    @Override
     public boolean isEmpty() {
         return this.toString().isEmpty();
     }
 
     @Override
     public String toString() {
-        String[] texts = new String[this.texts.size()];
+        StringBuilder bld = new StringBuilder();
 
-        for (int i=0; i<texts.length; i++) {
-            texts[i] = this.texts.get(i).toString();
+        for (SubtitleText text : texts) {
+            bld.append(text.toString());
         }
 
-        return String.join("\n", texts);
+        return bld.toString();
     }
 }

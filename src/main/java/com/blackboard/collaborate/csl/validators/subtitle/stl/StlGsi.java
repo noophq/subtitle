@@ -69,8 +69,11 @@ public class StlGsi {
         }
 
         public static Cpn getEnum(int value) {
-            for(Cpn v : values())
-                if(v.getValue() == value) return v;
+            for (Cpn v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -97,8 +100,11 @@ public class StlGsi {
         }
 
         public static Dfc getEnum(String value) {
-            for(Dfc v : values())
-                if(v.getValue().equalsIgnoreCase(value)) return v;
+            for (Dfc v : values()) {
+                if (v.getValue().equalsIgnoreCase(value)) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -121,15 +127,17 @@ public class StlGsi {
         }
 
         public static Dsc getEnum(int value) {
-            for(Dsc v : values())
-                if(v.getValue() == value) return v;
+            for (Dsc v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }
 
     // Character Code Table (CCT)
     public enum Cct {
-        LATIN(0x3030, Charset.forName("ISO-6937-2")),
         LATIN_CYRILLIC(0x3031, Charset.forName("ISO-8859-5")),
         LATIN_ARABIC(0x3032, Charset.forName("ISO-8859-6")),
         LATIN_GREEK(0x3033, Charset.forName("ISO-8859-7")),
@@ -152,8 +160,11 @@ public class StlGsi {
         }
 
         public static Cct getEnum(int value) {
-            for(Cct v : values())
-                if(v.getValue() == value) return v;
+            for (Cct v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }

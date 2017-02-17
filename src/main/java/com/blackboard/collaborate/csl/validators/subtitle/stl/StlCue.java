@@ -28,7 +28,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
     // List of TTI blocks
     // In most of the case there is only one TTI per cue
     // But very long cues are stored on many TTI blocks
-    private List<StlTti> ttis = new ArrayList<StlTti>();
+    private final List<StlTti> ttis = new ArrayList<>();
 
     // Cues can be displayed vertically on the screen
     // Let's consider that the screen has a height and a width of 100%
@@ -76,12 +76,8 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     text = new String();
                     textStyle = new SubtitleStyle();
 
-                    if (tti.getJc() == StlTti.Jc.NONE) {
-                        // Start ingesting text before start box directive (0x0b)
-                        startText = true;
-                    } else {
-                        startText = false;
-                    }
+                    // Start ingesting text before start box directive (0x0b)
+                    startText = (tti.getJc() == StlTti.Jc.NONE);
                 }
 
                 // Start box directive
@@ -97,7 +93,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     continue;
                 }
 
-                // FIXME: Process text decoration
+                // TODO: Process text decoration
                 if (cByte == 0x80 || cByte == 0x82 || cByte == 0x84) {
                     continue;
                 }
@@ -152,6 +148,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
         return this.getText().isEmpty();
     }
 
+    @Override
     public SubtitleRegion getRegion() {
        return this.region;
     }

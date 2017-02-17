@@ -24,30 +24,28 @@ import java.nio.charset.Charset;
  * Created by clebeaupin on 11/10/15.
  */
 public class SamiWriter implements SubtitleWriter {
-    private Charset charset; // Charset used to encode file
+    private final Writer writer;
 
-    public SamiWriter(Charset charset) {
-        this.charset = charset;
+    public SamiWriter(OutputStream outputStream, Charset charset) {
+        this.writer = new OutputStreamWriter(outputStream, charset);
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
-        try (Writer writer = new OutputStreamWriter(os, charset)) {
-            // Start SAMI
-            writer.write("<SAMI>\n");
+    public void write(SubtitleObject subtitleObject) throws IOException {
+        // Start SAMI
+        writer.write("<SAMI>\n");
 
-            // Write header
-            writeHeader(subtitleObject, writer);
+        // Write header
+        writeHeader(subtitleObject);
 
-            // Write cues
-            writeCues(subtitleObject, writer);
+        // Write cues
+        writeCues(subtitleObject);
 
-            // End SAMI
-            writer.write("</SAMI>\n");
-        }
+        // End SAMI
+        writer.write("</SAMI>\n");
     }
 
-    private void writeHeader(SubtitleObject subtitleObject, Writer writer) throws IOException {
+    private void writeHeader(SubtitleObject subtitleObject) throws IOException {
         // Start HEAD
         writer.write("<Head>\n");
 
@@ -62,7 +60,7 @@ public class SamiWriter implements SubtitleWriter {
         writer.write("</Head>\n");
     }
 
-    private void writeCues(SubtitleObject subtitleObject, Writer writer) throws IOException {
+    private void writeCues(SubtitleObject subtitleObject) throws IOException {
         // Start BODY
         writer.write("<Body>\n");
 
@@ -81,5 +79,10 @@ public class SamiWriter implements SubtitleWriter {
 
         // End BODY
         writer.write("</Body>\n");
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.writer.close();
     }
 }

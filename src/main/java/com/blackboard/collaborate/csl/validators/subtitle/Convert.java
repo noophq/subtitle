@@ -10,10 +10,22 @@
 
 package com.blackboard.collaborate.csl.validators.subtitle;
 
+import com.blackboard.collaborate.csl.validators.subtitle.base.ValidationReporterImpl;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParser;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleWriter;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationIssue;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationListener;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
+import com.blackboard.collaborate.csl.validators.subtitle.sami.SamiParser;
+import com.blackboard.collaborate.csl.validators.subtitle.sami.SamiWriter;
+import com.blackboard.collaborate.csl.validators.subtitle.srt.SrtParser;
+import com.blackboard.collaborate.csl.validators.subtitle.srt.SrtWriter;
+import com.blackboard.collaborate.csl.validators.subtitle.stl.StlParser;
+import com.blackboard.collaborate.csl.validators.subtitle.ttml.TtmlWriter;
+import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
+import com.blackboard.collaborate.csl.validators.subtitle.vtt.VttParser;
+import com.blackboard.collaborate.csl.validators.subtitle.vtt.VttWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -23,14 +35,19 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Convert {
-    private Options options = new Options();
+    private final Options options = new Options();
 
     private enum ConvertFormat {
         TTML(new String[] { "xml" }),
@@ -39,7 +56,7 @@ public class Convert {
         SRT(new String[] { "srt" }),
         STL(new String[] { "stl" });
 
-        private String[] availableExtensions;
+        private final String[] availableExtensions;
 
         ConvertFormat(String[] availableExtensions) {
             this.availableExtensions = availableExtensions;
@@ -50,94 +67,77 @@ public class Convert {
         }
 
         public static ConvertFormat getEnum(String extension) {
-            for(ConvertFormat v : values()) {
-                for(String ext : v.getAvailableExtensions()) {
+            for (ConvertFormat v : values()) {
+                for (String ext : v.getAvailableExtensions()) {
                     if (ext.equals(extension)) {
                         return v;
                     }
                 }
             }
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unsupported extension");
         }
     }
 
     private enum ConvertParser {
-        SAMI(ConvertFormat.SAMI, "SamiParser", true),
-        VTT(ConvertFormat.VTT, "VttParser", true),
-        SRT(ConvertFormat.SRT, "SrtParser", true),
-        STL(ConvertFormat.STL, "StlParser", false);
+        SAMI(ConvertFormat.SAMI, SamiParser.class),
+        VTT(ConvertFormat.VTT, VttParser.class),
+        SRT(ConvertFormat.SRT, SrtParser.class),
+        STL(ConvertFormat.STL, StlParser.class);
 
-        private ConvertFormat format;
-        private String className;
-        private boolean charsetConstructor;
+        private final ConvertFormat format;
+        private final Class<? extends SubtitleParser> clazz;
 
-        ConvertParser(ConvertFormat format, String className, boolean charsetConstructor) {
+        ConvertParser(ConvertFormat format, Class<? extends SubtitleParser> clazz) {
             this.format = format;
-            this.className = className;
-            this.charsetConstructor = charsetConstructor;
+            this.clazz = clazz;
         }
 
         public ConvertFormat getFormat() {
             return this.format;
         }
 
-        public String getClassName() {
-            return this.className;
-        }
-
-        /**
-         * @return True if the parser constructor takes a charset as argument
-         */
-        public boolean hasCharsetConstructor() {
-            return this.charsetConstructor;
+        public Class<? extends SubtitleParser> getParserClass() {
+            return clazz;
         }
 
         public static ConvertParser getEnum(ConvertFormat format) {
-            for(ConvertParser v : values()) {
+            for (ConvertParser v : values()) {
                 if (v.getFormat() == format) {
                     return v;
                 }
             }
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unsupported format");
         }
     }
 
     private enum ConvertWriter {
-        SAMI(ConvertFormat.SAMI, "SamiWriter", true),
-        VTT(ConvertFormat.VTT, "VttWriter", true),
-        SRT(ConvertFormat.SRT, "SrtWriter", true),
-        TTML(ConvertFormat.TTML, "TtmlWriter", false);
+        SAMI(ConvertFormat.SAMI, SamiWriter.class),
+        VTT(ConvertFormat.VTT, VttWriter.class),
+        SRT(ConvertFormat.SRT, SrtWriter.class),
+        TTML(ConvertFormat.TTML, TtmlWriter.class);
 
-        private ConvertFormat format;
-        private String className;
-        private boolean charsetConstructor;
+        private final ConvertFormat format;
+        private final Class<? extends SubtitleWriter> clazz;
 
-        ConvertWriter(ConvertFormat format, String className, boolean charsetConstructor) {
+        ConvertWriter(ConvertFormat format, Class<? extends SubtitleWriter> clazz) {
             this.format = format;
-            this.className = className;
-            this.charsetConstructor = charsetConstructor;
+            this.clazz = clazz;
         }
 
         public ConvertFormat getFormat() {
             return this.format;
         }
 
-        public String getClassName() {
-            return this.className;
-        }
-
-        /**
-         * @return True if the parser constructor takes a charset as argument
-         */
-        public boolean hasCharsetConstructor() {
-            return this.charsetConstructor;
+        public Class<? extends SubtitleWriter> getWriterClass() {
+            return clazz;
         }
 
         public static ConvertWriter getEnum(ConvertFormat format) {
-            for(ConvertWriter v : values())
+            for (ConvertWriter v : values()) {
                 if (v.getFormat() == format) {
                     return v;
                 }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -156,9 +156,9 @@ public class Convert {
                 .desc("Input file")
                 .build());
 
-        // Input file
+        // Output file (if not specified, just validate the input)
         this.options.addOption(Option.builder("o")
-                .required()
+                .required(false)
                 .longOpt("output-file")
                 .hasArg()
                 .desc("Output file")
@@ -180,14 +180,14 @@ public class Convert {
                 .desc("Output charset")
                 .build());
 
-        // Output charset option
+        // Disable strict mode
         this.options.addOption(Option.builder("dsm")
                 .required(false)
                 .longOpt("disable-strict-mode")
                 .desc("Disable strict mode")
                 .build());
 
-        // Output charset option
+        // Subtitles offset
         this.options.addOption(Option.builder("so")
                 .required(false)
                 .longOpt("offset")
@@ -208,171 +208,129 @@ public class Convert {
         formatter.printHelp("subtitle-convert", this.options);
     }
 
-    public static void stream(InputStream is, String inputExtension, String inputCharset,
-                              boolean disableStrictMode, int offset, int duration, OutputStream os,
-                              String outputExtension, String outputCharset
-    ) throws IOException, SubtitleParsingException {
-        SubtitleParser parser = buildParser( "dummy." + inputExtension, inputCharset, offset, duration );
-        SubtitleObject subtitle = parser.parse(is, offset, duration, !disableStrictMode);
-        SubtitleWriter writer = buildWriter( "dummy." + outputExtension, outputCharset );
-        writer.write(subtitle, os);
-    }
-
     /**
      * Run convert command line
      */
-    public void run(String[] args) {
+    public int run(String[] args) {
         // Create the parser
         CommandLineParser parser = new DefaultParser();
-
+        CommandLine line;
 
         try {
             // Parse the command line to get options
-            CommandLine line = parser.parse(this.options, args);
+            line = parser.parse(this.options, args);
+        } catch (ParseException exp) {
+            printHelp();
+            return 1;
+        }
 
-            if (line.hasOption('h')) {
-                this.printHelp();
-                System.exit(1);
+        if (line.hasOption('h')) {
+            printHelp();
+            return 0;
+        }
+
+        // Get options
+        String inputFilePath = line.getOptionValue("i");
+        String outputFilePath = line.getOptionValue("o");
+        String inputCharset = line.getOptionValue("ic", StandardCharsets.UTF_8.displayName());
+        String outputCharset = line.getOptionValue("oc", StandardCharsets.UTF_8.displayName());
+        boolean disableStrictMode = line.hasOption("disable-strict-mode");
+        int subtitleOffset = Integer.parseInt(line.getOptionValue("so", "0"));
+        int maxDuration = Integer.parseInt(line.getOptionValue("sd", "-1"));
+
+        // Build parser for input file
+        SubtitleParser subtitleParser;
+        String ext = getFileExtension(inputFilePath);
+        SubtitleObject subtitleObject;
+
+        final List<ValidationIssue> errors = new ArrayList<>();
+
+        ValidationListener listener = new ValidationListener() {
+            @Override
+            public void onValidation(ValidationIssue validationIssue) {
+                errors.add(validationIssue);
             }
+        };
 
-            // Get options
-            String inputFilePath = line.getOptionValue("i");
-            String outputFilePath = line.getOptionValue("o");
-            String inputCharset = line.getOptionValue("ic", "utf-8");
-            String outputCharset = line.getOptionValue("oc", "utf-8");
-            boolean disableStrictMode = line.hasOption("disable-strict-mode");
-            int subtitleOffset = Integer.parseInt(line.getOptionValue("so", "0"));
-            int maxDuration = Integer.parseInt(line.getOptionValue("sd", "-1"));
-
-            // Build parser for input file
-            SubtitleParser subtitleParser = null;
-
-            try {
-                subtitleParser = buildParser(inputFilePath, inputCharset, subtitleOffset, maxDuration);
-            } catch(IOException e) {
-                System.out.println(String.format("Unable to build parser for file %s: %s", inputFilePath, e.getMessage()));
-                System.exit(1);
-            }
-
-            InputStream is = null;
-
-            // Open input file
-            try {
-                 is = new FileInputStream(inputFilePath);
-            } catch(IOException e) {
-                System.out.println(String.format("Input file %s does not exist: %s", inputFilePath, e.getMessage()));
-                System.exit(1);
-            }
+        Charset iCharset = Charset.forName(inputCharset);
+        Charset oCharset = Charset.forName(outputCharset);
+        // Open input file
+        try (SubtitleReader reader = new SubtitleReader(new FileInputStream(inputFilePath), iCharset)) {
+            ValidationReporterImpl reporter = new ValidationReporterImpl(reader);
+            reporter.addValidationListener(listener);
+            subtitleParser = buildParser(reporter, reader, ext, subtitleOffset, maxDuration);
 
             // Parse input file
-            SubtitleObject inputSubtitle = null;
+            subtitleObject = subtitleParser.parse(subtitleOffset, maxDuration, !disableStrictMode);
+        } catch (IOException e) {
+            System.err.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
+            return 1;
+        } catch (Exception e) {
+            System.err.println(String.format("Unable to create subtitle parser: %s", ext));
+            return 1;
+        }
 
-            try {
-                inputSubtitle = subtitleParser.parse(is, subtitleOffset, maxDuration, !disableStrictMode);
-            } catch (IOException e) {
-                System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
-                System.exit(1);
-            } catch (SubtitleParsingException e) {
-                System.out.println(String.format("Unable to parse input file %s;: %s", inputFilePath, e.getMessage()));
-                System.exit(1);
+        if (!errors.isEmpty()) {
+            System.err.println(String.format("Subtitle contains errors: %d", errors.size()));
+            for (ValidationIssue err : errors) {
+                System.err.println(err);
             }
-
-            // Build writer for the output file
-            SubtitleWriter writer = null;
-
-            try {
-                writer = buildWriter(outputFilePath, outputCharset);
-            } catch(IOException e) {
-                System.out.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
-                System.exit(1);
-            }
-
-            // Create output file
-            OutputStream os = null;
-
-            try {
-                os = new FileOutputStream(outputFilePath);
-            } catch(IOException e) {
-                System.out.println(String.format("Unable to create output file %s: %s", outputFilePath, e.getMessage()));
-                System.exit(1);
-            }
-
-            // Write output file
-            try {
-                writer.write(inputSubtitle, os);
-            } catch (IOException e) {
-                System.out.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
-                System.exit(1);
+            if (!disableStrictMode) {
+                return 1; // error
             }
         }
-        catch(ParseException exp) {
-            this.printHelp();
-            System.exit(1);
+
+        if (outputFilePath != null) {
+            // Build writer for the output file if specified
+            try (SubtitleWriter subWriter = buildWriter(outputFilePath, oCharset)) {
+                subWriter.write(subtitleObject);
+            } catch (IOException e) {
+                System.err.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
+                return 1;
+            } catch (Exception e) {
+                System.err.println(String.format("Unable to create subtitle writer: %s", ext));
+                return 1;
+            }
         }
+        return 0;
     }
 
-    public static SubtitleParser buildParser(String filePath, String charset, int offset, int duration) throws IOException {
-        String ext = getFileExtension(filePath);
 
+    public static SubtitleParser buildParser(ValidationReporter reporter, SubtitleReader reader, String ext, int offset, int duration)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         // Get subtitle parser class
         ConvertFormat convertFormat = ConvertFormat.getEnum(ext);
         ConvertParser convertParser = ConvertParser.getEnum(convertFormat);
 
         // Instantiate parser class
-        try {
-            Class<?> parserClass = Class.forName(convertParser.getClassName());
-
-            if (convertParser.hasCharsetConstructor()) {
-                return (SubtitleParser) parserClass.getConstructor(String.class).newInstance(charset);
-            } else {
-                return (SubtitleParser) parserClass.getConstructor().newInstance();
-            }
-        } catch (Exception e) {
-            throw new IOException(String.format("Unable to instantiate class %s", convertParser.getClassName()));
-        }
+        Class<? extends SubtitleParser> parserClass = convertParser.getParserClass();
+        return parserClass.getConstructor(ValidationReporter.class, SubtitleReader.class).newInstance(reporter, reader);
     }
 
-    private static SubtitleWriter buildWriter(String filePath, String charset) throws IOException {
-        String ext = getFileExtension(filePath);
-
+    private static SubtitleWriter buildWriter(String outputFilePath, Charset oCharset)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, FileNotFoundException {
         // Get subtitle writer class
+
+        String ext = getFileExtension(outputFilePath);
         ConvertFormat convertFormat = ConvertFormat.getEnum(ext);
         ConvertWriter convertWriter = ConvertWriter.getEnum(convertFormat);
 
         // Instantiate writer class
-        try {
-            Class<?> writerClass = Class.forName(convertWriter.getClassName());
 
-            if (convertWriter.hasCharsetConstructor()) {
-                return (SubtitleWriter) writerClass.getConstructor(String.class).newInstance(charset);
-            } else {
-                return (SubtitleWriter) writerClass.getConstructor().newInstance();
-            }
-        } catch (Exception e) {
-            throw new IOException(String.format("Unable to instantiate class %s", convertWriter.getClassName()));
-        }
+        Class<? extends SubtitleWriter> writerClass = convertWriter.getWriterClass();
+        return writerClass.getConstructor(OutputStream.class, Charset.class).newInstance(new FileOutputStream(outputFilePath), oCharset);
     }
 
-
-
-    private static String getFileExtension(String filePath) throws IOException {
-        String ext = null;
-
+    private static String getFileExtension(String filePath) {
         int i = filePath.lastIndexOf('.');
-
-        if (i > 0) {
-            ext = filePath.substring(i+1);
-        }
-
-        if (ext == null) {
-            throw new IOException("Unable to get file extension");
-        }
-
-        return ext;
+        return (i > 0) ? filePath.substring(i + 1) : "";
     }
 
     public static void main(String[] args) {
         Convert convert = new Convert();
-        convert.run(args);
+        int ret = convert.run(args);
+        if (ret != 0) {
+            System.exit(ret);
+        }
     }
 }

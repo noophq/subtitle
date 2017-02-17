@@ -18,15 +18,15 @@ import static org.junit.Assert.assertEquals;
  * Created by clebeaupin on 08/10/15.
  */
 public class SubtitleRegionTest {
-    private SubtitleRegion tested = new SubtitleRegion(10, 20, 80, 10);
+    private final SubtitleRegion tested = new SubtitleRegion(10, 20, 80, 10);
 
     @Test
-    public void testGetX() throws Exception {
+    public void testGetX() {
         assertEquals(1000, (int) (tested.getX() * 100));
     }
 
     @Test
-    public void testSetX() throws Exception {
+    public void testSetX() {
         tested.setX(12.5f);
         assertEquals(1250, (int) (tested.getX() * 100));
     }
@@ -42,12 +42,12 @@ public class SubtitleRegionTest {
     }
 
     @Test
-    public void testGetY() throws Exception {
+    public void testGetY() {
         assertEquals(2000, (int) tested.getY()*100);
     }
 
     @Test
-    public void testSetY() throws Exception {
+    public void testSetY() {
         tested.setY(22.5f);
         assertEquals(2250, (int) (tested.getY() * 100));
     }

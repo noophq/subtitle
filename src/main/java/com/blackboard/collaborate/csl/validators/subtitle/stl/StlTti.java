@@ -63,14 +63,20 @@ public class StlTti {
         }
 
         public static boolean hasEnum(int value) {
-            for(TextColor v : values())
-                if(v.getValue() == value) return true;
+            for (TextColor v : values()) {
+                if (v.getValue() == value) {
+                    return true;
+                }
+            }
             return false;
         }
 
         public static TextColor getEnum(int value) {
-            for(TextColor v : values())
-                if(v.getValue() == value) return v;
+            for (TextColor v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -95,14 +101,20 @@ public class StlTti {
         }
 
         public static boolean hasEnum(int value) {
-            for(TextStyle v : values())
-                if(v.getValue() == value) return true;
+            for (TextStyle v : values()) {
+                if (v.getValue() == value) {
+                    return true;
+                }
+            }
             return false;
         }
 
         public static TextStyle getEnum(int value) {
-            for(TextStyle v : values())
-                if(v.getValue() == value) return v;
+            for (TextStyle v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }
@@ -127,8 +139,11 @@ public class StlTti {
         }
 
         public static Jc getEnum(int value) {
-            for(Jc v : values())
-                if(v.getValue() == value) return v;
+            for (Jc v : values()) {
+                if (v.getValue() == value) {
+                    return v;
+                }
+            }
             throw new IllegalArgumentException();
         }
     }

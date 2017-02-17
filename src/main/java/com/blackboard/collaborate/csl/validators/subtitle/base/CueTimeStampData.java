@@ -6,7 +6,7 @@ import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
  * Created by jdvorak on 25.1.2017.
  */
 public class CueTimeStampData implements CueData {
-    private SubtitleTimeCode time;
+    private final SubtitleTimeCode time;
 
     public CueTimeStampData(SubtitleTimeCode time) {
         this.time = time;

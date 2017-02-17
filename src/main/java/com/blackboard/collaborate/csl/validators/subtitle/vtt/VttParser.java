@@ -11,29 +11,27 @@
 package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
 import com.blackboard.collaborate.csl.validators.subtitle.base.BaseSubtitleParser;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
 public class VttParser extends BaseSubtitleParser {
+    static final String WEBVTT_TAG = "WEBVTT";
     // \uFEFF - BOM character
-    private static final Pattern WEBVTT = Pattern.compile("^\uFEFF?WEBVTT(( |\t).*)?$");
+    private static final Pattern WEBVTT = Pattern.compile("^\uFEFF?" + WEBVTT_TAG + "(( |\t).*)?$");
 
-    private static final String COMMENT_START = "NOTE";
-    private static final String STYLE_START = "STYLE";
-    private static final String REGION_START = "REGION";
-    public static final String ARROW = "-->";
+    static final String NOTE_START = "NOTE";
+    static final String STYLE_START = "STYLE";
+    static final String REGION_START = "REGION";
+    static final String ARROW = "-->";
 
 
     private enum VttEvent {
-        NONE,
         REGION,
         STYLE,
         NOTE,
@@ -43,28 +41,9 @@ public class VttParser extends BaseSubtitleParser {
         EOF
     }
 
-    private Charset charset; // Charset of the input files
-    private VttObject vttObject; // current VttObject
-
-    private SubtitleReader reader; // the reader
-
-    public VttParser(Charset charset) {
-        this.charset = charset;
+    public VttParser(ValidationReporter reporter, SubtitleReader reader) {
+        super(reporter, reader);
     }
-
-    public int getLineNumber() {
-        return (reader == null) ? 0 : reader.getLineNumber();
-    }
-
-    public int getColumn() {
-        return (reader == null) ? 0 : reader.getColumn();
-    }
-
-    // unit tests only
-    protected void setSource(SubtitleReader lnrd) {
-        reader = lnrd;
-    }
-
 
     /**
      * Positions the input right before the next event, and returns the kind of event found. Does not
@@ -72,8 +51,8 @@ public class VttParser extends BaseSubtitleParser {
      *
      * @return The kind of event found.
      */
-    private VttEvent getNextEvent(String line, boolean cues) throws SubtitleParsingException {
-        VttEvent foundEvent = VttEvent.NONE;
+    private VttEvent getNextEvent(String line, boolean cues) {
+        VttEvent foundEvent;
 
         if (line == null) {
             foundEvent = VttEvent.EOF;
@@ -83,7 +62,7 @@ public class VttParser extends BaseSubtitleParser {
                 notifyError(msg);
             }
             foundEvent = VttEvent.STYLE;
-        } else if (line.startsWith(COMMENT_START)) {
+        } else if (line.startsWith(NOTE_START)) {
             foundEvent = VttEvent.NOTE;
         } else if (line.startsWith(REGION_START)) {
             if (cues) {
@@ -106,101 +85,93 @@ public class VttParser extends BaseSubtitleParser {
      * Read and record lines until two newlines are detected
      * @return A StringBuilder containing all the block lines
      */
-    private StringBuilder readBlockLines() throws IOException {
-        StringBuilder bld = new StringBuilder();
+    private StringBuilder readBlockLines(StringBuilder bld) throws IOException {
         String textLine;
         while ((textLine = reader.readLine()) != null) {
             textLine = textLine.replace('\u0000', '\uFFFD');
             if (textLine.trim().isEmpty()) {
                 break;
             }
-            if (bld.length() > 0) {
-                bld.append("\n");
-            }
             bld.append(textLine);
+            bld.append("\n");
         }
         return bld;
     }
 
 
     @Override
-    public VttObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
+    public VttObject parse(int subtitleOffset, int maxDuration, boolean strict) throws IOException {
         // reset state
         boolean inCues = false; // are we in cues part or in styles part?
-        vttObject = new VttObject(); // Create vtt object
-        VttCue currentVttCue = null;
+        VttObject vttObject = new VttObject(); // Create vtt object
+        VttCue currentVttCue;
 
-        // Read each lines
-        try (SubtitleReader lnrd = new SubtitleReader(is, this.charset)) {
+        parseWebVTT();
 
-            reader = lnrd;
-            parseWebVTT();
+        String textLine;
+        while ((textLine = reader.readLine()) != null) {
+            // All Vtt files start with WEBVTT
+            textLine = textLine.replace('\u0000', '\uFFFD');
+            VttEvent event = getNextEvent(textLine, inCues);
 
-            String textLine;
-            while ((textLine = reader.readLine()) != null) {
-                // All Vtt files start with WEBVTT
-                textLine = textLine.replace('\u0000', '\uFFFD');
-                VttEvent event = getNextEvent(textLine, inCues);
-
-                currentVttCue = null;
-                switch (event) {
-                    case CUE_ID:
-                        currentVttCue = new VttCue(this, vttObject);
-                        currentVttCue.parseCueId(textLine); // ???
-                        if ((textLine = reader.readLine()) == null) {
-                            break;
-                        }
-                        textLine = textLine.replace('\u0000', '\uFFFD');
-                        // $FALLTHROUGH
-                    case CUE_TIMECODE:
-                        // textLine defines the start and end time codes
-                        // 00:01:21.456 --> 00:01:23.417
-                        inCues = true;
-                        if (currentVttCue == null) {
-                            currentVttCue = new VttCue(this, vttObject);
-                        }
-                        currentVttCue.parseCueHeader(textLine);
-
+            currentVttCue = null;
+            switch (event) {
+                case CUE_ID:
+                    currentVttCue = new VttCue(reporter, vttObject);
+                    currentVttCue.parseCueId(textLine); // ???
+                    if ((textLine = reader.readLine()) == null) {
+                        break;
+                    }
+                    textLine = textLine.replace('\u0000', '\uFFFD');
+                    // $FALLTHROUGH
+                case CUE_TIMECODE:
+                    // textLine defines the start and end time codes
+                    // 00:01:21.456 --> 00:01:23.417
+                    inCues = true;
+                    if (currentVttCue == null) {
+                        currentVttCue = new VttCue(reporter, vttObject);
+                    }
+                    if (currentVttCue.parseCueHeader(textLine)) {
                         // End of cue
-                        // Process multilines text in one time
+                        // Process multi-line text in one time
                         // A class or a style can be applied for more than one line
                         currentVttCue.parseCueText(reader);
                         vttObject.addCue(currentVttCue);
-                        break;
-                    case NOTE:
-                        VttNote vttNote = new VttNote(this);
-                        parseNote(vttNote);
-                        vttObject.addNote(vttNote);
-                        break;
-                    case REGION:
-                        VttRegion vttRegion = new VttRegion(this);
-                        parseRegion(vttRegion);
-                        if (vttRegion.getId() == null) {
-                            notifyError("Missing region id" );
-                        }
-                        else if (!vttObject.addRegion(vttRegion)) {
-                            notifyError("Duplicated region id: " + vttRegion.getId() );
-                        }
-                        break;
-                    case STYLE:
-                        VttStyle vttStyle = new VttStyle(this, vttObject);
-                        parseStyle(vttStyle);
-                        vttObject.addStyles(vttStyle);
-                        break;
-                    case EMPTY_LINE:
-                        // nothing to do
-                        break;
-                    default:
-                        notifyError("Unexpected block name: " + textLine);
-                        break;
-                }
+                    }
+                    break;
+                case NOTE:
+                    VttNote vttNote = new VttNote(reporter);
+                    parseNote(vttNote, textLine);
+                    vttObject.addNote(vttNote);
+                    break;
+                case REGION:
+                    VttRegion vttRegion = new VttRegion(reporter);
+                    parseRegion(vttRegion, textLine);
+                    if (vttRegion.getId() == null) {
+                        notifyError("Missing region id" );
+                    }
+                    else if (!vttObject.addRegion(vttRegion)) {
+                        notifyError("Duplicated region id: " + vttRegion.getId() );
+                    }
+                    break;
+                case STYLE:
+                    VttStyle vttStyle = new VttStyle(reporter, vttObject);
+                    parseStyle(vttStyle, textLine);
+                    vttObject.addStyles(vttStyle);
+                    break;
+                case EMPTY_LINE:
+                    // nothing to do
+                    break;
+                default:
+                    notifyError("Unexpected block name: " + textLine);
+                    break;
             }
         }
 
         return vttObject;
     }
 
-    private void parseWebVTT() throws IOException, SubtitleParsingException {
+    private void parseWebVTT() throws IOException {
         // first line must be WEBVTT ...
         String textLine = reader.readLine();
         if (textLine == null || !WEBVTT.matcher(textLine).matches()) {
@@ -209,24 +180,27 @@ public class VttParser extends BaseSubtitleParser {
         }
 
         // read lines up to two new lines
-        readBlockLines();
+        readBlockLines(new StringBuilder());
     }
 
-    private void parseNote(VttNote note) throws SubtitleParsingException, IOException {
-        StringBuilder noteText = readBlockLines();
+    private void parseNote(VttNote note, String firstLine) throws IOException {
+        StringBuilder noteText = new StringBuilder(firstLine);
+        readBlockLines(noteText);
         note.parse(noteText);
     }
 
-    private void parseStyle(VttStyle style) throws SubtitleParsingException, IOException {
+    private void parseStyle(VttStyle style, String firstLine) throws IOException {
+        if (firstLine.trim().length() > VttParser.STYLE_START.length()) {
+            notifyError("CSS Style does not start at new line");
+        }
         style.parse(reader);
     }
 
-    private void parseRegion(VttRegion region) throws SubtitleParsingException, IOException {
-        StringBuilder regionText = readBlockLines();
+    private void parseRegion(VttRegion region, String firstLine) throws IOException {
+        StringBuilder regionText = new StringBuilder(firstLine);
+        readBlockLines(regionText);
         region.parse(regionText);
     }
-
-
 
     /**
      * Parses a percentage string.
@@ -235,7 +209,7 @@ public class VttParser extends BaseSubtitleParser {
      * @return The parsed value, where 1.0 represents 100%.
      * @throws NumberFormatException If the percentage could not be parsed.
      */
-    public static float parsePercentage(String s) throws NumberFormatException {
+    static float parsePercentage(String s) throws NumberFormatException {
         if (!s.endsWith("%")) {
             throw new NumberFormatException("Percentage must end with %: " + s);
         }

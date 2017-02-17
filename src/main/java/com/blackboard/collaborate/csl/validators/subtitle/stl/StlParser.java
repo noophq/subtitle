@@ -12,10 +12,10 @@ package com.blackboard.collaborate.csl.validators.subtitle.stl;
 
 import com.blackboard.collaborate.csl.validators.subtitle.base.BaseSubtitleParser;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleObject;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
+import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,45 +30,33 @@ import java.util.Date;
  */
 public class StlParser extends BaseSubtitleParser {
 
-    public StlParser() {
+    static class BinarySubtitleReader extends DataInputStream {
+        public BinarySubtitleReader(InputStream in) {
+            super(in);
+        }
     }
 
-    public int getLineNumber() {
-        return 0; // TODO
-    }
+    private BinarySubtitleReader breader;
 
-    public int getColumn() {
-        return 0; // TODO
+    public StlParser(ValidationReporter reporter, SubtitleReader reader) {
+        super(reporter, null); // TODO: STL format would need binary reader
     }
 
     @Override
-    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws SubtitleParsingException {
-        BufferedInputStream bis = new BufferedInputStream(is);
-        DataInputStream dis = new DataInputStream(bis);
-
+    public SubtitleObject parse(int subtitleOffset, int maxDuration, boolean strict) throws IOException {
         // Create STL subtitle
         StlObject stl;
 
-        try {
-            // Read GSI block
-            StlGsi gsi = this.readGsi(dis, subtitleOffset);
-            stl = new StlObject(gsi);
-        } catch (IOException e) {
-            throw new SubtitleParsingException("Unable to parse Gsi block");
-        }
+
+        // Read GSI block
+        StlGsi gsi = this.readGsi(breader, subtitleOffset);
+        stl = new StlObject(gsi);
 
         // Iterate over all TTI blocks and parse them
         int subtitleIndex = 0;
 
         while (subtitleIndex++ < stl.getGsi().getTnb()) {
-            StlTti tti;
-
-            try {
-                tti = this.readTti(dis, stl.getGsi());
-            } catch (IOException e) {
-                throw new SubtitleParsingException("Unable to parse tti block");
-            }
-
+            StlTti tti = this.readTti(breader, stl.getGsi());
             stl.addTti(tti);
         }
 
@@ -85,7 +73,7 @@ public class StlParser extends BaseSubtitleParser {
         }
     }
 
-    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate, int subtitleOffset) throws IOException {
+    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate, int subtitleOffset) {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
@@ -112,7 +100,7 @@ public class StlParser extends BaseSubtitleParser {
     }
 
     private String readString(DataInputStream dis, int length, Charset charset) throws IOException {
-        byte [] bytes = new byte[length];
+        byte[] bytes = new byte[length];
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
@@ -120,7 +108,7 @@ public class StlParser extends BaseSubtitleParser {
     }
 
     private String readString(DataInputStream dis, int length) throws IOException {
-        byte [] bytes = new byte[length];
+        byte[] bytes = new byte[length];
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
@@ -133,7 +121,7 @@ public class StlParser extends BaseSubtitleParser {
         StlGsi gsi = new StlGsi();
 
         // Read Code Page Number (CPN)
-        byte [] cpnBytes = new byte[3];
+        byte[] cpnBytes = new byte[3];
         dis.readFully(cpnBytes, 0, 3);
         int cpn = cpnBytes[0] << 16 | cpnBytes[1] << 8 | cpnBytes[2];
         gsi.setCpn(StlGsi.Cpn.getEnum(cpn));

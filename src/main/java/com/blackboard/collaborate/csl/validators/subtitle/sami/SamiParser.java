@@ -12,16 +12,13 @@ package com.blackboard.collaborate.csl.validators.subtitle.sami;
 
 import com.blackboard.collaborate.csl.validators.subtitle.base.BaseSubtitleParser;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleObject;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitlePlainText;
+import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTextLine;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 
 /**
  * Created by clebeaupin on 11/10/15.
@@ -32,36 +29,25 @@ public class SamiParser extends BaseSubtitleParser {
         BODY_START,
         BODY_END,
         CUE_TIMECODE,
-        CUE_TEXT;
+        CUE_TEXT
     }
 
-    private Charset charset; // Charset of the input files
-
-    public SamiParser(Charset charset) {
-        this.charset = charset;
-    }
-
-    public int getLineNumber() {
-        return 0; // TODO
-    }
-
-    public int getColumn() {
-        return 0; // TODO
+    public SamiParser(ValidationReporter reporter, SubtitleReader reader) {
+        super(reporter, reader);
     }
 
     @Override
-    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
+    public SubtitleObject parse(int subtitleOffset, int maxDuration, boolean strict) throws IOException {
         // Create SAMI object
         SamiObject samiObject = new SamiObject();
 
         // Read each lines
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, this.charset));
-        String textLine = "";
+        String textLine;
         CursorStatus cursorStatus = CursorStatus.NONE;
         SamiCue cue = null;
         SamiCue previousCue = null;
 
-        while ((textLine = br.readLine()) != null) {
+        while ((textLine = reader.readLine()) != null) {
             textLine = textLine.trim().replace('\u0000', '\uFFFD');
             // Lower case text line
             String lcTextLine = textLine.toLowerCase();
@@ -87,8 +73,7 @@ public class SamiParser extends BaseSubtitleParser {
 
                 // The next element after the body element is always the sync element
                 if (!lcTextLine.startsWith("<sync")) {
-                    throw new SubtitleParsingException(String.format(
-                            "Unexpected time code: %s", textLine));
+                    notifyError("Unexpected time code: " + textLine);
                 }
             }
 
@@ -98,20 +83,17 @@ public class SamiParser extends BaseSubtitleParser {
                 String text = textLine.substring(5).trim();
 
                 if (!text.toLowerCase().startsWith("start=")) {
-                    throw new SubtitleParsingException(String.format(
-                            "Unexpected time code: %s", textLine));
+                    notifyError("Unexpected time code: " + textLine);
                 }
 
                 // Make sure this is an integer
                 String startTime = text.substring(6, text.length() - 1).trim();
-                long time;
+                long time = 0;
 
                 try {
                     time = Long.valueOf(startTime + subtitleOffset);
                 } catch (NumberFormatException e) {
-                    throw new SubtitleParsingException(String.format(
-                            "Unable to parse start time: %s",
-                            textLine));
+                    notifyError("Unable to parse start time: " + textLine);
                 }
 
                 // New cue
@@ -151,8 +133,7 @@ public class SamiParser extends BaseSubtitleParser {
                 continue;
             }
 
-            throw new SubtitleParsingException(String.format(
-                    "Unexpected line: %s", textLine));
+            notifyError("Unexpected line: " + textLine);
         }
 
         // This is the end

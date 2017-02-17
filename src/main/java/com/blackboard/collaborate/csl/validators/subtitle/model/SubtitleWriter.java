@@ -10,12 +10,12 @@
 
 package com.blackboard.collaborate.csl.validators.subtitle.model;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Created by clebeaupin on 02/10/15.
  */
-public interface SubtitleWriter {
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException;
+public interface SubtitleWriter extends Closeable {
+    void write(SubtitleObject subtitleObject) throws IOException;
 }

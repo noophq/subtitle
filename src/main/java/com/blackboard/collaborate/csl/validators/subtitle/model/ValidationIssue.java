@@ -1,10 +1,15 @@
 package com.blackboard.collaborate.csl.validators.subtitle.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * Created by jdvorak on 20.1.2017.
  *
  * This will be sent to the client (?)
  */
+@Getter
+@AllArgsConstructor
 public class ValidationIssue {
 
     public enum Severity {
@@ -18,31 +23,8 @@ public class ValidationIssue {
     private int line;
     private int column;
 
-    public ValidationIssue(Severity severity, String message, int line, int column) {
-        this.message = message;
-        this.severity = severity;
-        this.line = line;
-        this.column = column;
-    }
-
     public ValidationIssue(Severity severity, String message) {
         this(severity, message, 0, 0);
-    }
-
-    public Severity getSeverity() {
-        return severity;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getColumn() {
-        return column;
     }
 
     public String toString() {

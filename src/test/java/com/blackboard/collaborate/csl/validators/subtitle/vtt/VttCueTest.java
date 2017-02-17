@@ -1,62 +1,65 @@
 package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.base.ValidationReporterImpl;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Created by jdvorak on 20.1.2017.
  */
 public class VttCueTest {
 
-    private void testCueText(String text, int maxErrors) {
-        System.out.println("TESTING: " + text);
-        VttParser parser = new VttParser(StandardCharsets.UTF_8);
-        VttCue cue = new VttCue(parser, null);
+    private void testCueText(String text, int errors) {
+        System.out.print("TESTING: " + text);
 
         CountingValidationListener listener = new CountingValidationListener();
-        parser.addValidationListener(listener);
 
         try (SubtitleReader reader = new SubtitleReader(new StringReader(text))) {
-            parser.setSource(reader);
+            ValidationReporterImpl reporter = new ValidationReporterImpl(reader);
+            reporter.addValidationListener(listener);
+            VttCue cue = new VttCue(reporter, null);
+
             cue.parseCueText(reader);
 
-        } catch (SubtitleParsingException e) {
-            Assert.fail(e.getMessage());
+            listener.exactAssert("", errors);
+
+        } catch (AssertionError e) {
+            System.out.println(" ...ERROR");
+            throw e;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(" ...ERROR");
+            Assert.fail(e.getMessage());
         }
 
-        listener.checkAssert(maxErrors);
+        System.out.println(" ...OK");
     }
 
     // missing '</v>' tag
     @Test
     public void testCueText1() {
-        testCueText("<v Bill>plain text<b>bold text</b> end text", 1);
+        testCueText("<v Bill>plain text<b>bold text</b> end text", 0);
     }
 
     // disclosed '</b' tag
     @Test
     public void testCueText2() {
-        testCueText("<v Bill>plain text<b>bold text</b end text", 3);
+        testCueText("<v Bill>plain text<b>bold text</b end text", 2);
     }
 
     // disclosed '<b' tag
     @Test
     public void testCueText3() {
-        testCueText("<v Bill>plain text<b bold text</b> end text", 3);
+        testCueText("<v Bill>plain text<b bold text</b> end text", 2);
     }
 
     // invalid char '>'
     @Test
     public void testCueText4() {
-        testCueText("<v Bill>plain text b> bold text</b> end text", 3);
+        testCueText("<v Bill>plain text b> bold text</b> end text", 2);
     }
 
     // entities OK
@@ -77,8 +80,8 @@ public class VttCueTest {
     // lang without annotation
     @Test
     public void testCueText7() {
-        testCueText("<v>no voice in v", 2);
-        testCueText("<lang>no language in lang</lang>", 2);
+        testCueText("<v>no voice in v", 1);
+        testCueText("<lang>no language in lang</lang>", 1);
     }
 
     // tags with annotation
@@ -95,10 +98,27 @@ public class VttCueTest {
         testCueText("<ruby>text<rt>wef<b>wef</b>we</rt></ruby>", 1);
     }
 
-    // timestamp in cue tesxt
+    // timestamp in cue text
     @Test
     public void testCueText10() {
         testCueText("start text <01:01:01.234> late text", 0);
+    }
+
+    @Test
+    public void testCueText11() {
+        testCueText("start text <lang.loud en>English</lang>", 0);
+    }
+
+    // invalid nesting
+    @Test
+    public void testCueText12() {
+        testCueText("start text <lang.loud en>English<lang en>English2</lang></lang>", 1);
+    }
+
+    // invalid nesting
+    @Test
+    public void testCueText13() {
+        testCueText("start text <b>bla bla <i>blab la<b>b2</b>erwfwfw</i>wwefwe</b>wfwefwe", 1);
     }
 
 }

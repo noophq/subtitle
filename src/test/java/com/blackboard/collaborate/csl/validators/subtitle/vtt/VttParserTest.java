@@ -10,29 +10,24 @@
 
 package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.base.ValidationReporterImpl;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
-import org.junit.Assert;
+import com.blackboard.collaborate.csl.validators.subtitle.util.TestUtils;
 import org.junit.Test;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 public class VttParserTest {
 
     @Test
-    public void testFormatTimecode() throws SubtitleParsingException {
-		VttParser parser = new VttParser(StandardCharsets.UTF_8);
-		VttCue cue = new VttCue(parser, null);
+    public void testFormatTimecode() {
+		CountingValidationListener listener = new CountingValidationListener();
+		ValidationReporterImpl reporter = new ValidationReporterImpl(null);
+		reporter.addValidationListener(listener);
+
+		VttCue cue = new VttCue(reporter, null);
 
 		SubtitleTimeCode tc = cue.parseTimeCode("00:10.000", 0);
 		assertEquals(0, tc.getHour());
@@ -66,52 +61,13 @@ public class VttParserTest {
 
     }
 
-	private void testVttFile(String file, int errors) {
-		VttParser parser = new VttParser(StandardCharsets.UTF_8);
-        CountingValidationListener listener = new CountingValidationListener();
-        parser.addValidationListener(listener);
-
-		try (InputStream is = new FileInputStream(file)) {
-			parser.parse(is);
-
-		} catch (SubtitleParsingException e) {
-			//Assert.fail(e.getMessage());
-		} catch (IOException e) {
-			Assert.fail(e.getMessage());
-		}
-
-        listener.checkAssert(errors);
-	}
-
-	private void testFolder(String dir) throws IOException {
-		Path testDir = Paths.get(dir);
-
-		Properties props = new Properties();
-		try (InputStream is = new FileInputStream(Paths.get(testDir.toString(), "vtt.properties").toString())) {
-			props.load(is);
-		}
-
-		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(testDir)) {
-			for (Path path : directoryStream) {
-			    Path fileName = path.getFileName();
-			    String fileStr = fileName.toString();
-			    if (fileStr.endsWith(".vtt")) {
-                    System.out.println("File: " + fileStr);
-                    String errStr = props.getProperty(fileStr);
-                    int errors = Integer.parseInt(errStr);
-                    testVttFile(path.toString(), errors);
-                }
-			}
-		}
-	}
-
     @Test
     public void testFiles() throws IOException {
-        testFolder("src/test/resources/vtt");
+        TestUtils.testFolder("src/test/resources/vtt");
     }
 
 //	@Test
-//	public void testStyle() throws IOException {
-//		testVttFile("src/test/resources/vtt/css_styles.vtt", 6);
+//	public void testHelper() throws IOException {
+//		TestUtils.testFile("src/test/resources/vtt/regions.vtt", 1);
 //	}
 }

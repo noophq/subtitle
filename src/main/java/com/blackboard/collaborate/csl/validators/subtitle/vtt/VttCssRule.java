@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class VttCssRule {
 
-    private List<VttCssSelector> selectors;
-    private Map<String, String> propertyValues;
+    private final List<VttCssSelector> selectors;
+    private final Map<String, String> propertyValues;
     
     public VttCssRule() {
         selectors = new ArrayList<>();
@@ -26,12 +26,12 @@ public class VttCssRule {
             if (bld.length() > 0) {
                 bld.append(", ");
             }
-            bld.append(selector);
+            bld.append(selector.toString());
         }
 
         bld.append(" {\n");
         for (Map.Entry<String, String> entry : propertyValues.entrySet()) {
-            bld.append("\t").append(entry.getKey()).append(":").append(entry.getValue()).append(";\n");
+            bld.append("  ").append(entry.getKey()).append(":").append(entry.getValue()).append(";\n");
         }
         bld.append("}\n");
 
@@ -46,7 +46,6 @@ public class VttCssRule {
     /**
      * @return List of all selectors attached to the rule.
      */
-
     public Iterable<VttCssSelector> selectors() {
         return selectors;
     }
@@ -56,7 +55,6 @@ public class VttCssRule {
      *
      * @param selector The selector that should be attached to the rule.
      */
-
     public void addSelector(final VttCssSelector selector) {
         selectors.add(selector);
     }

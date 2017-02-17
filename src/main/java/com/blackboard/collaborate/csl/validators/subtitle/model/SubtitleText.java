@@ -18,11 +18,11 @@ public interface SubtitleText {
      *
      * @return the text
      */
-    public String toString();
+    String toString();
 
     /**
      *
      * @return true if there is no text
      */
-    public boolean isEmpty();
+    boolean isEmpty();
 }

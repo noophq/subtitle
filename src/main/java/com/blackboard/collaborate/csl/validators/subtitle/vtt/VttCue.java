@@ -16,7 +16,6 @@ import com.blackboard.collaborate.csl.validators.subtitle.base.CueElemData;
 import com.blackboard.collaborate.csl.validators.subtitle.base.CuePlainData;
 import com.blackboard.collaborate.csl.validators.subtitle.base.CueTimeStampData;
 import com.blackboard.collaborate.csl.validators.subtitle.base.CueTreeNode;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
 import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleStyle;
@@ -24,6 +23,8 @@ import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,8 +60,9 @@ public class VttCue extends BaseSubtitleCue {
     private static final String[] EMPTY_CLASSES = new String[0];
 
     private CueTreeNode tree;
-    private ValidationReporter reporter;
-    private VttObject vtt;
+    private final ValidationReporter reporter;
+    private final VttObject vtt;
+    private Map<String, String> settingsMap;
 
     public VttCue(ValidationReporter reporter, VttObject vtt) {
         this.reporter = reporter;
@@ -71,15 +73,15 @@ public class VttCue extends BaseSubtitleCue {
         return this.tree;
     }
 
-    void parseCueId(String textLine) throws SubtitleParsingException {
+    void parseCueId(String textLine) {
         setId(textLine); // done
     }
 
-    void parseCueHeader(String textLine) throws SubtitleParsingException {
+    boolean parseCueHeader(String textLine) {
         Matcher m = CUE_TIME_PATTERN.matcher(textLine);
         if (!m.matches()) {
             reporter.notifyError("Timecode '" + textLine + "' is badly formated");
-            return;
+            return false;
         }
 
         SubtitleTimeCode startTime = parseTimeCode(m.group(1), 0);
@@ -108,10 +110,18 @@ public class VttCue extends BaseSubtitleCue {
         // parse cue settings
         String settings = m.group(3);
         parseCueSettings(settings);
+        return true;
+    }
+
+    private void addCueSetting(String name, String value) {
+        if (settingsMap.put(name, value) != null) {
+            reporter.notifyWarning("Duplicated cue setting: " + name);
+        }
     }
 
     private void parseCueSettings(String settings) {
         Matcher m = CUE_SETTING_PATTERN.matcher(settings);
+        settingsMap = new HashMap<>();
         while (m.find()) {
             String name = m.group(1);
             String value = m.group(2);
@@ -121,20 +131,28 @@ public class VttCue extends BaseSubtitleCue {
                         if (!"lr".equals(value) && !"rl".equals(value)) {
                             reporter.notifyWarning("Invalid cue setting " + name + ":" + value);
                         }
+                        else {
+                            addCueSetting(name, value);
+                        }
                         break;
                     case "line":
                         // position,value
                         parseLineAttribute(value);
+                        addCueSetting(name, value);
                         break;
                     case "align":
-                        parseTextAlignment(value);
+                        if (parseTextAlignment(value) != null) {
+                            addCueSetting(name, value);
+                        }
                         break;
                     case "position":
                         // anchor,percentage
                         parsePositionAttribute(value);
+                        addCueSetting(name, value);
                         break;
                     case "size":
                         VttParser.parsePercentage(value);
+                        addCueSetting(name, value);
                         break;
                     case "region":
                         // region id
@@ -144,6 +162,7 @@ public class VttCue extends BaseSubtitleCue {
                                 reporter.notifyWarning("No REGION with id " + value);
                             }
                         }
+                        addCueSetting(name, value);
                         break;
                     default:
                         reporter.notifyWarning("Unrecognized cue setting " + name + ":" + value);
@@ -197,7 +216,6 @@ public class VttCue extends BaseSubtitleCue {
             case "start":
                 return VttCue.ANCHOR_START;
             case "center":
-                //case "middle":
                 return VttCue.ANCHOR_MIDDLE;
             case "end":
                 return VttCue.ANCHOR_END;
@@ -227,7 +245,6 @@ public class VttCue extends BaseSubtitleCue {
             case "left":
                 return SubtitleStyle.TextAlign.LEFT;
             case "center":
-                //case "middle":
                 return SubtitleStyle.TextAlign.CENTER;
             case "end":
             case "right":
@@ -238,7 +255,7 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
-//    void content(SubtitleReader cueText) throws SubtitleParsingException, IOException {
+//    void content(SubtitleReader cueText) throws IOException {
 //        while (!eof) {
 //            text();
 //            tag();
@@ -255,13 +272,10 @@ public class VttCue extends BaseSubtitleCue {
 
     /**
      * Parse the cue text and validate the tags, ...
-     * @return The cue tags tree structure
-     * @throws SubtitleParsingException
-     * @throws IOException
+     * Visible for unit tests.
+     * @throws IOException when an IO exception occur
      */
-    void parseCueText(SubtitleReader reader) throws SubtitleParsingException, IOException {
-        // FIXME - read by lines/chars instead of whole block to keep better track of current line
-
+    void parseCueText(SubtitleReader reader) throws IOException {
         tree = new CueTreeNode();
         CueTreeNode current = tree;
         TagStatus tagStatus = TagStatus.NONE; // tag parsing status
@@ -282,14 +296,12 @@ public class VttCue extends BaseSubtitleCue {
                     reporter.notifyError("Empty cue is not allowed");
                 }
                 break; // end of file
-            }
-            else if (c == '\n') {
+            } else if (c == '\n') {
                 if (wasNL) {
                     break; // double new line
                 }
                 wasNL = true;
-            }
-            else if (c != ' ' && c != '\t') {
+            } else if (c != ' ' && c != '\t') {
                 wasNL = false;
             }
 
@@ -298,21 +310,20 @@ public class VttCue extends BaseSubtitleCue {
                 reader.mark(2);
                 if (reader.read() == '-' && reader.read() == '>') {
                     reporter.notifyError("Detected '" + VttParser.ARROW + "' inside cue text");
-                }
-                else {
+                } else {
                     reader.reset();
                 }
             }
 
             if (c == '<') {
                 if (tagStatus == TagStatus.OPEN || tagStatus == TagStatus.CLOSE) {
-                    reporter.notifyWarning("Probably disclosed tag: <");
+                    reporter.notifyWarning("Probably a disclosed tag: <");
                 }
 
                 c = reader.lookNext();
                 if (c != -1) {
                     if (c == '/') {
-                        reader.read();
+                        reader.skip(1);
                         len++;
                         tagStatus = TagStatus.CLOSE;
                     } else {
@@ -338,13 +349,11 @@ public class VttCue extends BaseSubtitleCue {
 
                     if (tagBuilder.length() == 0) {
                         reporter.notifyWarning("The cue tag is empty");
-                    }
-                    else {
+                    } else {
                         CueData cueTag = startTag(current, tagBuilder.toString());
                         CueTreeNode elemChild = new CueTreeNode(cueTag);
                         current.add(elemChild);
-                        if (!(cueTag instanceof CueTimeStampData)) {
-                            // FIXME - avoid instanceof
+                        if (!(cueTag instanceof CueTimeStampData)) { // TODO: think of better design to avoid 'instanceof'
                             // move down, but not for timestamp
                             current = elemChild;
                         }
@@ -356,8 +365,7 @@ public class VttCue extends BaseSubtitleCue {
                     // try to find a matching tag in parent
                     CueTreeNode matchNode = current.findParentByTag(tag);
                     if (matchNode != current) {
-                        String msg = "Unmatched end tag: " + tag;
-                        reporter.notifyWarning(msg);
+                        reporter.notifyWarning("Unmatched end tag: " + tag);
                     }
                     CueTreeNode closing = current;
                     if (matchNode != null) {
@@ -400,7 +408,7 @@ public class VttCue extends BaseSubtitleCue {
 
         if (tagStatus != TagStatus.NONE) {
             reporter.notifyWarning("Disclosed tag: <" + tagBuilder.toString());
-            // FIXME - normalize to "&lt;text"
+            // TODO: replace with "&lt;text" and continue
             // CueTreeNode plainChild = new CueTreeNode(new CuePlainData("&lt;" + cueText.substring(startTag)));
             // current.add(plainChild);
         }
@@ -413,7 +421,10 @@ public class VttCue extends BaseSubtitleCue {
 
         while (current != null && current != tree) {
             if (!current.isLeaf()) {
-                reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
+                // <v> does not need end tag
+                if (!"v".equals(current.getTag())) {
+                    reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
+                }
             }
             current = current.getParent();
         }
@@ -464,6 +475,12 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
+    private void checkNesting(CueTreeNode current, String tag) {
+        if (current.findParentByTag(tag) != null) {
+            reporter.notifyWarning("Nested <" + tag + "> tag not allowed");
+        }
+    }
+
     private CueData startTag(CueTreeNode current, String wholeName) {
         String annotation;
 
@@ -494,46 +511,43 @@ public class VttCue extends BaseSubtitleCue {
         }
 
         switch (tagName) {
-            case "c": // just styling
+            case TAG_CLASS: // just styling
                 if (classes.length == 0) {
                     reporter.notifyWarning("No classes specified in <" + tagName + "> tag");
                 }
                 //$FALLTHROUGH
-            case "b": // just styling
-            case "i": // just styling
-            case "u": // just styling
+            case TAG_BOLD: // just styling
+            case TAG_ITALIC: // just styling
+            case TAG_UNDERLINE: // just styling
                 if (!annotation.isEmpty()) {
                     reporter.notifyWarning("Annotation specified in <" + tagName + "> tag");
                 }
                 break;
-            case "lang": // language
+            case TAG_LANG: // language
                 if (annotation.isEmpty()) {
                     reporter.notifyWarning("No language specified in <" + tagName + ">");
                     annotation = "";
                 }
                 break;
-            case "v":
+            case TAG_VOICE:
                 // does not need end tag if it is the only tag in the text
                 if (annotation.isEmpty()) {
-                    reporter.notifyWarning("No voice specified in <v> tag");
+                    reporter.notifyWarning("No voice specified in " + tagName + " tag");
                 }
                 break;
-            case "ruby":
+            case TAG_RUBY:
                 // no annotation, only rt inside
                 if (!annotation.isEmpty()) {
-                    reporter.notifyWarning("No annotation allowed for <ruby> tag");
+                    reporter.notifyWarning("No annotation allowed for <" + tagName + "> tag");
                     annotation = "";
                 }
-                if (current.findParentByTag("ruby") != null) {
-                    reporter.notifyWarning("Nested <ruby> tag not allowed");
-                }
                 break;
-            case "rt": // only inside ruby, does not need end tag, no annotation
+            case TAG_RT: // only inside ruby, does not need end tag, no annotation
                 if (!"ruby".equals(current.getTag())) {
-                    reporter.notifyWarning("<rt> cannot be outside <ruby>");
+                    reporter.notifyWarning("Tag <" + tagName + "> cannot be outside tag >" + TAG_RUBY + ">");
                 }
                 if (classes.length > 0 || !annotation.isEmpty()) {
-                    reporter.notifyWarning("No annotation allowed for <rt> tag");
+                    reporter.notifyWarning("No annotation allowed for <" + tagName + "> tag");
                     annotation = "";
                     classes = EMPTY_CLASSES;
                 }
@@ -543,8 +557,10 @@ public class VttCue extends BaseSubtitleCue {
                 break;
         }
 
-        if (!"rt".equals(tagName) && "ruby".equals(current.getTag())) {
-            reporter.notifyWarning("<ruby> tag can contain only <rt>");
+        checkNesting(current, tagName);
+
+        if (!TAG_RT.equals(tagName) && TAG_RUBY.equals(current.getTag())) {
+            reporter.notifyWarning("Tag <" + TAG_RUBY + "> can contain only <" + TAG_RT + "> tags");
         }
 
         CueElemData cueTag = new CueElemData(tagName, classes, annotation);
@@ -570,12 +586,20 @@ public class VttCue extends BaseSubtitleCue {
     }
 
     private void endTag(CueTreeNode current) {
-        if ("rt".equals(current.getTag())) {
+        if (TAG_RT.equals(current.getTag())) {
             if (current.hasSubTags()) {
-                reporter.notifyWarning("<rt> tag can contain only plain text");
+                reporter.notifyWarning("<" + TAG_RT + "> tag can contain only plain text");
             }
         }
     }
 
+    @Override
+    public String getText() {
+        return tree.toStyledString();
+    }
 
+    @Override
+    public Iterable<Map.Entry<String, String>> getSettings() {
+        return settingsMap.entrySet();
+    }
 }

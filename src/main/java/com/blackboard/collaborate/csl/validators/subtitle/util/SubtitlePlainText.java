@@ -16,7 +16,7 @@ import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleText;
  * Created by clebeaupin on 06/10/15.
  */
 public class SubtitlePlainText implements SubtitleText {
-    private String text; // Text to display
+    private final String text; // Text to display
 
     public SubtitlePlainText(String text) {
         this.text = text;

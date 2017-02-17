@@ -10,17 +10,17 @@
 
 package com.blackboard.collaborate.csl.validators.subtitle.base;
 
-/**
- * Created by clebeaupin on 09/10/15.
- */
-
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleLine;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Created by clebeaupin on 09/10/15.
+ */
 public abstract class BaseSubtitleCue implements SubtitleCue {
     private String id; // Id of cue. 1 or c1
     private SubtitleTimeCode startTime; // Start displaying the cue at this time code
@@ -50,6 +50,7 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
         this.lines = lines;
     }
 
+    @Override
     public String getId() {
         return this.id;
     }
@@ -58,6 +59,7 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
         this.id = id;
     }
 
+    @Override
     public SubtitleTimeCode getStartTime() {
         return this.startTime;
     }
@@ -66,6 +68,7 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
         this.startTime = startTime;
     }
 
+    @Override
     public SubtitleTimeCode getEndTime() {
         return this.endTime;
     }
@@ -74,6 +77,7 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
         this.endTime = endTime;
     }
 
+    @Override
     public List<SubtitleLine> getLines() {
         return this.lines;
     }
@@ -91,14 +95,20 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
         this.setEndTime(this.getEndTime().subtract(toSubtract));
     }
 
+    @Override
     public String getText() {
-        String[] texts = new String[this.lines.size()];
+        StringBuilder bld = new StringBuilder();
 
-        for (int i=0; i<texts.length; i++) {
-            texts[i] = this.lines.get(i).toString();
+        for (SubtitleLine line : lines) {
+            bld.append(line.toString()).append("\n");
         }
 
-        return String.join("\n", texts);
+        return bld.toString();
+    }
+
+    @Override
+    public Iterable<Map.Entry<String, String>> getSettings() {
+        return null;
     }
 
     @Override

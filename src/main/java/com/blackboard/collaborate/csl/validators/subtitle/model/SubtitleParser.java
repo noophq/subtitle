@@ -11,20 +11,21 @@
 package com.blackboard.collaborate.csl.validators.subtitle.model;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by clebeaupin on 02/10/15.
  */
 public interface SubtitleParser {
-    SubtitleObject parse(InputStream is) throws IOException, SubtitleParsingException;
+    SubtitleObject parse() throws IOException;
 
-    SubtitleObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException;
+    SubtitleObject parse(boolean strict) throws IOException;
 
-    SubtitleObject parse(InputStream is, int subtitleOffset, boolean strict) throws IOException, SubtitleParsingException;
+    SubtitleObject parse(int subtitleOffset, boolean strict) throws IOException;
 
-    SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException;
+    SubtitleObject parse(int subtitleOffset, int maxDuration, boolean strict) throws IOException;
 
-    void addValidationListener(ValidationListener listener);
+    void notifyWarning(String msg);
+
+    void notifyError(String msg);
 
 }

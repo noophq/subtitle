@@ -22,7 +22,7 @@ public class SubtitleStyleTest {
     private SubtitleStyle tested;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         tested = new SubtitleStyle();
         tested.setTextAlign(SubtitleStyle.TextAlign.CENTER);
         tested.setDirection(SubtitleStyle.Direction.LTR);
@@ -32,62 +32,62 @@ public class SubtitleStyleTest {
     }
 
     @Test
-    public void testGetDirection() throws Exception {
+    public void testGetDirection() {
         assertEquals(SubtitleStyle.Direction.LTR, tested.getDirection());
     }
 
     @Test
-    public void testSetDirection() throws Exception {
+    public void testSetDirection() {
         tested.setDirection(SubtitleStyle.Direction.RTL);
         assertEquals(SubtitleStyle.Direction.RTL, tested.getDirection());
     }
 
     @Test
-    public void testGetTextAlign() throws Exception {
+    public void testGetTextAlign() {
         assertEquals(SubtitleStyle.TextAlign.CENTER, tested.getTextAlign());
     }
 
     @Test
-    public void testSetTextAlign() throws Exception {
+    public void testSetTextAlign() {
         tested.setTextAlign(SubtitleStyle.TextAlign.RIGHT);
         assertEquals(SubtitleStyle.TextAlign.RIGHT, tested.getTextAlign());
     }
 
     @Test
-    public void testGetFontStyle() throws Exception {
+    public void testGetFontStyle() {
         assertEquals(SubtitleStyle.FontStyle.ITALIC, tested.getFontStyle());
     }
 
     @Test
-    public void testSetFontStyle() throws Exception {
+    public void testSetFontStyle() {
         tested.setFontStyle(SubtitleStyle.FontStyle.OBLIQUE);
         assertEquals(SubtitleStyle.FontStyle.OBLIQUE, tested.getFontStyle());
     }
 
     @Test
-    public void testGetTextDecoration() throws Exception {
+    public void testGetTextDecoration() {
         assertEquals(SubtitleStyle.TextDecoration.UNDERLINE, tested.getTextDecoration());
     }
 
     @Test
-    public void testSetTextDecoration() throws Exception {
+    public void testSetTextDecoration() {
         tested.setTextDecoration(SubtitleStyle.TextDecoration.LINE_THROUGH);
         assertEquals(SubtitleStyle.TextDecoration.LINE_THROUGH, tested.getTextDecoration());
     }
 
     @Test
-    public void testGetColor() throws Exception {
+    public void testGetColor() {
         assertEquals("white", tested.getColor());
     }
 
     @Test
-    public void testSetColor() throws Exception {
+    public void testSetColor() {
         tested.setColor("black");
         assertEquals("black", tested.getColor());
     }
 
     @Test
-    public void testGetProperty() throws Exception {
+    public void testGetProperty() {
         assertEquals(SubtitleStyle.Direction.LTR, tested.getProperty(SubtitleStyle.Property.DIRECTION));
         assertEquals(SubtitleStyle.TextAlign.CENTER, tested.getProperty(SubtitleStyle.Property.TEXT_ALIGN));
         assertEquals(SubtitleStyle.FontStyle.ITALIC, tested.getProperty(SubtitleStyle.Property.FONT_STYLE));

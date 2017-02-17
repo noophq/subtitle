@@ -1,12 +1,14 @@
 package com.blackboard.collaborate.csl.validators.subtitle.base;
 
+import lombok.NonNull;
+
 /**
  * Created by jdvorak on 19.1.2017.
  */
 public class CuePlainData implements CueData {
-    private String content;
+    private final String content;
 
-    public CuePlainData(String content) {
+    public CuePlainData(@NonNull String content) {
         this.content = content;
     }
 

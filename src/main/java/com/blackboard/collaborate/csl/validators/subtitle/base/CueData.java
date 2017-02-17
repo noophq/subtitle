@@ -13,7 +13,7 @@ public interface CueData {
 
     /**
      * Plain text content.
-     * @return
+     * @return The content.
      */
     String content();
 }

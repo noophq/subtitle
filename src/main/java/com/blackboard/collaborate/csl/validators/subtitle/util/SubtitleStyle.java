@@ -24,13 +24,13 @@ public class SubtitleStyle {
         COLOR,
         FONT_STYLE,
         FONT_WEIGHT,
-        TEXT_DECORATION;
+        TEXT_DECORATION
     }
 
     // Direction
     public enum Direction {
         LTR,
-        RTL;
+        RTL
     }
 
     // Text decoration
@@ -38,21 +38,21 @@ public class SubtitleStyle {
         NONE,
         UNDERLINE,
         OVERLINE,
-        LINE_THROUGH;
+        LINE_THROUGH
     }
 
     // Text align
     public enum TextAlign {
         LEFT,
         RIGHT,
-        CENTER;
+        CENTER
     }
 
     // Text decoration
     public enum FontStyle {
         NORMAL,
         ITALIC,
-        OBLIQUE;
+        OBLIQUE
     }
 
     // Store all style properties

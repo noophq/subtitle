@@ -1,5 +1,7 @@
 package com.blackboard.collaborate.csl.validators.subtitle.util;
 
+import com.blackboard.collaborate.csl.validators.subtitle.model.ParsePositionProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,10 +12,10 @@ import java.nio.charset.Charset;
 
 
 /**
- * Created by jdvorak on 06/02/2017.
+ * Reader with line:column position.
  */
-public class SubtitleReader extends LineNumberReader {
-    private int column; // curent column (char in line)
+public class SubtitleReader extends LineNumberReader implements ParsePositionProvider {
+    private int column; // current column (char in line)
 
     public SubtitleReader(Reader in) {
         super(in);
@@ -21,40 +23,52 @@ public class SubtitleReader extends LineNumberReader {
 
     public SubtitleReader(InputStream is, Charset charset) {
         super(new InputStreamReader(is, charset));
+        setLineNumber(1); // start with line 1
     }
 
     @Override
     public int read() throws IOException {
-        int c = super.read();
-        if (c == '\n') {
-            column = 0;
-        }
-        else {
-            column++;
-        }
-        return c;
-    }
-
-    public int read(char cbuf[], int off, int len) throws IOException {
-        int n = super.read(cbuf, off, len);
-
-        for (int i = off; i < off + n; i++) {
-            int c = cbuf[i];
+        synchronized (lock) {
+            int c = super.read();
             if (c == '\n') {
                 column = 0;
-            }
-            else {
+            } else {
                 column++;
             }
+            return c;
         }
-
-        return n;
     }
 
+    @Override
+    public int read(char cbuf[], int off, int len) throws IOException {
+        synchronized (lock) {
+            int n = super.read(cbuf, off, len);
+
+            for (int i = off; i < off + n; i++) {
+                if (cbuf[i] == '\n') {
+                    column = 0;
+                } else {
+                    column++;
+                }
+            }
+
+            return n;
+        }
+    }
+
+    /**
+     * @return Current read position within the line.
+     */
+    @Override
     public int getColumn() {
         return column;
     }
 
+    /**
+     *
+     * @return Next character, but does not change position.
+     * @throws IOException when an IO exception occur
+     */
     public int lookNext() throws IOException {
         mark(1);
         int c = read();

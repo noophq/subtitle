@@ -9,7 +9,7 @@ import java.util.List;
 public class CueTreeNode {
     private CueData data;
     private CueTreeNode parent;
-    private List<CueTreeNode> children;
+    private final List<CueTreeNode> children;
 
     public CueTreeNode() {
         this(null);
@@ -17,7 +17,7 @@ public class CueTreeNode {
 
     public CueTreeNode(CueData data) {
         this.data = data;
-        children = new ArrayList<CueTreeNode>();
+        children = new ArrayList<>();
     }
 
     public void add(CueTreeNode child) {
@@ -52,10 +52,6 @@ public class CueTreeNode {
     public CueData getData() {
         return this.data;
     }
-
-//    public CueElemNode<T> getChild(int idx) {
-//        return children.get(idx); // FIXME - check range
-//    }
 
     public String toString() {
         StringBuilder bld = new StringBuilder();
@@ -107,7 +103,7 @@ public class CueTreeNode {
      */
     public boolean hasSubTags() {
         for (CueTreeNode child : children) {
-            if (child.getData() instanceof CueElemData) { // FIXME - do not use instanceof here
+            if (child.getData() instanceof CueElemData) { // TODO: think of better design to avoid 'instanceof'
                 return true;
             }
         }

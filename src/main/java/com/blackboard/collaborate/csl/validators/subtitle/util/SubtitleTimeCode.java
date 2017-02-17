@@ -11,14 +11,17 @@
 package com.blackboard.collaborate.csl.validators.subtitle.util;
 
 
+import lombok.EqualsAndHashCode;
+
 /**
  * Created by clebeaupin on 22/09/15.
  */
+@EqualsAndHashCode(of = { "milliseconds" })
 public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
-	private static final int MAX_HOUR = 24;
-    private static final int MS_HOUR = 3600000;
-    private static final int MS_MINUTE = 60000;
-    private static final int MS_SECOND = 1000;
+	//private static final long MAX_HOUR = 24L;
+    private static final long MS_HOUR = 3600000L; // must be long to avoid integer overflows
+    private static final long MS_MINUTE = 60000L; // --//--
+    private static final long MS_SECOND = 1000L;  // --//--
 
     private long milliseconds;
 
@@ -85,11 +88,10 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     /**
      *
-     * @param toSubtract Time code to substract to the current object
-     * @return TimeCode the new time code
+     * @param toSubtract Time code to subtract from the current object
+     * @return The resulting time code
      */
     public SubtitleTimeCode subtract(SubtitleTimeCode toSubtract) {
-        // FIXME: Throws exception if frame rate are not equals
-        return new SubtitleTimeCode(this.getTime() - toSubtract.getTime());
+        return new SubtitleTimeCode(getTime() - toSubtract.getTime());
     }
 }

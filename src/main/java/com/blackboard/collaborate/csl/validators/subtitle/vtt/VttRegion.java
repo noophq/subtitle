@@ -18,7 +18,7 @@ public class VttRegion {
 
     private float[] viewportanchor;
     private float[] regionanchor;
-    private ValidationReporter reporter;
+    private final ValidationReporter reporter;
 
     public VttRegion(ValidationReporter reporter) {
         this.reporter = reporter;
@@ -28,32 +28,34 @@ public class VttRegion {
         return id;
     }
 
-    // FIXME - class should be immutable
-    public void setId(String id) {
+    private void setId(String id) {
         this.id = id;
     }
 
-    public void setWidth(float v) {
+    private void setWidth(float v) {
         width = v;
     }
 
-    public void setLines(int i) {
+    private void setLines(int i) {
         lines = i;
     }
 
-    public void setViewPortAnchor(float[] anchor) {
+    private void setViewPortAnchor(float[] anchor) {
         viewportanchor = anchor;
     }
 
-    public void setRegionAnchor(float[] anchor) {
+    private void setRegionAnchor(float[] anchor) {
         regionanchor = anchor;
     }
 
-    public void setScrollUp(boolean up) {
+    private void setScrollUp(boolean up) {
         scrollUp = up;
     }
 
     public void parse(StringBuilder regionText) {
+        // delete the REGION identifier
+        int end = regionText.indexOf(VttParser.REGION_START);
+        regionText.delete(0, end + VttParser.REGION_START.length());
 
         Matcher m = REGION_PATTERN.matcher(regionText);
         while (m.find()) {
@@ -96,8 +98,7 @@ public class VttRegion {
                 case "scroll":
                     if (!value.equals("up")) {
                         reporter.notifyWarning("Invalid region " + name + " value: " + value);
-                    }
-                    else {
+                    } else {
                         setScrollUp(true);
                     }
                     break;
@@ -127,7 +128,7 @@ public class VttRegion {
 
 
     public String toString() {
-        StringBuilder bld = new StringBuilder("REGION\n");
+        StringBuilder bld = new StringBuilder(VttParser.REGION_START).append("\n");
 
         bld.append("id:").append(id).append("\n");
         if (width > 0) {

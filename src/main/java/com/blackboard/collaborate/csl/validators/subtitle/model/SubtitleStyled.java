@@ -16,5 +16,5 @@ import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleStyle;
  * Created by clebeaupin on 10/10/15.
  */
 public interface SubtitleStyled {
-    public SubtitleStyle getStyle();
+    SubtitleStyle getStyle();
 }

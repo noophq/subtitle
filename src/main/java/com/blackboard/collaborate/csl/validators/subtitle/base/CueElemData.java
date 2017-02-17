@@ -1,16 +1,18 @@
 package com.blackboard.collaborate.csl.validators.subtitle.base;
 
+import lombok.NonNull;
+
 /**
  * Created by jdvorak on 19.1.2017.
  */
 public class CueElemData implements CueData {
-    private String tagName;
+    private final String tagName;
     public int position;
-    public String annotation;
-    public String[] classes;
+    public final String annotation;
+    public final String[] classes;
 
 
-    public CueElemData(String tagName, String[] classes, String annotation) {
+    public CueElemData(@NonNull String tagName, @NonNull String[] classes, @NonNull String annotation) {
         this.tagName = tagName;
         this.classes = classes;
         this.annotation = annotation;
@@ -21,6 +23,7 @@ public class CueElemData implements CueData {
         return tagName;
     }
 
+    @Override
     public String startElem() {
         StringBuilder bld = new StringBuilder();
         bld.append('<').append(tagName);
@@ -34,6 +37,7 @@ public class CueElemData implements CueData {
         return bld.toString();
     }
 
+    @Override
     public String endElem() {
         return "</" + tagName + '>';
     }

@@ -6,24 +6,27 @@ import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReport
  * Created by jdvorak on 23.1.2017.
  */
 public class VttNote {
-    private String note;
-    private ValidationReporter reporter;
+    private String note = "";
+    private final ValidationReporter reporter;
 
     public VttNote(ValidationReporter reporter) {
         this.reporter = reporter;
     }
 
-    public void parse(StringBuilder bld) {
-        String n = bld.toString();
-        if (n.indexOf(VttParser.ARROW) >= 0) {
+    public void parse(StringBuilder noteText) {
+        // delete the REGION identifier
+        int end = noteText.indexOf(VttParser.NOTE_START);
+        noteText.delete(0, end + VttParser.NOTE_START.length());
+
+        String n = noteText.toString().trim();
+        if (n.contains(VttParser.ARROW)) {
             reporter.notifyError("'" + VttParser.ARROW + "' found inside comment block");
-        }
-        else {
+        } else {
             note = n;
         }
     }
 
     public String toString() {
-        return "NOTE " + note;
+        return VttParser.NOTE_START + "\n" + note + "\n";
     }
 }

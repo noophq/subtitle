@@ -1,23 +1,9 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.blackboard.collaborate.csl.validators.subtitle.vtt;
 
 import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
+import lombok.NonNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +62,7 @@ public class VttStyle {
     private static final String VALUE_ITALIC = "italic";
 
 
-    private ValidationReporter reporter;
+    private final ValidationReporter reporter;
     private SubtitleReader input; // parsing position
 
     private final List<VttCssRule> rules;
@@ -91,8 +77,8 @@ public class VttStyle {
         rules = new ArrayList<>();
     }
 
-    private void finishProperty(String prop, String value) {
-        // FIXME - validate CSS property names and values
+    private void finishProperty(@NonNull String prop, String value) {
+        // TODO: validate CSS property names and values
 
         switch (prop) {
             case PROPERTY_COLOR:
@@ -124,7 +110,7 @@ public class VttStyle {
         }
     }
 
-    private void parseCssColor(String value) {
+    private void parseCssColor(@NonNull  String value) {
         if (value.matches("#[0-9a-fA-F]+")) {
             // hex format
         } else if ((value.startsWith("rgb(") || value.startsWith("hsl(")) && value.endsWith(")")) {
@@ -153,7 +139,7 @@ public class VttStyle {
 
             ws();
             if (!props()) {
-                reporter.notifyError("no properties");
+                reporter.notifyError("No properties in CSS style");
                 return;
             }
             ws();
@@ -161,7 +147,7 @@ public class VttStyle {
         }
         ws();
         if (!is(Token.EOF)) {
-            reporter.notifyError("unexpected symbol '" + tokenStr + "' instead of '" + token.EOF.getString() + "'");
+            reporter.notifyError("Unexpected symbol '" + tokenStr + "' instead of '" + Token.EOF.getString() + "'");
         }
     }
 
@@ -193,7 +179,7 @@ public class VttStyle {
         ws();
         String propValue = propValue();
         if (propValue == null || propValue.isEmpty()) {
-            reporter.notifyError("expected prop-value");
+            reporter.notifyError("Expected CSS property value");
             return false;
         }
         ws();
@@ -218,7 +204,7 @@ public class VttStyle {
             nextToken();
             if (is(Token.SLASH)) {
                 ws();
-                reporter.notifyError("Comment inside property value");
+                reporter.notifyError("Comment inside CSS property value");
                 return null;
             }
         }
@@ -234,17 +220,16 @@ public class VttStyle {
         }
         String pseudo = tokenStr;
         if (!accept(Token.IDENT)) {
-            reporter.notifyError("expected identifier");
+            reporter.notifyError("Expected CSS pseudo element");
             return null;
         }
         return pseudo;
     }
 
-    private boolean xws() throws IOException {
+    private void xws() throws IOException {
         while (accept(Token.WS)) {
-            //
+            // N/A
         }
-        return true;
     }
 
     private boolean ws() throws IOException {
@@ -259,7 +244,7 @@ public class VttStyle {
                 } while (c != '*' && c != -1);
 
                 if (c == -1) {
-                    reporter.notifyError("disclosed comment");
+                    reporter.notifyError("Disclosed CSS comment");
                     return false;
                 }
 
@@ -267,7 +252,7 @@ public class VttStyle {
             } while (c != '/' && c != -1);
 
             if (c == -1) {
-                reporter.notifyError("disclosed comment");
+                reporter.notifyError("Disclosed CSS comment");
                 return false;
             }
         }
@@ -303,7 +288,7 @@ public class VttStyle {
                 }
             }
             if (!found) {
-                reporter.notifyError("Mismatched pseudo element name '" + pseudo + "'");
+                reporter.notifyError("Mismatched CSS pseudo element name '" + pseudo + "'");
             }
         }
         if (!found) {
@@ -376,7 +361,7 @@ public class VttStyle {
                 return false;
             }
             else if (elems == 0) {
-                reporter.notifyError("Empty selector definition");
+                reporter.notifyError("Empty CSS selector definition");
             }
         }
 
@@ -419,7 +404,7 @@ public class VttStyle {
 
     private boolean expect(Token tok) throws IOException {
         if (!accept(tok)) {
-            reporter.notifyError("unexpected symbol '" + tokenStr + "' instead of '" + tok.getString() + "'");
+            reporter.notifyError("Unexpected symbol '" + tokenStr + "' instead of '" + tok.getString() + "'");
             return false;
         }
         return true;
@@ -547,6 +532,18 @@ public class VttStyle {
         token = tok;
         tokenStr = bld.toString();
         //System.out.println("    TOKEN: " + token);
+    }
+
+    public String toString() {
+        StringBuilder bld = new StringBuilder();
+        if (!rules.isEmpty()) {
+            bld.append(VttParser.STYLE_START);
+            bld.append("\n");
+            for (VttCssRule rule : rules) {
+                bld.append(rule.toString());
+            }
+        }
+        return bld.toString();
     }
 }
 

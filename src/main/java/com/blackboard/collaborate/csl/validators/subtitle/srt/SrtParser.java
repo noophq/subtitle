@@ -12,16 +12,15 @@ package com.blackboard.collaborate.csl.validators.subtitle.srt;
 
 import com.blackboard.collaborate.csl.validators.subtitle.base.BaseSubtitleParser;
 import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleObject;
-import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleParsingException;
+import com.blackboard.collaborate.csl.validators.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitlePlainText;
+import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTextLine;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -31,36 +30,27 @@ public class SrtParser extends BaseSubtitleParser {
         NONE,
         CUE_ID,
         CUE_TIMECODE,
-        CUE_TEXT;
+        CUE_TEXT
     }
 
-    private Charset charset; // Charset of the input files
+    static final String ARROW = "-->";
+    private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)(.*)?$");
 
-    public SrtParser(Charset charset) {
-        this.charset = charset;
-    }
-
-    public int getLineNumber() {
-        return 0; // TODO
-    }
-
-    public int getColumn() {
-        return 0; // TODO
+    public SrtParser(ValidationReporter reporter, SubtitleReader reader) {
+        super(reporter, reader);
     }
 
     @Override
-    public SubtitleObject parse(InputStream is, int subtitleOffset, int maxDuration, boolean strict) throws IOException, SubtitleParsingException {
+    public SubtitleObject parse(int subtitleOffset, int maxDuration, boolean strict) throws IOException {
         // Create srt object
-        SrtObject srtObject = new SrtObject();
+        SrtObject srtObject = new SrtObject(); // current SrtObject
 
-        // Read each lines
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, this.charset));
-        String textLine = "";
+        String textLine;
         CursorStatus cursorStatus = CursorStatus.NONE;
         SrtCue cue = null;
 
-        while ((textLine = br.readLine()) != null) {
-            textLine = textLine.trim().replace('\u0000', '\uFFFD');;
+        while ((textLine = reader.readLine()) != null) {
+            textLine = textLine.trim().replace('\u0000', '\uFFFD');
 
             if (cursorStatus == CursorStatus.NONE) {
                 if (textLine.isEmpty()) {
@@ -74,9 +64,7 @@ public class SrtParser extends BaseSubtitleParser {
                 try {
                     Integer.parseInt(textLine);
                 } catch (NumberFormatException e) {
-                    throw new SubtitleParsingException(String.format(
-                            "Unable to parse cue number: %s",
-                            textLine));
+                    notifyError("Unable to parse cue number: " + textLine);
                 }
 
                 cue.setId(textLine);
@@ -87,21 +75,21 @@ public class SrtParser extends BaseSubtitleParser {
             // Second textLine defines the start and end time codes
             // 00:01:21,456 --> 00:01:23,417
             if (cursorStatus == CursorStatus.CUE_ID) {
-                if (!textLine.substring(13, 16).equals("-->")) {
-                    throw new SubtitleParsingException(String.format(
-                            "Timecode '" + textLine + "' is badly formated: %s", textLine));
+                Matcher m = CUE_TIME_PATTERN.matcher(textLine);
+                if (!m.matches()) {
+                    notifyError("Timecode '" + textLine + "' is badly formated");
                 }
-
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12), subtitleOffset));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17), subtitleOffset));
+                else {
+                    cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12), subtitleOffset));
+                    cue.setEndTime(this.parseTimeCode(textLine.substring(17), subtitleOffset));
+                }
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }
 
             // Following lines are the cue lines
             if (!textLine.isEmpty() && (
-                    cursorStatus == CursorStatus.CUE_TIMECODE ||
-                    cursorStatus ==  CursorStatus.CUE_TEXT)) {
+                    cursorStatus == CursorStatus.CUE_TIMECODE || cursorStatus == CursorStatus.CUE_TEXT)) {
                 SubtitleTextLine line = new SubtitleTextLine();
                 line.addText(new SubtitlePlainText(textLine));
                 cue.addLine(line);
@@ -117,8 +105,7 @@ public class SrtParser extends BaseSubtitleParser {
                 continue;
             }
 
-            throw new SubtitleParsingException(String.format(
-                    "Unexpected line: %s", textLine));
+            notifyError("Unexpected line: " + textLine);
         }
 
         if (cue != null) {
@@ -128,16 +115,36 @@ public class SrtParser extends BaseSubtitleParser {
         return srtObject;
     }
 
-    private SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) throws SubtitleParsingException {
+    // duplicity in VTT
+    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
+        long value = 0;
+        String[] parts = timeCodeString.split("\\.", 2);
+        if (parts.length > 2) {
+            notifyError("Invalid time value: " + timeCodeString);
+            return null;
+        }
+        String[] subparts = parts[0].split(":");
+        if (subparts.length > 3) {
+            notifyError("Invalid time value: " + timeCodeString);
+            return null;
+        }
         try {
-            int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-            int minute = Integer.parseInt(timeCodeString.substring(3, 5));
-            int second = Integer.parseInt(timeCodeString.substring(6, 8));
-            int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
-            return new SubtitleTimeCode(hour, minute, second, millisecond, subtitleOffset);
+            for (String subpart : subparts) {
+                value = value * 60 + Long.parseLong(subpart);
+            }
+
+            long stamp = value * 1000 + subtitleOffset;
+            if (parts.length > 1) {
+                stamp += Long.parseLong(parts[1]);
+            }
+
+            return new SubtitleTimeCode(stamp);
 
         } catch (NumberFormatException e) {
-            throw new SubtitleParsingException("Invalid time format: " + timeCodeString);
+            notifyError("Invalid time format: " + timeCodeString);
+        } catch (IllegalArgumentException e) {
+            notifyError("Invalid time value: " + timeCodeString);
         }
+        return null;
     }
 }

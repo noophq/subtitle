@@ -21,7 +21,7 @@ public interface SubtitleObject {
         TITLE,
         DESCRIPTION,
         COPYRIGHT,
-        FRAME_RATE;
+        FRAME_RATE
     }
 
     boolean hasProperty(Property property);
@@ -31,6 +31,8 @@ public interface SubtitleObject {
     Iterable<Map.Entry<Property, Object>> getProperties();
 
     Iterable<SubtitleCue> getCues();
+
+    Iterable<?> getObjects();
 
     int getCuesCount();
 

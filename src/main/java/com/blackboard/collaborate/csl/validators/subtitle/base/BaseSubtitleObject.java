@@ -22,8 +22,8 @@ import java.util.Map;
  * Created by clebeaupin on 22/09/15.
  */
 public abstract class BaseSubtitleObject implements SubtitleObject {
-    private List<SubtitleCue> cues;
-    private Map<Property, Object> properties;
+    private final List<SubtitleCue> cues;
+    private final Map<Property, Object> properties;
 
     public BaseSubtitleObject() {
         this.cues = new ArrayList<>();
@@ -34,7 +34,13 @@ public abstract class BaseSubtitleObject implements SubtitleObject {
         this.cues.add(cue);
     }
 
+    @Override
     public Iterable<SubtitleCue> getCues() {
+        return this.cues;
+    }
+
+    @Override
+    public Iterable<?> getObjects() {
         return this.cues;
     }
 

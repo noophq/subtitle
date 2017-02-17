@@ -13,14 +13,21 @@ package com.blackboard.collaborate.csl.validators.subtitle.model;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleTimeCode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
 public interface SubtitleCue {
-    public String getId();
-    public SubtitleTimeCode getStartTime();
-    public SubtitleTimeCode getEndTime();
-    public List<SubtitleLine> getLines();
-    public String getText();
+    String getId();
+
+    SubtitleTimeCode getStartTime();
+
+    SubtitleTimeCode getEndTime();
+
+    List<SubtitleLine> getLines();
+
+    String getText();
+
+    Iterable<Map.Entry<String, String>> getSettings();
 }

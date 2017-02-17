@@ -1,12 +1,18 @@
 package com.blackboard.collaborate.csl.validators.subtitle.model;
 
 /**
- * Created by jdvorak on 30/01/2017.
+ * Report validation issues.
  */
 public interface ValidationReporter {
-
+    /**
+     * Report a warning.
+     * @param msg The message.
+     */
     void notifyWarning(String msg);
 
+    /**
+     * Report an error.
+     * @param msg The message.
+     */
     void notifyError(String msg);
-
 }

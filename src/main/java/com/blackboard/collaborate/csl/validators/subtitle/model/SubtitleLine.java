@@ -16,11 +16,11 @@ import java.util.List;
  * Created by clebeaupin on 14/10/15.
  */
 public interface SubtitleLine {
-    public List<SubtitleText> getTexts();
+    List<SubtitleText> getTexts();
 
     /**
      *
      * @return true if there is no text
      */
-    public boolean isEmpty();
+    boolean isEmpty();
 }

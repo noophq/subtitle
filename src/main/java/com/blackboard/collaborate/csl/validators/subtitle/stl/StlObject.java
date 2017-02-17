@@ -11,6 +11,7 @@
 package com.blackboard.collaborate.csl.validators.subtitle.stl;
 
 import com.blackboard.collaborate.csl.validators.subtitle.base.BaseSubtitleObject;
+import com.blackboard.collaborate.csl.validators.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleRegion;
 
 import java.util.ArrayList;
@@ -24,8 +25,8 @@ public class StlObject extends BaseSubtitleObject {
     List<StlTti> ttis = new ArrayList<>();
 
     public StlObject(StlGsi gsi) {
-        this.setProperty(Property.TITLE, gsi.getOpt());
-        this.setProperty(Property.FRAME_RATE, gsi.getDfc().getFrameRate());
+        this.setProperty(SubtitleObject.Property.TITLE, gsi.getOpt());
+        this.setProperty(SubtitleObject.Property.FRAME_RATE, gsi.getDfc().getFrameRate());
         this.gsi = gsi;
     }
 

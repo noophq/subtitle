@@ -16,5 +16,5 @@ import com.blackboard.collaborate.csl.validators.subtitle.util.SubtitleRegion;
  * Created by clebeaupin on 11/10/15.
  */
 public interface SubtitleRegionCue {
-    public SubtitleRegion getRegion();
+    SubtitleRegion getRegion();
 }

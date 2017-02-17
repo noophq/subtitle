@@ -20,7 +20,7 @@ public class SubtitleRegion {
     // Vertical align
     public enum VerticalAlign {
         TOP,
-        BOTTOM;
+        BOTTOM
     }
 
     private float x; // x coordinate of the region
@@ -119,14 +119,10 @@ public class SubtitleRegion {
 
         SubtitleRegion region = (SubtitleRegion) object;
 
-        if (this.getX() == region.getX() &&
-                this.getY() == region.getY() &&
-                this.getWidth() == region.getWidth() &&
-                this.getHeight() == region.getHeight() &&
-                this.getVerticalAlign() == region.getVerticalAlign()) {
-            return true;
-        }
-
-        return false;
+        return this.getX() == region.getX() &&
+               this.getY() == region.getY() &&
+               this.getWidth() == region.getWidth() &&
+               this.getHeight() == region.getHeight() &&
+               this.getVerticalAlign() == region.getVerticalAlign();
     }
 }
