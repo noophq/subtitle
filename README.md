@@ -1,16 +1,27 @@
-Subtitle library
-================
+Subtitle validation library
+===========================
 
-provides validators for different subtitle formats:
+Copyright
+---------
+Copyright (C) 2017 Blackboard.
+
+This library incorporates a modified version of noophq/subtitle library (C) Cyrille Lebeaupin <clebeaupin@noop.fr>.
+
+This program is free software licensed under the GNU Lesser General Public License v3. 
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+Usage
+-----
+It provides validators for different subtitle formats:
 
 - vtt
 - srt
 
-
 VTT Validator
 -------------
 
-    import com.blackboard.collaborate.csl.validators.subtitle.*;
+    import com.blackboard.collaborate.validator.subtitle.*;
     ...
         
     try (SubtitleReader reader = new SubtitleReader(new FileInputStream(inputFile), inputCharset))) {
@@ -33,7 +44,7 @@ VTT Validator
 VTT Writer
 ----------
 
-    import com.blackboard.collaborate.csl.validators.subtitle.*;
+    import com.blackboard.collaborate.validator.subtitle.*;
     ...
     SubtitleObject subtitles = parser.parse();
     ...

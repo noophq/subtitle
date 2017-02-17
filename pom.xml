@@ -1,12 +1,24 @@
+<!--
+  ~ Title: pom.xml
+  ~ Copyright: Copyright (c) 2017. Blackboard Inc. and its subsidiary companies.
+  ~
+  ~ This program is based on noophq/subtitle.
+  ~ (c) Cyrille Lebeaupin <clebeaupin@noop.fr>
+  ~
+  ~ This program is free software licensed under the GNU Lesser General Public License v3.
+  ~ For the full copyright and license information, please view the LICENSE
+  ~ file that was distributed with this source code.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.blackboard.collaborate</groupId>
-    <artifactId>csl-validators</artifactId>
+    <groupId>com.blackboard.collaborate.validator.subtitle</groupId>
+    <artifactId>subtitle-validator</artifactId>
     <version>0.9.5-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>csl-validators</name>
+    <name>subtitle-validator</name>
     <description>
         Validate and convert subtitles.
         Supported formats: VTT, SRT
@@ -31,12 +43,6 @@
 
     <developers>
         <developer>
-            <email>clebeaupin@noop.fr</email>
-            <name>Cyrille Lebeaupin</name>
-            <url>https://github.com/clebeaupin</url>
-            <id>clebeaupin</id>
-        </developer>
-        <developer>
             <email>jan.jdvorak@email.cz</email>
             <name>Jan Dvorak</name>
             <url>https://github.com/jan-jdvorak</url>
@@ -50,7 +56,7 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <org.slf4j.version>1.7.12</org.slf4j.version>
 
-        <main.class>com.blackboard.collaborate.csl.validators.subtitle.Convert</main.class>
+        <main.class>com.blackboard.collaborate.validator.subtitle.Convert</main.class>
         <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
         <timestamp>${maven.build.timestamp}</timestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -179,7 +185,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.blackboard.collaborate.csl.validators.subtitle.Convert</mainClass>
+                            <mainClass>com.blackboard.collaborate.validator.subtitle.Convert</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
