@@ -45,11 +45,11 @@ public class SrtWriter implements SubtitleWriter {
             writer.write("\n");
 
             // Write Start time and end time
-            writer.write(this.formatTimeCode(cue.getStartTime()));
+            writer.write(formatTimeCode(cue.getStartTime()));
             writer.write(" ");
             writer.write(SrtParser.ARROW);
             writer.write(" ");
-            writer.write(this.formatTimeCode(cue.getEndTime()));
+            writer.write(formatTimeCode(cue.getEndTime()));
             writer.write("\n");
 
             // Write text

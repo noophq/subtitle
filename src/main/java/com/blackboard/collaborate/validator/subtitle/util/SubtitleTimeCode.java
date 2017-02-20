@@ -25,7 +25,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     private static final long MS_MINUTE = 60000L; // --//--
     private static final long MS_SECOND = 1000L;  // --//--
 
-    private long milliseconds;
+    private final long milliseconds;
 
     public SubtitleTimeCode(int hour, int minute, int second, int millisecond, int offset) {
     	milliseconds = hour * MS_HOUR + minute * MS_MINUTE + second * MS_SECOND + millisecond + offset;

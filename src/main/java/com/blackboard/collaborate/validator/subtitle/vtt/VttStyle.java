@@ -49,7 +49,7 @@ public class VttStyle {
         EOF("<eof>"),
         ERROR("<error>");
 
-        private String val;
+        private final String val;
 
         Token(String val) {
             this.val = val;

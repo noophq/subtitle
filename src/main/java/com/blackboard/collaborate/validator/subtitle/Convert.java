@@ -234,8 +234,8 @@ public class Convert {
         // Get options
         String inputFilePath = line.getOptionValue("i");
         String outputFilePath = line.getOptionValue("o");
-        String inputCharset = line.getOptionValue("ic", StandardCharsets.UTF_8.displayName());
-        String outputCharset = line.getOptionValue("oc", StandardCharsets.UTF_8.displayName());
+        String inputCharset = line.getOptionValue("ic", StandardCharsets.UTF_8.name());
+        String outputCharset = line.getOptionValue("oc", StandardCharsets.UTF_8.name());
         boolean disableStrictMode = line.hasOption("disable-strict-mode");
         int subtitleOffset = Integer.parseInt(line.getOptionValue("so", "0"));
         int maxDuration = Integer.parseInt(line.getOptionValue("sd", "-1"));

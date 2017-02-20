@@ -22,6 +22,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -114,7 +115,7 @@ public class StlParser extends BaseSubtitleParser {
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
-        return new String(bytes).trim();
+        return new String(bytes, StandardCharsets.UTF_8).trim();
     }
 
     private StlGsi readGsi(DataInputStream dis, int subtitleOffset) throws IOException {

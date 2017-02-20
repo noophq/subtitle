@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 public class CountingValidationListener implements ValidationListener {
     private int count;
-    private List<ValidationIssue> issues = new ArrayList<>();
+    private final List<ValidationIssue> issues = new ArrayList<>();
 
 
     @Override

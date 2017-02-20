@@ -12,12 +12,19 @@
 
 package com.blackboard.collaborate.validator.subtitle.util;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 /**
  * Created by clebeaupin on 22/09/15.
  *
  * Implementation of a region
  * All units (x, y, width, height) are defined in percentage
  */
+@EqualsAndHashCode
+@AllArgsConstructor
+@Getter
 public class SubtitleRegion {
     // Vertical align
     public enum VerticalAlign {
@@ -51,28 +58,12 @@ public class SubtitleRegion {
         this(x, y, width, height, VerticalAlign.BOTTOM);
     }
 
-    public SubtitleRegion(float x, float y, float width, float height, VerticalAlign verticalAlign) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.verticalAlign = verticalAlign;
-    }
-
-    public float getX() {
-        return this.x;
-    }
-
     public void setX(float x) {
         if (x < 0.0f || x > 100.0f) {
             throw new IllegalArgumentException("X value must be defined in percentage between 0 and 100");
         }
 
         this.x = x;
-    }
-
-    public float getY() {
-        return this.y;
     }
 
     public void setY(float y) {
@@ -83,48 +74,16 @@ public class SubtitleRegion {
         this.y = y;
     }
 
-    public float getWidth() {
-        return this.width;
-    }
-
     public void setWidth(float width) {
         this.width = width;
-    }
-
-    public float getHeight() {
-        return this.height;
     }
 
     public void setHeight(float height) {
         this.height = height;
     }
 
-    public VerticalAlign getVerticalAlign() {
-        return this.verticalAlign;
-    }
-
     public void setVerticalAlign(VerticalAlign verticalAlign) {
         this.verticalAlign = verticalAlign;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        //check for self-comparison
-        if (this == object) {
-            return true;
-        }
-
-        // Check that object is SubtitleRegion
-        if (!(object instanceof SubtitleRegion)) {
-            return false;
-        }
-
-        SubtitleRegion region = (SubtitleRegion) object;
-
-        return this.getX() == region.getX() &&
-               this.getY() == region.getY() &&
-               this.getWidth() == region.getWidth() &&
-               this.getHeight() == region.getHeight() &&
-               this.getVerticalAlign() == region.getVerticalAlign();
-    }
 }

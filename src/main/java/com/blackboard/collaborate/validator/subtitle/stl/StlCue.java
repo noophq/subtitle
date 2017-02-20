@@ -120,7 +120,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                         textStyle = null;
                     }
 
-                    if (text != null && !text.isEmpty()) {
+                    if (!text.isEmpty()) {
                         if (textStyle == null) {
                             line.addText(new SubtitlePlainText(text));
                         } else {
