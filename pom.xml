@@ -16,7 +16,7 @@
 
     <groupId>com.blackboard.collaborate.validator.subtitle</groupId>
     <artifactId>subtitle-validator</artifactId>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.5</version>
     <packaging>jar</packaging>
     <name>subtitle-validator</name>
     <description>
