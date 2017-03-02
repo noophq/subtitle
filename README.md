@@ -5,7 +5,8 @@ Copyright
 ---------
 Copyright (C) 2017 Blackboard.
 
-This library incorporates a modified version of noophq/subtitle library (C) Cyrille Lebeaupin <clebeaupin@noop.fr>.
+This program is based on noophq/subtitle library 
+Copyright (C) 2015-2016 Cyrille Lebeaupin <clebeaupin@noop.fr>.
 
 This program is free software licensed under the GNU Lesser General Public License v3. 
 For the full copyright and license information, please view the LICENSE
