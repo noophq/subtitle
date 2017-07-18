@@ -71,7 +71,7 @@ public class VttParser implements SubtitleParser {
 
         while ((textLine = br.readLine()) != null) {
             textLine = textLine.trim();
-
+            
             // All Vtt files start with WEBVTT
             if (cursorStatus == CursorStatus.NONE && textLine.contains("WEBVTT")) {
                 cursorStatus = CursorStatus.SIGNATURE;
@@ -158,6 +158,12 @@ public class VttParser implements SubtitleParser {
         	throw new SubtitleParsingException(String.format(
         			"Unexpected line: %s", textLine));
         }
+        
+        if (cue != null) {
+        	cue.setLines(parseCueText(cueText));
+        	vttObject.addCue(cue);
+        }
+        
         return vttObject;
     }
 
