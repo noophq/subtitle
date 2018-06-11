@@ -16,6 +16,6 @@ public class VttParserTest {
         FileInputStream is = new FileInputStream("src/test/resources/vtt/test.vtt");
         VttObject vttObject = vttParser.parse(is);
 
-        Assert.assertEquals(2, vttObject.getCues().size());
+        Assert.assertEquals(12, vttObject.getCues().size());
     }
 }
