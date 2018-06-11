@@ -20,10 +20,7 @@ import java.util.List;
 import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.util.SubtitlePlainText;
-import fr.noop.subtitle.util.SubtitleStyle;
-import fr.noop.subtitle.util.SubtitleStyledText;
-import fr.noop.subtitle.util.SubtitleTimeCode;
+import fr.noop.subtitle.util.*;
 
 /**
  * Created by clebeaupin on 11/10/15.
@@ -71,6 +68,11 @@ public class VttParser implements SubtitleParser {
         while ((textLine = br.readLine()) != null) {
             textLine = textLine.trim();
 
+            // Remove BOM
+            if (cursorStatus == CursorStatus.NONE) {
+                textLine = StringUtils.removeBOM(textLine);
+            }
+
             // All Vtt files start with WEBVTT
             if (cursorStatus == CursorStatus.NONE && textLine.equals("WEBVTT")) {
                 cursorStatus = CursorStatus.SIGNATURE;
@@ -88,7 +90,7 @@ public class VttParser implements SubtitleParser {
                 cursorStatus = CursorStatus.CUE_ID;
 
                 if (
-                    textLine.length() > 16 &&
+                    textLine.length() < 16 ||
                     !textLine.substring(13, 16).equals("-->")
                 ) {
                     // First textLine is the cue number
