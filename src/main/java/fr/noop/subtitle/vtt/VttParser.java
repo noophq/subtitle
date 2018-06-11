@@ -151,7 +151,10 @@ public class VttParser implements SubtitleParser {
                 cursorStatus ==  CursorStatus.CUE_TEXT
             ) {
                 // New line
-                cueText += "\n";
+                if (!cueText.isEmpty()) {
+                    cueText += "\n";
+                }
+
                 cueText += textLine;
                 cursorStatus = CursorStatus.CUE_TEXT;
                 continue;
