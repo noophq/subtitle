@@ -58,14 +58,18 @@ public class TtmlObject  extends BaseSubtitleObject {
 
             // Register cue region
             SubtitleRegion region = ttmlCue.getRegion();
-            String regionSignature = this.buildRegionSignature(region);
 
-            if (!this.regionMapping.containsKey(regionSignature)) {
-                // Region is not registered
-                // Build a new region id
-                String regionId = String.format("region-%d", this.regions.size()+1);
-                this.regionMapping.put(regionSignature, regionId);
-                this.regions.put(regionId, new SubtitleRegion(region));
+            if (region != null) {
+                // Region could be null
+                String regionSignature = this.buildRegionSignature(region);
+
+                if (!this.regionMapping.containsKey(regionSignature)) {
+                    // Region is not registered
+                    // Build a new region id
+                    String regionId = String.format("region-%d", this.regions.size() + 1);
+                    this.regionMapping.put(regionSignature, regionId);
+                    this.regions.put(regionId, new SubtitleRegion(region));
+                }
             }
 
             // Register cue styles
