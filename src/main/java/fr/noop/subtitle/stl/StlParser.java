@@ -188,7 +188,6 @@ public class StlParser implements SubtitleParser {
 
         // Read Maximum Number of Displayable Rows (MNR)
         gsi.setMnr(Integer.parseInt(this.readString(dis, 2)));
-
         // Read Time Code: Status (TCS)
         gsi.setTcs((short) dis.readUnsignedByte());
 

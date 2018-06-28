@@ -13,8 +13,11 @@ package fr.noop.subtitle.vtt;
 import fr.noop.subtitle.base.BaseSubtitleObject;
 import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleObject;
+import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleTimeCode;
+import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,7 +38,7 @@ public class VttWriter implements SubtitleWriter {
         try {
             // Write header
             os.write(new String("WEBVTT\n\n").getBytes(this.charset));
-
+            
             // Write cues
             for (SubtitleCue cue : subtitleObject.getCues()) {
                 if (cue.getId() != null) {
@@ -45,23 +48,41 @@ public class VttWriter implements SubtitleWriter {
                 }
 
                 // Write Start time and end time
-                String startToEnd = String.format("%s --> %s \n",
+                String startToEnd = String.format("%s --> %s %s\n",
                         this.formatTimeCode(cue.getStartTime()),
-                        this.formatTimeCode(cue.getEndTime()));
-                os.write(startToEnd.getBytes(this.charset));
+                        this.formatTimeCode(cue.getEndTime()),
+                        this.verticalPosition(cue));
+                
 
+                os.write(startToEnd.getBytes(this.charset));
+                
                 // Write text
                 String text = String.format("%s\n", cue.getText());
                 os.write(text.getBytes(this.charset));
 
                 // Write empty line
                 os.write("\n".getBytes(this.charset));
+                
+                // Get region
+                
             }
         } catch (UnsupportedEncodingException e) {
             throw new IOException("Encoding error in input subtitle");
         }
     }
 
+    private String verticalPosition(SubtitleCue cue) {
+        if (cue instanceof SubtitleRegionCue) {
+            VerticalAlign va =  ((SubtitleRegionCue) cue).getRegion().getVerticalAlign();
+            if (va == VerticalAlign.TOP) {
+                return "line:0";
+            }
+            else {
+                return "";
+            }
+        }
+        return "";
+    }
     private String formatTimeCode(SubtitleTimeCode timeCode) {
         return String.format("%02d:%02d:%02d.%03d",
                 timeCode.getHour(),
