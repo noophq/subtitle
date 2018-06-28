@@ -134,9 +134,11 @@ public class StlParser implements SubtitleParser {
 
         // Read Disk Format Code (DFC)
         gsi.setDfc(StlGsi.Dfc.getEnum(this.readString(dis, 8)));
+        System.out.println("Display Format: " + gsi.getDfc());
 
         // Read Display Standard Code (DSC)
         gsi.setDsc(StlGsi.Dsc.getEnum(dis.readUnsignedByte()));
+        System.out.println("Display Standard Code: " + gsi.getDsc());
 
         // Read Character Code Table number (CCT)
         gsi.setCct(StlGsi.Cct.getEnum(Short.reverseBytes(dis.readShort())));
@@ -188,7 +190,7 @@ public class StlParser implements SubtitleParser {
 
         // Read Maximum Number of Displayable Rows (MNR)
         gsi.setMnr(Integer.parseInt(this.readString(dis, 2)));
-
+        System.out.println("MNR: " + gsi.getMnr());
         // Read Time Code: Status (TCS)
         gsi.setTcs((short) dis.readUnsignedByte());
 
@@ -256,6 +258,7 @@ public class StlParser implements SubtitleParser {
 
         // Read Vertical Position (VP)
         tti.setVp((short) dis.readUnsignedByte());
+        System.out.println(tti.getVp());
 
         // Read Justification Code (JC)
         tti.setJc(StlTti.Jc.getEnum(dis.readUnsignedByte()));
