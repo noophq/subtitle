@@ -13,6 +13,7 @@ package fr.noop.subtitle.stl;
 import fr.noop.subtitle.base.BaseSubtitleCue;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.util.*;
+import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,11 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
                 // FIXME: Process text decoration
                 if (cByte == 0x80 || cByte == 0x82 || cByte == 0x84) {
+                    if (cByte == StlTti.TextStyle.ITALIC_ON.getValue()) {
+                        textStyle.setFontStyle(FontStyle.ITALIC);
+                        System.out.println("Style : " + textStyle.getFontStyle());
+
+                    }
                     continue;
                 }
 
@@ -102,6 +108,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 if ((cByte >= 0x00 && cByte <= 0x07) ||
                         (cByte >= 0x10 && cByte <= 0x17)) {
                     textStyle.setColor(StlTti.TextColor.getEnum(cByte).getColor());
+                    
                     continue;
                 }
 
@@ -122,6 +129,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                         if (textStyle == null) {
                             line.addText(new SubtitlePlainText(text));
                         } else {
+                            System.out.println("Color : "+textStyle.getColor()+"\t"+text);
                             line.addText(new SubtitleStyledText(text, textStyle));
                         }
                     }

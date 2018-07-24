@@ -1,0 +1,17 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_BUCKET: "nomalab-releases"
+    AWS_REGION: "eu-west-1"
+
+phases:
+  install:
+     commands:
+       - apt-get update
+       - apt-get install maven -y
+
+  build:
+    commands: 
+      - mvn versions:set -DnewVersion=`git describe --tags --always` && mvn package
+      - ./scripts/s3_push_ci
