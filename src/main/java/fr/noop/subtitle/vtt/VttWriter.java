@@ -12,13 +12,17 @@ package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.base.BaseSubtitleObject;
 import fr.noop.subtitle.model.SubtitleCue;
+import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
+import fr.noop.subtitle.model.SubtitleStyled;
+import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriter;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
 
+import java.awt.SystemColor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -52,12 +56,22 @@ public class VttWriter implements SubtitleWriter {
                         this.formatTimeCode(cue.getStartTime()),
                         this.formatTimeCode(cue.getEndTime()),
                         this.verticalPosition(cue));
-                
-
+               
                 os.write(startToEnd.getBytes(this.charset));
-                
                 // Write text
-                String text = String.format("%s\n", cue.getText());
+                //String text = String.format("%s\n", cue.getText());
+                
+                String text = "";
+                for (SubtitleLine line : cue.getLines()) {
+                    for (SubtitleText inText : line.getTexts()) {
+                        if (inText instanceof SubtitleStyled) {
+                            text += String.format("<c.%s>%s</c>", ((SubtitleStyled)inText).getStyle().getColor(), inText.toString());
+                        } else {
+                            text += inText.toString();
+                        }
+                        text += "\n";
+                    }
+                }
                 os.write(text.getBytes(this.charset));
 
                 // Write empty line
