@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import fr.noop.subtitle.exception.InvalidTimeRangeException;
 import fr.noop.subtitle.model.SubtitleLine;
@@ -108,10 +110,11 @@ public class VttParser implements SubtitleParser {
             // Second textLine defines the start and end time codes
             // 00:01:21.456 --> 00:01:23.417
             if (cursorStatus == CursorStatus.CUE_ID) {
-                checkTimelineTextline(textLine);
+                Matcher matcher = checkTimelineTextline(textLine);
 
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                cue.setStartTime(this.parseTimeCode(matcher.group(1)));
+                cue.setEndTime(this.parseTimeCode(matcher.group(4)));
+                
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }
@@ -167,10 +170,14 @@ public class VttParser implements SubtitleParser {
         return vttObject;
     }
 
-    private void checkTimelineTextline(String textLine) throws SubtitleParsingException {
-        if (!textLine.substring(13, 16).equals("-->")) {
+    private Matcher checkTimelineTextline(String textLine) throws SubtitleParsingException {
+    	String timeRegex = "((\\d{2}:)?\\d{2}:\\d{2}\\.\\d{3})(\\s-->\\s)((\\d{2}:)?\\d{2}:\\d{2}\\.\\d{3})";
+    	Matcher matcher = Pattern.compile(timeRegex).matcher(textLine);
+		if(!matcher.matches()) {
             throw new SubtitleParsingException(String.format(
                     "Timecode textLine is badly formated: %s", textLine));
+        } else {
+        	return matcher;
         }
     }
 
@@ -309,15 +316,28 @@ public class VttParser implements SubtitleParser {
     }
 
     private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException, InvalidTimeRangeException {
+    	String[] parts = timeCodeString.split("\\.");
+
+    	String[] times = parts[0].split(":");
+    	
+    	int second = Integer.parseInt(times[times.length-1]);
+
+    	int minute = 0;
+    	if(times.length >= 2) {
+    		minute = Integer.parseInt(times[times.length-2]);
+    	}
+    	
+    	int hour = 0;
+    	if(times.length == 3) {
+    		hour = Integer.parseInt(times[times.length-3]);
+    	}
+    	
         try {
-            int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-            int minute = Integer.parseInt(timeCodeString.substring(3, 5));
-            int second = Integer.parseInt(timeCodeString.substring(6, 8));
-            int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
+            int millisecond = Integer.parseInt(parts[1]);
+            
             return new SubtitleTimeCode(hour, minute, second, millisecond);
         } catch (NumberFormatException e) {
-            throw new SubtitleParsingException(String.format(
-                    "Unable to parse time code: %s", timeCodeString));
+            throw new SubtitleParsingException(String.format("Unable to parse time code: %s", timeCodeString));
         }
     }
 }
