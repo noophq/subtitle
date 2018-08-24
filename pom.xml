@@ -4,7 +4,7 @@
 
     <groupId>fr.noop</groupId>
     <artifactId>subtitle</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.5-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>subtitle</name>
     <description>
@@ -63,6 +63,13 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+		    <groupId>org.assertj</groupId>
+		    <artifactId>assertj-core</artifactId>
+		    <version>2.9.1</version>
+		    <scope>test</scope>
+		</dependency>
+        
         <dependency>
             <groupId>fr.noop</groupId>
             <artifactId>charset</artifactId>
@@ -78,6 +85,14 @@
             <artifactId>commons-cli</artifactId>
             <version>1.3.1</version>
         </dependency>
+
+		<dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+            <version>1.16.22</version>
+        </dependency>
+                
     </dependencies>
 
     <build>
