@@ -133,4 +133,9 @@ public class VttCueTest {
         testCueText("start text <b>bla bla <i>blab la<b>b2</b>erwfwfw</i>wwefwe</b>wfwefwe", 1);
     }
 
+    // youtube
+    @Test
+    public void testCueText14() {
+        testCueText("two<00:00:02.190><c> roads</c><00:00:02.580><c> diverged</c><00:00:03.330><c> in</c><c.colorE5E5E5><00:00:03.629><c> a</c><00:00:03.750><c> yellow</c><00:00:03.780><c> wood</c><00:00:04.080><c> and</c></c>", 7);
+    }
 }

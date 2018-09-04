@@ -325,8 +325,7 @@ public class VttCue extends BaseSubtitleCue {
                 c = reader.lookNext();
                 if (c != -1) {
                     if (c == '/') {
-                        reader.skip(1);
-                        len++;
+                        len += reader.skip(1);
                         tagStatus = TagStatus.CLOSE;
                     } else {
                         tagStatus = TagStatus.OPEN;
@@ -434,7 +433,7 @@ public class VttCue extends BaseSubtitleCue {
 
     protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
         long value = 0;
-        String[] parts = timeCodeString.split("\\.", 2);
+        String[] parts = timeCodeString.split("\\.", 2); // 00:04:20.375
         if (parts.length > 2) {
             reporter.notifyError("Invalid time value: " + timeCodeString);
             return null;
@@ -559,14 +558,15 @@ public class VttCue extends BaseSubtitleCue {
                 break;
         }
 
-        checkNesting(current, tagName);
+        if (!TAG_CLASS.equals(tagName)) {
+            checkNesting(current, tagName);
+        }
 
         if (!TAG_RT.equals(tagName) && TAG_RUBY.equals(current.getTag())) {
             reporter.notifyWarning("Tag <" + TAG_RUBY + "> can contain only <" + TAG_RT + "> tags");
         }
 
-        CueElemData cueTag = new CueElemData(tagName, classes, annotation);
-        return cueTag;
+        return new CueElemData(tagName, classes, annotation);
     }
 
     private CueData createTimestampTag(String wholeName) {
