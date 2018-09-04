@@ -82,18 +82,26 @@ public class SubtitleReader extends LineNumberReader implements ParsePositionPro
      * @throws IOException when an IO exception occur
      */
     public int lookNext() throws IOException {
-        mark(1);
-        int c = read();
-        reset();
-        return c;
+        synchronized (lock) {
+            int oldCol = column;
+            mark(1);
+            int c = read();
+            reset();
+            column = oldCol;
+            return c;
+        }
     }
 
     public CharBuffer lookNext(int len) throws IOException {
-        mark(len);
+        synchronized (lock) {
+            int oldCol = column;
+            mark(len);
 
-        CharBuffer cb = CharBuffer.allocate(len);
-        int read = this.read(cb);
-        reset();
-        return cb.asReadOnlyBuffer();
+            CharBuffer cb = CharBuffer.allocate(len);
+            int read = this.read(cb);
+            reset();
+            column = oldCol;
+            return cb.asReadOnlyBuffer();
+        }
     }
 }
