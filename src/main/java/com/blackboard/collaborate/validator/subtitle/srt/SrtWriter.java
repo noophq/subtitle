@@ -35,19 +35,17 @@ public class SrtWriter implements SubtitleWriter {
 
     @Override
     public void write(SubtitleObject subtitleObject) throws IOException {
-        int subtitleIndex = 0;
+        int subtitleIndex = 1;
 
         for (SubtitleCue cue : subtitleObject.getCues()) {
-            subtitleIndex++;
-
-            // Write number of subtitle
-            writer.write(String.format("%d", subtitleIndex));
+            // Write number of subtitle cue
+            writer.write(String.format("%d", subtitleIndex++));
             writer.write("\n");
 
             // Write Start time and end time
             writer.write(formatTimeCode(cue.getStartTime()));
             writer.write(" ");
-            writer.write(SrtParser.ARROW);
+            writer.write(SrtCue.ARROW);
             writer.write(" ");
             writer.write(formatTimeCode(cue.getEndTime()));
             writer.write("\n");
@@ -62,13 +60,13 @@ public class SrtWriter implements SubtitleWriter {
     private static String formatTimeCode(SubtitleTimeCode timeCode) {
         int hours = timeCode.getHour();
         if (hours == 0) {
-            return String.format("%02d:%02d.%03d",
+            return String.format("%02d:%02d,%03d",
                     timeCode.getMinute(),
                     timeCode.getSecond(),
                     timeCode.getMillisecond());
         }
         else {
-            return String.format("%02d:%02d:%02d.%03d",
+            return String.format("%02d:%02d:%02d,%03d",
                     timeCode.getHour(),
                     timeCode.getMinute(),
                     timeCode.getSecond(),
