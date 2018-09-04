@@ -15,6 +15,8 @@ package com.blackboard.collaborate.validator.subtitle.base;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleLine;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Map;
 /**
  * Created by clebeaupin on 09/10/15.
  */
+@Getter
+@Setter
 public abstract class BaseSubtitleCue implements SubtitleCue {
     private String id; // Id of cue. 1 or c1
     private SubtitleTimeCode startTime; // Start displaying the cue at this time code
@@ -49,42 +53,6 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
     protected BaseSubtitleCue(SubtitleTimeCode startTime, SubtitleTimeCode endTime, List<SubtitleLine> lines) {
         this.startTime = startTime;
         this.endTime = endTime;
-        this.lines = lines;
-    }
-
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public SubtitleTimeCode getStartTime() {
-        return this.startTime;
-    }
-
-    public void setStartTime(SubtitleTimeCode startTime) {
-        this.startTime = startTime;
-    }
-
-    @Override
-    public SubtitleTimeCode getEndTime() {
-        return this.endTime;
-    }
-
-    public void setEndTime(SubtitleTimeCode endTime) {
-        this.endTime = endTime;
-    }
-
-    @Override
-    public List<SubtitleLine> getLines() {
-        return this.lines;
-    }
-
-    public void setLines(List<SubtitleLine> lines) {
         this.lines = lines;
     }
 

@@ -22,8 +22,5 @@ public class SrtParserTest {
     @Test
     public void testFiles() throws IOException {
         TestUtils.testFolder("src/test/resources/srt");
-
-//        SrtObject srtObject = (SrtObject) srtParser.parse(is);
-//        Assert.assertEquals(2, srtObject.getCuesCount());
     }
 }
