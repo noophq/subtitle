@@ -15,9 +15,7 @@ package com.blackboard.collaborate.validator.subtitle.srt;
 import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleParser;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitlePlainText;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTextLine;
 
 import java.io.IOException;
 
@@ -25,15 +23,37 @@ import java.io.IOException;
  * Created by clebeaupin on 21/09/15.
  */
 public class SrtParser extends BaseSubtitleParser {
-    private enum CursorStatus {
-        NONE,
+    private enum SrtEvent {
         CUE_ID,
         CUE_TIMECODE,
-        CUE_TEXT
+        EMPTY_LINE,
+        EOF
     }
 
     public SrtParser(ValidationReporter reporter, SubtitleReader reader) {
         super(reporter, reader);
+    }
+
+    /**
+     * Positions the input right before the next event, and returns the kind of event found. Does not
+     * consume any data from such event, if any.
+     *
+     * @return The kind of event found.
+     */
+    private SrtEvent getNextEvent(String line) {
+        SrtEvent foundEvent;
+
+        if (line == null) {
+            foundEvent = SrtEvent.EOF;
+        } else if (line.contains(SrtCue.ARROW)) {
+            foundEvent = SrtEvent.CUE_TIMECODE;
+        } else if (!line.trim().isEmpty()) {
+            foundEvent = SrtEvent.CUE_ID;
+        } else {
+            foundEvent = SrtEvent.EMPTY_LINE;
+        }
+
+        return foundEvent;
     }
 
     @Override
@@ -42,56 +62,41 @@ public class SrtParser extends BaseSubtitleParser {
         SrtObject srtObject = new SrtObject(); // current SrtObject
 
         String textLine;
-        CursorStatus cursorStatus = CursorStatus.NONE;
         SrtCue cue = null;
         int lastCueNumber = 0;
-
+        
         while ((textLine = reader.readLine()) != null) {
             textLine = textLine.replace('\u0000', '\uFFFD');
+            SrtEvent event = getNextEvent(textLine);
 
-            if (cursorStatus == CursorStatus.NONE) {
-                if (textLine.isEmpty()) {
-                    continue;
-                }
-
-                // New cue
-                cue = new SrtCue(reporter);
-                lastCueNumber = cue.parseCueId(textLine, lastCueNumber);
-                cursorStatus = CursorStatus.CUE_ID;
-                continue;
+            switch (event) {
+                case CUE_ID:
+                    // First is cue number
+                    // New cue
+                    cue = new SrtCue(reporter, srtObject);
+                    lastCueNumber = cue.parseCueId(textLine, lastCueNumber);
+                    break;
+                case CUE_TIMECODE:
+                    // Second textLine defines the start and end time codes
+                    // 00:01:21,456 --> 00:01:23,417
+                    if (cue == null) {
+                        notifyError("Cue timecode without ID");
+                    }
+                    if (cue.parseCueHeader(textLine, subtitleOffset)) {
+                        cue.parseCueText(reader);
+                        srtObject.addCue(cue);
+                    }
+                    cue = null;
+                    break;
+                case EMPTY_LINE:
+                    break; // read next line
+//                case EOF:
+//                    break;
             }
-
-            // Second textLine defines the start and end time codes
-            // 00:01:21,456 --> 00:01:23,417
-            if (cursorStatus == CursorStatus.CUE_ID) {
-                if (cue.parseCueHeader(textLine, subtitleOffset)) {
-                    cursorStatus = CursorStatus.CUE_TIMECODE;
-                }
-                continue;
-            }
-
-            // Following lines are the cue lines
-            if (!textLine.isEmpty() && (cursorStatus == CursorStatus.CUE_TIMECODE || cursorStatus == CursorStatus.CUE_TEXT)) {
-                SubtitleTextLine line = new SubtitleTextLine();
-                line.addText(new SubtitlePlainText(textLine));
-                cue.addLine(line);
-                cursorStatus = CursorStatus.CUE_TEXT;
-                continue;
-            }
-
-            if (cursorStatus == CursorStatus.CUE_TEXT) {
-                // End of cue
-                srtObject.addCue(cue);
-                cue = null;
-                cursorStatus = CursorStatus.NONE;
-                continue;
-            }
-
-            notifyError("Unexpected line: " + textLine);
         }
 
         if (cue != null) {
-            srtObject.addCue(cue);
+            notifyError("Cue ID without body");
         }
 
         return srtObject;

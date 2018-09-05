@@ -18,10 +18,12 @@ import com.blackboard.collaborate.validator.subtitle.base.CueElemData;
 import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTimeStampData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
+import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleStyle;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,12 +36,6 @@ import java.util.regex.Pattern;
  * Created by clebeaupin on 11/10/15.
  */
 public class VttCue extends BaseSubtitleCue {
-    private enum TagStatus {
-        NONE,
-        OPEN,
-        CLOSE
-    }
-
     private static final String TAG_BOLD = "b";
     private static final String TAG_ITALIC = "i";
     private static final String TAG_UNDERLINE = "u";
@@ -61,18 +57,16 @@ public class VttCue extends BaseSubtitleCue {
 
     private static final String[] EMPTY_CLASSES = new String[0];
 
+    @Getter
     private CueTreeNode tree;
+
     private final ValidationReporter reporter;
-    private final VttObject vtt;
+    private final VttObject vttObject;
     private Map<String, String> settingsMap;
 
-    public VttCue(ValidationReporter reporter, VttObject vtt) {
+    public VttCue(ValidationReporter reporter, VttObject vttObject) {
         this.reporter = reporter;
-        this.vtt = vtt;
-    }
-
-    public CueTreeNode getTree() {
-        return this.tree;
+        this.vttObject = vttObject;
     }
 
     void parseCueId(String textLine) {
@@ -96,8 +90,8 @@ public class VttCue extends BaseSubtitleCue {
                 reporter.notifyWarning("Invalid cue start time");
             }
 
-            if (vtt != null) {
-                VttCue lastCue = (VttCue) vtt.getLastCue();
+            if (vttObject != null) {
+                VttCue lastCue = (VttCue) vttObject.getLastCue();
                 if (lastCue != null) {
                     SubtitleTimeCode lastStartTime = lastCue.getStartTime();
                     if (lastStartTime != null) {
@@ -158,8 +152,8 @@ public class VttCue extends BaseSubtitleCue {
                         break;
                     case "region":
                         // region id
-                        if (vtt != null) {
-                            VttRegion region = vtt.getRegion(value);
+                        if (vttObject != null) {
+                            VttRegion region = vttObject.getRegion(value);
                             if (region == null) {
                                 reporter.notifyWarning("No REGION with id " + value);
                             }
@@ -292,7 +286,6 @@ public class VttCue extends BaseSubtitleCue {
         // - styles
         do {
             int c = reader.read();
-            len++;
             if (c == -1) {
                 if (len == 0) {
                     reporter.notifyError("Empty cue is not allowed");
@@ -306,7 +299,7 @@ public class VttCue extends BaseSubtitleCue {
             } else if (c != ' ' && c != '\t') {
                 wasNL = false;
             }
-
+            len++;
 
             if (c == '-') {
                 reader.mark(2);
@@ -423,7 +416,7 @@ public class VttCue extends BaseSubtitleCue {
         while (current != null && current != tree) {
             if (!current.isLeaf()) {
                 // <v> does not need end tag
-                if (!"v".equals(current.getTag())) {
+                if (!TAG_VOICE.equals(current.getTag())) {
                     reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
                 }
             }
