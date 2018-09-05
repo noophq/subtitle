@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -92,7 +93,9 @@ public final class TestUtils {
             String errStr = props.getProperty(fileStr);
             int errors = Integer.parseInt(errStr);
             Path path = testDir.resolve(fileStr);
-            testFile(path.toString(), errors);
+            if (Files.exists(path)) {
+                testFile(path.toString(), errors);
+            }
         });
     }
 }
