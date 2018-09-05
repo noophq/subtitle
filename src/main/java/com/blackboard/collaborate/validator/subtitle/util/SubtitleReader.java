@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
  */
 public class SubtitleReader extends LineNumberReader implements ParsePositionProvider {
     private int column; // current column (char in line)
+    private int markedColumn;
 
     public SubtitleReader(Reader in) {
         super(in);
@@ -76,6 +77,20 @@ public class SubtitleReader extends LineNumberReader implements ParsePositionPro
         return column;
     }
 
+    public void mark(int readAheadLimit) throws IOException {
+        synchronized (lock) {
+            super.mark(readAheadLimit);
+            markedColumn = column;
+        }
+    }
+
+    public void reset() throws IOException {
+        synchronized (lock) {
+            super.reset();
+            column = markedColumn;
+        }
+    }
+
     /**
      *
      * @return Next character, but does not change position.
@@ -83,24 +98,20 @@ public class SubtitleReader extends LineNumberReader implements ParsePositionPro
      */
     public int lookNext() throws IOException {
         synchronized (lock) {
-            int oldCol = column;
             mark(1);
             int c = read();
             reset();
-            column = oldCol;
             return c;
         }
     }
 
     public CharBuffer lookNext(int len) throws IOException {
         synchronized (lock) {
-            int oldCol = column;
             mark(len);
 
             CharBuffer cb = CharBuffer.allocate(len);
             int read = this.read(cb);
             reset();
-            column = oldCol;
             return cb.asReadOnlyBuffer();
         }
     }
