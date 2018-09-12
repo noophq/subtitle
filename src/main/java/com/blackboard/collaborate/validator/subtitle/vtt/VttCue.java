@@ -16,7 +16,6 @@ import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.base.CueData;
 import com.blackboard.collaborate.validator.subtitle.base.CueElemData;
 import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
-import com.blackboard.collaborate.validator.subtitle.base.CueTimeStampData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
 import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
@@ -57,6 +56,9 @@ public class VttCue extends BaseSubtitleCue {
 
     private static final String[] EMPTY_CLASSES = new String[0];
 
+    private static final String SHORT_TIME_CODE = "%02d:%02d.%03d";
+    private static final String LONG_TIME_CODE = "%d:%02d:%02d.%03d";
+
     @Getter
     private CueTreeNode tree;
 
@@ -86,7 +88,7 @@ public class VttCue extends BaseSubtitleCue {
         setEndTime(endTime);
 
         if (startTime != null && endTime != null) {
-            if (startTime.getTime() >= endTime.getTime()) {
+            if (!startTime.isBefore(endTime)) {
                 reporter.notifyWarning("Invalid cue start time");
             }
 
@@ -95,7 +97,7 @@ public class VttCue extends BaseSubtitleCue {
                 if (lastCue != null) {
                     SubtitleTimeCode lastStartTime = lastCue.getStartTime();
                     if (lastStartTime != null) {
-                        if (startTime.getTime() < lastStartTime.getTime()) {
+                        if (startTime.isBefore(lastStartTime)) {
                             reporter.notifyWarning("Invalid cue start time");
                         }
                     }
@@ -250,20 +252,6 @@ public class VttCue extends BaseSubtitleCue {
                 return null;
         }
     }
-
-//    void content(SubtitleReader cueText) throws IOException {
-//        while (!eof) {
-//            text();
-//            tag();
-//            text();
-//        }
-//    }
-//
-//    private void tag() {
-//        String s = startTag();
-//        content(s);
-//        endTag(s);
-//    }
 
 
     /**
@@ -424,6 +412,20 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
+    public static String formatTimeCode(SubtitleTimeCode timeCode) {
+        if (timeCode.getHour() == 0) {
+            return String.format(SHORT_TIME_CODE, timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
+        } else {
+            return String.format(LONG_TIME_CODE, timeCode.getHour(), timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
+        }
+    }
+
+    /**
+     *
+     * @param timeCodeString
+     * @param subtitleOffset Offset in millis
+     * @return
+     */
     protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
         long value = 0;
         String[] parts = timeCodeString.split("\\.", 2); // 00:04:20.375
@@ -569,11 +571,11 @@ public class VttCue extends BaseSubtitleCue {
         if (middleTime != null) {
             // validate timing sequence
             SubtitleTimeCode startTime = getStartTime();
-            if (startTime != null && middleTime.compareTo(startTime) < 0) {
+            if (startTime != null && middleTime.isBefore(startTime)) {
                 reporter.notifyWarning("Timestamp before cue start time");
             }
             SubtitleTimeCode endTime = getEndTime();
-            if (endTime != null && middleTime.compareTo(endTime) > 0) {
+            if (endTime != null && middleTime.isAfter(endTime)) {
                 reporter.notifyWarning("Timestamp after cue end time");
             }
         }

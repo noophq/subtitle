@@ -26,8 +26,7 @@ public class SrtParser extends BaseSubtitleParser {
     private enum SrtEvent {
         CUE_ID,
         CUE_TIMECODE,
-        EMPTY_LINE,
-        EOF
+        EMPTY_LINE
     }
 
     public SrtParser(ValidationReporter reporter, SubtitleReader reader) {
@@ -43,9 +42,7 @@ public class SrtParser extends BaseSubtitleParser {
     private SrtEvent getNextEvent(String line) {
         SrtEvent foundEvent;
 
-        if (line == null) {
-            foundEvent = SrtEvent.EOF;
-        } else if (line.contains(SrtCue.ARROW)) {
+        if (line.contains(SrtCue.ARROW)) {
             foundEvent = SrtEvent.CUE_TIMECODE;
         } else if (!line.trim().isEmpty()) {
             foundEvent = SrtEvent.CUE_ID;
@@ -90,8 +87,6 @@ public class SrtParser extends BaseSubtitleParser {
                     break;
                 case EMPTY_LINE:
                     break; // read next line
-//                case EOF:
-//                    break;
             }
         }
 

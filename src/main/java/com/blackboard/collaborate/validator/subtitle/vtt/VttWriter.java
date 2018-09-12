@@ -15,7 +15,6 @@ package com.blackboard.collaborate.validator.subtitle.vtt;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleWriter;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -59,11 +58,11 @@ public class VttWriter implements SubtitleWriter {
         }
 
         // Write Start time and end time
-        writer.write(formatTimeCode(cue.getStartTime()));
+        writer.write(VttCue.formatTimeCode(cue.getStartTime()));
         writer.write(" ");
         writer.write(VttParser.ARROW);
         writer.write(" ");
-        writer.write(formatTimeCode(cue.getEndTime()));
+        writer.write(VttCue.formatTimeCode(cue.getEndTime()));
 
         // TODO: write VTT cue settings if any
         Iterable<Map.Entry<String, String>> settings = cue.getSettings();
@@ -80,23 +79,6 @@ public class VttWriter implements SubtitleWriter {
 
         // Write text
         writer.write(cue.getText());
-    }
-
-    private static String formatTimeCode(SubtitleTimeCode timeCode) {
-        int hours = timeCode.getHour();
-        if (hours == 0) {
-            return String.format("%02d:%02d.%03d",
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
-        }
-        else {
-            return String.format("%02d:%02d:%02d.%03d",
-                    timeCode.getHour(),
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
-        }
     }
 
     @Override

@@ -38,10 +38,6 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     	this(hour, minute, second, millisecond, 0);
     }
 
-//    public SubtitleTimeCode(LocalTime time) {
-//        this(time.getHour(), time.getMinute(), time.getSecond(), 0, 0);
-//    }
-
     /**
      *
      * @param time Time in milliseconds
@@ -86,6 +82,14 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     @Override
     public int compareTo(SubtitleTimeCode toCompare) {
         return (int) (getTime() - toCompare.getTime());
+    }
+
+    public boolean isBefore(SubtitleTimeCode toCompare) {
+        return compareTo(toCompare) < 0;
+    }
+
+    public boolean isAfter(SubtitleTimeCode toCompare) {
+        return compareTo(toCompare) > 0;
     }
 
     /**

@@ -21,8 +21,39 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SrtParserTest {
+    @Test
+    public void testParseTimecodeShort() {
+        final String timeCode = "01:10,678";
+        ValidationReporterImpl reporter = new ValidationReporterImpl(null);
+        SrtCue cue = new SrtCue(reporter, null);
+        SubtitleTimeCode tc = cue.parseTimeCode(timeCode, 0);
+        assertNotNull(tc);
+        assertEquals(timeCode, cue.formatTimeCode(tc));
+    }
+
+    @Test
+    public void testParseTimecodeLong() {
+        final String timeCode = "3333:55:10,234";
+        ValidationReporterImpl reporter = new ValidationReporterImpl(null);
+        SrtCue cue = new SrtCue(reporter, null);
+        SubtitleTimeCode tc = cue.parseTimeCode(timeCode, 0);
+        assertNotNull(tc);
+        assertEquals(timeCode, cue.formatTimeCode(tc));
+    }
+
+    private void testTimeCode(SrtCue cue, String timeCodeString, int hr, int min, int sec, int ms) {
+        SubtitleTimeCode tc = cue.parseTimeCode(timeCodeString, 0);
+        assertNotNull(tc);
+        assertEquals(hr, tc.getHour());
+        assertEquals(min, tc.getMinute());
+        assertEquals(sec, tc.getSecond());
+        assertEquals(ms, tc.getMillisecond());
+        assertEquals(timeCodeString, cue.formatTimeCode(tc));
+    }
+
     @Test
     public void testFormatTimecode() {
         CountingValidationListener listener = new CountingValidationListener();
@@ -31,35 +62,12 @@ public class SrtParserTest {
 
         SrtCue cue = new SrtCue(reporter, null);
 
-        SubtitleTimeCode tc = cue.parseTimeCode("00:10,000", 0);
-        assertEquals(0, tc.getHour());
-        assertEquals(0, tc.getMinute());
-        assertEquals(10, tc.getSecond());
-        assertEquals(0, tc.getMillisecond());
-
-        tc = cue.parseTimeCode("00:13,000", 0);
-        assertEquals(0, tc.getHour());
-        assertEquals(0, tc.getMinute());
-        assertEquals(13, tc.getSecond());
-        assertEquals(0, tc.getMillisecond());
-
-        tc = cue.parseTimeCode("02:13,880", 0);
-        assertEquals(0, tc.getHour());
-        assertEquals(2, tc.getMinute());
-        assertEquals(13, tc.getSecond());
-        assertEquals(880, tc.getMillisecond());
-
-        tc = cue.parseTimeCode("1:27:10,200", 0);
-        assertEquals(1, tc.getHour());
-        assertEquals(27, tc.getMinute());
-        assertEquals(10, tc.getSecond());
-        assertEquals(200, tc.getMillisecond());
-
-        tc = cue.parseTimeCode("02:27:10,200", 0);
-        assertEquals(2, tc.getHour());
-        assertEquals(27, tc.getMinute());
-        assertEquals(10, tc.getSecond());
-        assertEquals(200, tc.getMillisecond());
+        testTimeCode(cue, "00:10,000", 0, 0, 10, 0);
+        testTimeCode(cue, "00:03,009", 0, 0, 3, 9);
+        testTimeCode(cue, "02:13,880", 0, 2, 13, 880);
+        testTimeCode(cue, "1:27:10,200", 1, 27, 10, 200);
+        testTimeCode(cue, "2:27:10,200", 2, 27, 10, 200);
+        testTimeCode(cue, "3333:27:10,200", 3333, 27, 10, 200);
     }
 
     @Test

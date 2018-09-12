@@ -15,7 +15,6 @@ package com.blackboard.collaborate.validator.subtitle.srt;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleWriter;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,34 +42,17 @@ public class SrtWriter implements SubtitleWriter {
             writer.write("\n");
 
             // Write Start time and end time
-            writer.write(formatTimeCode(cue.getStartTime()));
+            writer.write(SrtCue.formatTimeCode(cue.getStartTime()));
             writer.write(" ");
             writer.write(SrtCue.ARROW);
             writer.write(" ");
-            writer.write(formatTimeCode(cue.getEndTime()));
+            writer.write(SrtCue.formatTimeCode(cue.getEndTime()));
             writer.write("\n");
 
             // Write text
             writer.write(cue.getText());
             // Write emptyline
             writer.write("\n");
-        }
-    }
-
-    private static String formatTimeCode(SubtitleTimeCode timeCode) {
-        int hours = timeCode.getHour();
-        if (hours == 0) {
-            return String.format("%02d:%02d,%03d",
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
-        }
-        else {
-            return String.format("%02d:%02d:%02d,%03d",
-                    timeCode.getHour(),
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
         }
     }
 

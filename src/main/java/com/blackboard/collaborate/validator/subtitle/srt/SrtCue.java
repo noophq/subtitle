@@ -16,7 +16,6 @@ import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.base.CueData;
 import com.blackboard.collaborate.validator.subtitle.base.CueElemData;
 import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
-import com.blackboard.collaborate.validator.subtitle.base.CueTimeStampData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
 import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
@@ -39,6 +38,9 @@ public class SrtCue extends BaseSubtitleCue {
 
     static final String ARROW = "-->";
     private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)\\s*$");
+
+    private static final String SHORT_TIME_CODE = "%02d:%02d,%03d";
+    private static final String LONG_TIME_CODE = "%d:%02d:%02d,%03d";
 
     private final ValidationReporter reporter;
     private final SrtObject srtObject;
@@ -81,7 +83,7 @@ public class SrtCue extends BaseSubtitleCue {
         setEndTime(endTime);
 
         if (startTime != null && endTime != null) {
-            if (startTime.getTime() >= endTime.getTime()) {
+            if (!startTime.isBefore(endTime)) {
                 reporter.notifyWarning("Invalid cue start time");
             }
 
@@ -90,7 +92,7 @@ public class SrtCue extends BaseSubtitleCue {
                 if (lastCue != null) {
                     SubtitleTimeCode lastStartTime = lastCue.getStartTime();
                     if (lastStartTime != null) {
-                        if (startTime.getTime() < lastStartTime.getTime()) {
+                        if (startTime.isBefore(lastStartTime)) {
                             reporter.notifyWarning("Invalid cue start time");
                         }
                     }
@@ -172,10 +174,8 @@ public class SrtCue extends BaseSubtitleCue {
                         CueData cueTag = startTag(current, tagBuilder.toString());
                         CueTreeNode elemChild = new CueTreeNode(cueTag);
                         current.add(elemChild);
-                        if (!(cueTag instanceof CueTimeStampData)) { // TODO: think of better design to avoid 'instanceof'
-                            // move down, but not for timestamp
-                            current = elemChild;
-                        }
+                        // move down
+                        current = elemChild;
                     }
                 } else if (tagStatus == TagStatus.CLOSE) {
                     // close cue element
@@ -287,7 +287,20 @@ public class SrtCue extends BaseSubtitleCue {
         }
     }
 
-    // duplicity in VTT
+    public static String formatTimeCode(SubtitleTimeCode timeCode) {
+        if (timeCode.getHour() == 0) {
+            return String.format(SHORT_TIME_CODE, timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
+        } else {
+            return String.format(LONG_TIME_CODE, timeCode.getHour(), timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
+        }
+    }
+
+    /**
+     *
+     * @param timeCodeString
+     * @param subtitleOffset Offset in millis
+     * @return
+     */
     protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
         long value = 0;
         String[] parts = timeCodeString.split(",", 2); // 00:04:20,375

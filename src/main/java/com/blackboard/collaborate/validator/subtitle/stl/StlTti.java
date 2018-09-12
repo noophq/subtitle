@@ -13,10 +13,14 @@
 package com.blackboard.collaborate.validator.subtitle.stl;
 
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by clebeaupin on 21/09/15.
  */
+@Getter
+@Setter
 public class StlTti {
     private short sgn; // Subtitle Group Number
     private int sn; // Subtitle Number
@@ -148,85 +152,5 @@ public class StlTti {
             }
             throw new IllegalArgumentException();
         }
-    }
-
-    public short getSgn() {
-        return this.sgn;
-    }
-
-    public void setSgn(short sgn) {
-        this.sgn = sgn;
-    }
-
-    public int getSn() {
-        return this.sn;
-    }
-
-    public void setSn(int sn) {
-        this.sn = sn;
-    }
-
-    public short getEbn() {
-        return this.ebn;
-    }
-
-    public void setEbn(short ebn) {
-        this.ebn = ebn;
-    }
-
-    public short getCs() {
-        return this.cs;
-    }
-
-    public void setCs(short cs) {
-        this.cs = cs;
-    }
-
-    public SubtitleTimeCode getTci() {
-        return this.tci;
-    }
-
-    public void setTci(SubtitleTimeCode tci) {
-        this.tci = tci;
-    }
-
-    public SubtitleTimeCode getTco() {
-        return this.tco;
-    }
-
-    public void setTco(SubtitleTimeCode tco) {
-        this.tco = tco;
-    }
-
-    public short getVp() {
-        return this.vp;
-    }
-
-    public void setVp(short vp) {
-        this.vp = vp;
-    }
-
-    public Jc getJc() {
-        return jc;
-    }
-
-    public void setJc(Jc jc) {
-        this.jc = jc;
-    }
-
-    public short getCf() {
-        return this.cf;
-    }
-
-    public void setCf(short cf) {
-        this.cf = cf;
-    }
-
-    public String getTf() {
-        return this.tf;
-    }
-
-    public void setTf(String tf) {
-        this.tf = tf;
     }
 }
