@@ -102,14 +102,6 @@ public class StlParser extends BaseSubtitleParser {
         return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
     }
 
-    private String readString(DataInputStream dis, int length, Charset charset) throws IOException {
-        byte[] bytes = new byte[length];
-        dis.readFully(bytes, 0, length);
-
-        // Remove spaces at start and end of the string
-        return new String(bytes, charset).trim();
-    }
-
     private String readString(DataInputStream dis, int length) throws IOException {
         byte[] bytes = new byte[length];
         dis.readFully(bytes, 0, length);

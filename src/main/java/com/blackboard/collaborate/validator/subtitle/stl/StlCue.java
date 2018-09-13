@@ -75,7 +75,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
                 // If not defined, create new text with new style
                 if (text == null) {
-                    text = new String();
+                    text = "";
                     textStyle = new SubtitleStyle();
 
                     // Start ingesting text before start box directive (0x0b)
