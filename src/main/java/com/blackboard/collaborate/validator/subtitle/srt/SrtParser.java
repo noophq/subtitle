@@ -78,6 +78,7 @@ public class SrtParser extends BaseSubtitleParser {
                     // 00:01:21,456 --> 00:01:23,417
                     if (cue == null) {
                         notifyError("Cue timecode without ID");
+                        cue = new SrtCue(reporter, srtObject);
                     }
                     if (cue.parseCueHeader(textLine, subtitleOffset)) {
                         cue.parseCueText(reader);
