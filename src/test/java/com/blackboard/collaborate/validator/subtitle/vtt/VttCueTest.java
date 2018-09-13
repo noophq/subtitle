@@ -78,13 +78,14 @@ public class VttCueTest {
     @Test
     public void testCueText5() {
         testCueText("<v Bill>plain &lt; &gt; &nbsp; end text</v>", 0);
+        testCueText("<v Bil&lt;l>plain &lt; &gt; &nbsp; end text</v>", 0);
     }
 
     // invalid entity &nb
     // missing ; in entity
     @Test
     public void testCueText6() {
-        testCueText("plain &lt; &gt; &nb", 2);
+        testCueText("plain &lt; &gt; &nb", 1);
         testCueText("plain &lt &gt;", 1);
     }
 
@@ -137,5 +138,10 @@ public class VttCueTest {
     @Test
     public void testCueText14() {
         testCueText("two<00:00:02.190><c> roads</c><00:00:02.580><c> diverged</c><00:00:03.330><c> in</c><c.colorE5E5E5><00:00:03.629><c> a</c><00:00:03.750><c> yellow</c><00:00:03.780><c> wood</c><00:00:04.080><c> and</c></c>", 7);
+    }
+
+    @Test
+    public void testCueText15() {
+        testCueText("aaa<aa&amp;bb>xxx</aa&amp;bb>", 1);
     }
 }

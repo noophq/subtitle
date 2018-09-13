@@ -19,9 +19,11 @@ import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
 import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
+import com.blackboard.collaborate.validator.subtitle.util.EntityParser;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleStyle;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -52,12 +54,7 @@ public class VttCue extends BaseSubtitleCue {
     private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + VttParser.ARROW + "\\s+(\\S+)(.*)?$");
     private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
-    private static final Pattern CUE_TIME_TAG_PATTERN = Pattern.compile("^(\\d+)(:\\d+)*(\\.\\d+)?$");
-
     private static final String[] EMPTY_CLASSES = new String[0];
-
-    private static final String SHORT_TIME_CODE = "%02d:%02d.%03d";
-    private static final String LONG_TIME_CODE = "%d:%02d:%02d.%03d";
 
     @Getter
     private CueTreeNode tree;
@@ -82,9 +79,9 @@ public class VttCue extends BaseSubtitleCue {
             return false;
         }
 
-        SubtitleTimeCode startTime = parseTimeCode(m.group(1), 0);
+        SubtitleTimeCode startTime = TimeCodeParser.parseVtt(reporter, m.group(1), 0);
         setStartTime(startTime);
-        SubtitleTimeCode endTime = parseTimeCode(m.group(2), 0);
+        SubtitleTimeCode endTime = TimeCodeParser.parseVtt(reporter, m.group(2), 0);
         setEndTime(endTime);
 
         if (startTime != null && endTime != null) {
@@ -366,14 +363,20 @@ public class VttCue extends BaseSubtitleCue {
 
             } else if (c == '&') {
                 StringBuilder entity = new StringBuilder();
-                while (c != -1 && c != ';' && !Character.isWhitespace(c)) {
+                c = reader.read();
+                while (c != -1 && c != '<' && c != '&' && !Character.isWhitespace(c) && c != ';') {
                     entity.append((char) c);
                     c = reader.read();
                 }
                 if (c != ';') {
                     reporter.notifyWarning("Missing ';' in entity " + entity);
                 }
-                parseEntity(entity.toString());
+                EntityParser.parse(reporter, entity.toString());
+                if (tagStatus == TagStatus.NONE) {
+                    textBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                } else {
+                    tagBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                }
             }
             else {
                 switch (tagStatus) {
@@ -412,65 +415,6 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
-    public static String formatTimeCode(SubtitleTimeCode timeCode) {
-        if (timeCode.getHour() == 0) {
-            return String.format(SHORT_TIME_CODE, timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
-        } else {
-            return String.format(LONG_TIME_CODE, timeCode.getHour(), timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
-        }
-    }
-
-    /**
-     *
-     * @param timeCodeString
-     * @param subtitleOffset Offset in millis
-     * @return
-     */
-    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
-        long value = 0;
-        String[] parts = timeCodeString.split("\\.", 2); // 00:04:20.375
-        if (parts.length > 2) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        String[] subparts = parts[0].split(":");
-        if (subparts.length > 3) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        try {
-            for (String subpart : subparts) {
-                value = value * 60 + Long.parseLong(subpart);
-            }
-
-            long stamp = value * 1000 + subtitleOffset;
-            if (parts.length > 1) {
-                stamp += Long.parseLong(parts[1]);
-            }
-
-            return new SubtitleTimeCode(stamp);
-
-        } catch (NumberFormatException e) {
-            reporter.notifyError("Invalid time format: " + timeCodeString);
-        } catch (IllegalArgumentException e) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-        }
-        return null;
-    }
-
-    private void parseEntity(String entity) {
-        switch (entity) {
-            case "&lt": // <
-            case "&gt": // >
-            case "&nbsp": // ' '
-            case "&amp": // &
-                break;
-            default:
-                reporter.notifyWarning("Unsupported entity: '" + entity + ";'");
-                break;
-        }
-    }
-
     private void checkNesting(CueTreeNode current, String tag) {
         if (current.findParentByTag(tag) != null) {
             reporter.notifyWarning("Nested <" + tag + "> tag not allowed");
@@ -489,7 +433,7 @@ public class VttCue extends BaseSubtitleCue {
         }
 
         // timestamp tag
-        if (CUE_TIME_TAG_PATTERN.matcher(wholeName).matches()) {
+        if (TimeCodeParser.matchesVtt(wholeName)) {
             if (!annotation.isEmpty()) {
                 reporter.notifyWarning("Annotation in timestamp tag");
             }
@@ -565,7 +509,7 @@ public class VttCue extends BaseSubtitleCue {
     }
 
     private CueData createTimestampTag(String wholeName) {
-        SubtitleTimeCode middleTime = parseTimeCode(wholeName, 0);
+        SubtitleTimeCode middleTime = TimeCodeParser.parseVtt(reporter, wholeName, 0);
 
         CueTimeStampData middleStamp = new CueTimeStampData(middleTime);
         if (middleTime != null) {

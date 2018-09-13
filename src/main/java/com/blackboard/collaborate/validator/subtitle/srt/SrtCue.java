@@ -19,8 +19,10 @@ import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
 import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
+import com.blackboard.collaborate.validator.subtitle.util.EntityParser;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -38,9 +40,6 @@ public class SrtCue extends BaseSubtitleCue {
 
     static final String ARROW = "-->";
     private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)\\s*$");
-
-    private static final String SHORT_TIME_CODE = "%02d:%02d,%03d";
-    private static final String LONG_TIME_CODE = "%d:%02d:%02d,%03d";
 
     private final ValidationReporter reporter;
     private final SrtObject srtObject;
@@ -77,9 +76,9 @@ public class SrtCue extends BaseSubtitleCue {
             return false;
         }
 
-        SubtitleTimeCode startTime = parseTimeCode(m.group(1), subtitleOffset);
+        SubtitleTimeCode startTime = TimeCodeParser.parseSrt(reporter, m.group(1), subtitleOffset);
         setStartTime(startTime);
-        SubtitleTimeCode endTime = parseTimeCode(m.group(2), subtitleOffset);
+        SubtitleTimeCode endTime = TimeCodeParser.parseSrt(reporter, m.group(2), subtitleOffset);
         setEndTime(endTime);
 
         if (startTime != null && endTime != null) {
@@ -203,14 +202,20 @@ public class SrtCue extends BaseSubtitleCue {
 
             } else if (c == '&') {
                 StringBuilder entity = new StringBuilder();
-                while (c != -1 && c != ';' && !Character.isWhitespace(c)) {
+                c = reader.read();
+                while (c != -1 && c != '<' && c != '&' && !Character.isWhitespace(c) && c != ';') {
                     entity.append((char) c);
                     c = reader.read();
                 }
                 if (c != ';') {
                     reporter.notifyWarning("Missing ';' in entity " + entity);
                 }
-                parseEntity(entity.toString());
+                EntityParser.parse(reporter, entity.toString());
+                if (tagStatus == TagStatus.NONE) {
+                    textBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                } else {
+                    tagBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                }
             }
             else {
                 switch (tagStatus) {
@@ -272,64 +277,5 @@ public class SrtCue extends BaseSubtitleCue {
         if (current.findParentByTag(tag) != null) {
             reporter.notifyWarning("Nested <" + tag + "> tag not allowed");
         }
-    }
-
-    private void parseEntity(String entity) {
-        switch (entity) {
-            case "&lt": // <
-            case "&gt": // >
-            case "&nbsp": // ' '
-            case "&amp": // &
-                break;
-            default:
-                reporter.notifyWarning("Unsupported entity: '" + entity + ";'");
-                break;
-        }
-    }
-
-    public static String formatTimeCode(SubtitleTimeCode timeCode) {
-        if (timeCode.getHour() == 0) {
-            return String.format(SHORT_TIME_CODE, timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
-        } else {
-            return String.format(LONG_TIME_CODE, timeCode.getHour(), timeCode.getMinute(), timeCode.getSecond(), timeCode.getMillisecond());
-        }
-    }
-
-    /**
-     *
-     * @param timeCodeString
-     * @param subtitleOffset Offset in millis
-     * @return
-     */
-    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
-        long value = 0;
-        String[] parts = timeCodeString.split(",", 2); // 00:04:20,375
-        if (parts.length > 2) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        String[] subparts = parts[0].split(":");
-        if (subparts.length > 3) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        try {
-            for (String subpart : subparts) {
-                value = value * 60 + Long.parseLong(subpart);
-            }
-
-            long stamp = value * 1000 + subtitleOffset;
-            if (parts.length > 1) {
-                stamp += Long.parseLong(parts[1]);
-            }
-
-            return new SubtitleTimeCode(stamp);
-
-        } catch (NumberFormatException e) {
-            reporter.notifyError("Invalid time format: " + timeCodeString);
-        } catch (IllegalArgumentException e) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-        }
-        return null;
     }
 }

@@ -13,8 +13,10 @@
 package com.blackboard.collaborate.validator.subtitle.srt;
 
 import com.blackboard.collaborate.validator.subtitle.base.ValidationReporterImpl;
+import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 import com.blackboard.collaborate.validator.subtitle.util.TestUtils;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 import com.blackboard.collaborate.validator.subtitle.vtt.CountingValidationListener;
 import org.junit.Test;
 
@@ -28,10 +30,9 @@ public class SrtParserTest {
     public void testParseTimecodeShort() {
         final String timeCode = "01:10,678";
         ValidationReporterImpl reporter = new ValidationReporterImpl(null);
-        SrtCue cue = new SrtCue(reporter, null);
-        SubtitleTimeCode tc = cue.parseTimeCode(timeCode, 0);
+        SubtitleTimeCode tc = TimeCodeParser.parseSrt(reporter, timeCode, 0);
         assertNotNull(tc);
-        assertEquals(timeCode, cue.formatTimeCode(tc));
+        assertEquals(timeCode, TimeCodeParser.formatSrt(tc));
     }
 
     @Test
@@ -39,19 +40,19 @@ public class SrtParserTest {
         final String timeCode = "3333:55:10,234";
         ValidationReporterImpl reporter = new ValidationReporterImpl(null);
         SrtCue cue = new SrtCue(reporter, null);
-        SubtitleTimeCode tc = cue.parseTimeCode(timeCode, 0);
+        SubtitleTimeCode tc = TimeCodeParser.parseSrt(reporter, timeCode, 0);
         assertNotNull(tc);
-        assertEquals(timeCode, cue.formatTimeCode(tc));
+        assertEquals(timeCode, TimeCodeParser.formatSrt(tc));
     }
 
-    private void testTimeCode(SrtCue cue, String timeCodeString, int hr, int min, int sec, int ms) {
-        SubtitleTimeCode tc = cue.parseTimeCode(timeCodeString, 0);
+    private void testTimeCode(ValidationReporter reporter, String timeCodeString, int hr, int min, int sec, int ms) {
+        SubtitleTimeCode tc = TimeCodeParser.parseSrt(reporter, timeCodeString, 0);
         assertNotNull(tc);
         assertEquals(hr, tc.getHour());
         assertEquals(min, tc.getMinute());
         assertEquals(sec, tc.getSecond());
         assertEquals(ms, tc.getMillisecond());
-        assertEquals(timeCodeString, cue.formatTimeCode(tc));
+        assertEquals(timeCodeString, TimeCodeParser.formatSrt(tc));
     }
 
     @Test
@@ -60,14 +61,12 @@ public class SrtParserTest {
         ValidationReporterImpl reporter = new ValidationReporterImpl(null);
         reporter.addValidationListener(listener);
 
-        SrtCue cue = new SrtCue(reporter, null);
-
-        testTimeCode(cue, "00:10,000", 0, 0, 10, 0);
-        testTimeCode(cue, "00:03,009", 0, 0, 3, 9);
-        testTimeCode(cue, "02:13,880", 0, 2, 13, 880);
-        testTimeCode(cue, "1:27:10,200", 1, 27, 10, 200);
-        testTimeCode(cue, "2:27:10,200", 2, 27, 10, 200);
-        testTimeCode(cue, "3333:27:10,200", 3333, 27, 10, 200);
+        testTimeCode(reporter, "00:10,000", 0, 0, 10, 0);
+        testTimeCode(reporter, "00:03,009", 0, 0, 3, 9);
+        testTimeCode(reporter, "02:13,880", 0, 2, 13, 880);
+        testTimeCode(reporter, "1:27:10,200", 1, 27, 10, 200);
+        testTimeCode(reporter, "2:27:10,200", 2, 27, 10, 200);
+        testTimeCode(reporter, "3333:27:10,200", 3333, 27, 10, 200);
     }
 
     @Test

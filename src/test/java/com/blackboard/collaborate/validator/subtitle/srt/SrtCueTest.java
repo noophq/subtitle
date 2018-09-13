@@ -85,7 +85,7 @@ public class SrtCueTest {
     // missing ; in entity
     @Test
     public void testCueText6() {
-        testCueText("plain &lt; &gt; &nb", 2);
+        testCueText("plain &lt; &gt; &nb", 1);
         testCueText("plain &lt &gt;", 1);
     }
 

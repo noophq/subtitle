@@ -81,7 +81,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
 
     @Override
     public int compareTo(SubtitleTimeCode toCompare) {
-        return (int) (getTime() - toCompare.getTime());
+        return Long.signum(getTime() - toCompare.getTime());
     }
 
     public boolean isBefore(SubtitleTimeCode toCompare) {

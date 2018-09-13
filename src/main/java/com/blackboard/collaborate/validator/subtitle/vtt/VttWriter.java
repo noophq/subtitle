@@ -15,6 +15,7 @@ package com.blackboard.collaborate.validator.subtitle.vtt;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleWriter;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -58,11 +59,11 @@ public class VttWriter implements SubtitleWriter {
         }
 
         // Write Start time and end time
-        writer.write(VttCue.formatTimeCode(cue.getStartTime()));
+        writer.write(TimeCodeParser.formatVtt(cue.getStartTime()));
         writer.write(" ");
         writer.write(VttParser.ARROW);
         writer.write(" ");
-        writer.write(VttCue.formatTimeCode(cue.getEndTime()));
+        writer.write(TimeCodeParser.formatVtt(cue.getEndTime()));
 
         // TODO: write VTT cue settings if any
         Iterable<Map.Entry<String, String>> settings = cue.getSettings();

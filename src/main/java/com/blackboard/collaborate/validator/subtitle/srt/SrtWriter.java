@@ -15,6 +15,7 @@ package com.blackboard.collaborate.validator.subtitle.srt;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleWriter;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,11 +43,11 @@ public class SrtWriter implements SubtitleWriter {
             writer.write("\n");
 
             // Write Start time and end time
-            writer.write(SrtCue.formatTimeCode(cue.getStartTime()));
+            writer.write(TimeCodeParser.formatSrt(cue.getStartTime()));
             writer.write(" ");
             writer.write(SrtCue.ARROW);
             writer.write(" ");
-            writer.write(SrtCue.formatTimeCode(cue.getEndTime()));
+            writer.write(TimeCodeParser.formatSrt(cue.getEndTime()));
             writer.write("\n");
 
             // Write text
