@@ -93,7 +93,7 @@ public class SamiParser extends BaseSubtitleParser {
                 long time = 0;
 
                 try {
-                    time = Long.valueOf(startTime + subtitleOffset);
+                    time = Long.parseLong(startTime) + subtitleOffset;
                 } catch (NumberFormatException e) {
                     notifyError("Unable to parse start time: " + textLine);
                 }

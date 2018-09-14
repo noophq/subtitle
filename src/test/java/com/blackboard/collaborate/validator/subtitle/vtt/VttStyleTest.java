@@ -28,7 +28,7 @@ public class VttStyleTest {
     private void testParserPri(String css, int errors) {
         CountingValidationListener listener = new CountingValidationListener();
 
-        System.out.println("TESTING: " + css);
+        System.out.print("TESTING: " + css);
         try (SubtitleReader reader = new SubtitleReader(new StringReader(css))) {
             ValidationReporterImpl reporter = new ValidationReporterImpl(reader);
             reporter.addValidationListener(listener);

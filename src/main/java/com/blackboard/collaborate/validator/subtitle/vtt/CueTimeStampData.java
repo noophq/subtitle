@@ -1,6 +1,6 @@
 /*
  * Title: CueTimeStampData
- * Copyright (c) 2017. Blackboard Inc. and its subsidiary companies.
+ * Copyright (c) 2018. Blackboard Inc. and its subsidiary companies.
  *
  * This program is based on noophq/subtitle.
  * Copyright (c) 2015-2016 Cyrille Lebeaupin <clebeaupin@noop.fr>
@@ -10,8 +10,9 @@
  * file that was distributed with this source code.
  */
 
-package com.blackboard.collaborate.validator.subtitle.base;
+package com.blackboard.collaborate.validator.subtitle.vtt;
 
+import com.blackboard.collaborate.validator.subtitle.base.CueData;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 
 /**

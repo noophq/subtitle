@@ -15,7 +15,7 @@ package com.blackboard.collaborate.validator.subtitle.srt;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleWriter;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,44 +35,25 @@ public class SrtWriter implements SubtitleWriter {
 
     @Override
     public void write(SubtitleObject subtitleObject) throws IOException {
-        int subtitleIndex = 0;
+        int subtitleIndex = 1;
 
         for (SubtitleCue cue : subtitleObject.getCues()) {
-            subtitleIndex++;
-
-            // Write number of subtitle
-            writer.write(String.format("%d", subtitleIndex));
+            // Write number of subtitle cue
+            writer.write(String.format("%d", subtitleIndex++));
             writer.write("\n");
 
             // Write Start time and end time
-            writer.write(formatTimeCode(cue.getStartTime()));
+            writer.write(TimeCodeParser.formatSrt(cue.getStartTime()));
             writer.write(" ");
-            writer.write(SrtParser.ARROW);
+            writer.write(SrtCue.ARROW);
             writer.write(" ");
-            writer.write(formatTimeCode(cue.getEndTime()));
+            writer.write(TimeCodeParser.formatSrt(cue.getEndTime()));
             writer.write("\n");
 
             // Write text
             writer.write(cue.getText());
             // Write emptyline
             writer.write("\n");
-        }
-    }
-
-    private static String formatTimeCode(SubtitleTimeCode timeCode) {
-        int hours = timeCode.getHour();
-        if (hours == 0) {
-            return String.format("%02d:%02d.%03d",
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
-        }
-        else {
-            return String.format("%02d:%02d:%02d.%03d",
-                    timeCode.getHour(),
-                    timeCode.getMinute(),
-                    timeCode.getSecond(),
-                    timeCode.getMillisecond());
         }
     }
 

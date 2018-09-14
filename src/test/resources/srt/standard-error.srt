@@ -1,10 +1,10 @@
 1
-00:01,440 --> 02:20,375
+00:02:17,440 --> 00:02:20.375
 Senator, <i>we're making
 our final</i> approach into Coruscant.
 
 2
-00:03:20,476 --> 03:22,501
+00:03:20,476 --> 00:03:22,501
 Very good, <b>Lieutenant</b>.
 
 3
@@ -13,7 +13,7 @@ Senator, we're making
 our final approach into Coruscant.
 
 4
-00:05:20,476 --> 00:05:22,501
+00:05:20,476 --> 00;05:22,501
 Very good, Lieutenant.
 
 5
@@ -30,6 +30,7 @@ Very good, Lieutenant.
 Senator, we're making
 our final approach into Coruscant.
 
-8
-10:09:20,476 --> 12:09:22,501
+9
+00:09:20,476 --> 00:09:22,501
 Very good, Lieutenant.
+

@@ -13,63 +13,62 @@
 package com.blackboard.collaborate.validator.subtitle.vtt;
 
 import com.blackboard.collaborate.validator.subtitle.base.ValidationReporterImpl;
+import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 import com.blackboard.collaborate.validator.subtitle.util.TestUtils;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class VttParserTest {
 
+    private void testTimeCode(ValidationReporter reporter, String timeCodeString, int hr, int min, int sec, int ms) {
+        SubtitleTimeCode tc = TimeCodeParser.parseVtt(reporter, timeCodeString, 0);
+        assertNotNull(tc);
+        assertEquals(hr, tc.getHour());
+        assertEquals(min, tc.getMinute());
+        assertEquals(sec, tc.getSecond());
+        assertEquals(ms, tc.getMillisecond());
+        assertEquals(timeCodeString, TimeCodeParser.formatVtt(tc));
+    }
+
+    private void testInvalidTimeCode(ValidationReporter reporter, String timeCodeString) {
+        SubtitleTimeCode tc = TimeCodeParser.parseVtt(reporter, timeCodeString, 0);
+        assertNull(tc);
+    }
+
     @Test
-    public void testFormatTimecode() {
+    public void testInvalidTimeCode() {
+        CountingValidationListener listener = new CountingValidationListener();
+        ValidationReporterImpl reporter = new ValidationReporterImpl(null);
+        reporter.addValidationListener(listener);
+
+        testInvalidTimeCode(reporter, "65:10.200");
+        testInvalidTimeCode(reporter, "59:60.200");
+        testInvalidTimeCode(reporter, "59:59.1200");
+    }
+
+    @Test
+    public void tesTimeCode() {
 		CountingValidationListener listener = new CountingValidationListener();
 		ValidationReporterImpl reporter = new ValidationReporterImpl(null);
 		reporter.addValidationListener(listener);
 
-		VttCue cue = new VttCue(reporter, null);
-
-		SubtitleTimeCode tc = cue.parseTimeCode("00:10.000", 0);
-		assertEquals(0, tc.getHour());
-		assertEquals(0, tc.getMinute());
-		assertEquals(10, tc.getSecond());
-		assertEquals(0, tc.getMillisecond());
-
-		tc = cue.parseTimeCode("00:13.000", 0);
-		assertEquals(0, tc.getHour());
-		assertEquals(0, tc.getMinute());
-		assertEquals(13, tc.getSecond());
-		assertEquals(0, tc.getMillisecond());
-
-		tc = cue.parseTimeCode("02:13.880", 0);
-		assertEquals(0, tc.getHour());
-		assertEquals(2, tc.getMinute());
-		assertEquals(13, tc.getSecond());
-		assertEquals(880, tc.getMillisecond());
-
-		tc = cue.parseTimeCode("1:27:10.200", 0);
-		assertEquals(1, tc.getHour());
-		assertEquals(27, tc.getMinute());
-		assertEquals(10, tc.getSecond());
-		assertEquals(200, tc.getMillisecond());
-
-		tc = cue.parseTimeCode("02:27:10.200", 0);
-		assertEquals(2, tc.getHour());
-		assertEquals(27, tc.getMinute());
-		assertEquals(10, tc.getSecond());
-		assertEquals(200, tc.getMillisecond());
-
+        testTimeCode(reporter, "00:10.000", 0, 0, 10, 0);
+        testTimeCode(reporter, "00:03.009", 0, 0, 3, 9);
+        testTimeCode(reporter, "02:13.880", 0, 2, 13, 880);
+        testTimeCode(reporter, "1:27:10.200", 1, 27, 10, 200);
+        testTimeCode(reporter, "2:27:10.200", 2, 27, 10, 200);
+        testTimeCode(reporter, "3333:27:10.200", 3333, 27, 10, 200);
     }
 
     @Test
     public void testFiles() throws IOException {
         TestUtils.testFolder("src/test/resources/vtt");
     }
-
-//	@Test
-//	public void testHelper() throws IOException {
-//		TestUtils.testFile("src/test/resources/vtt/regions.vtt", 1);
-//	}
 }

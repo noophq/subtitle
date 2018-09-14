@@ -16,12 +16,15 @@ import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.base.CueData;
 import com.blackboard.collaborate.validator.subtitle.base.CueElemData;
 import com.blackboard.collaborate.validator.subtitle.base.CuePlainData;
-import com.blackboard.collaborate.validator.subtitle.base.CueTimeStampData;
 import com.blackboard.collaborate.validator.subtitle.base.CueTreeNode;
+import com.blackboard.collaborate.validator.subtitle.base.TagStatus;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
+import com.blackboard.collaborate.validator.subtitle.util.EntityParser;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleStyle;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
+import com.blackboard.collaborate.validator.subtitle.util.TimeCodeParser;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,12 +37,6 @@ import java.util.regex.Pattern;
  * Created by clebeaupin on 11/10/15.
  */
 public class VttCue extends BaseSubtitleCue {
-    private enum TagStatus {
-        NONE,
-        OPEN,
-        CLOSE
-    }
-
     private static final String TAG_BOLD = "b";
     private static final String TAG_ITALIC = "i";
     private static final String TAG_UNDERLINE = "u";
@@ -57,22 +54,18 @@ public class VttCue extends BaseSubtitleCue {
     private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + VttParser.ARROW + "\\s+(\\S+)(.*)?$");
     private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
-    private static final Pattern CUE_TIME_TAG_PATTERN = Pattern.compile("^(\\d+)(:\\d+)*(\\.\\d+)?$");
-
     private static final String[] EMPTY_CLASSES = new String[0];
 
+    @Getter
     private CueTreeNode tree;
+
     private final ValidationReporter reporter;
-    private final VttObject vtt;
+    private final VttObject vttObject;
     private Map<String, String> settingsMap;
 
-    public VttCue(ValidationReporter reporter, VttObject vtt) {
+    public VttCue(ValidationReporter reporter, VttObject vttObject) {
         this.reporter = reporter;
-        this.vtt = vtt;
-    }
-
-    public CueTreeNode getTree() {
-        return this.tree;
+        this.vttObject = vttObject;
     }
 
     void parseCueId(String textLine) {
@@ -86,22 +79,22 @@ public class VttCue extends BaseSubtitleCue {
             return false;
         }
 
-        SubtitleTimeCode startTime = parseTimeCode(m.group(1), 0);
+        SubtitleTimeCode startTime = TimeCodeParser.parseVtt(reporter, m.group(1), 0);
         setStartTime(startTime);
-        SubtitleTimeCode endTime = parseTimeCode(m.group(2), 0);
+        SubtitleTimeCode endTime = TimeCodeParser.parseVtt(reporter, m.group(2), 0);
         setEndTime(endTime);
 
         if (startTime != null && endTime != null) {
-            if (startTime.getTime() >= endTime.getTime()) {
+            if (!startTime.isBefore(endTime)) {
                 reporter.notifyWarning("Invalid cue start time");
             }
 
-            if (vtt != null) {
-                VttCue lastCue = (VttCue) vtt.getLastCue();
+            if (vttObject != null) {
+                VttCue lastCue = (VttCue) vttObject.getLastCue();
                 if (lastCue != null) {
                     SubtitleTimeCode lastStartTime = lastCue.getStartTime();
                     if (lastStartTime != null) {
-                        if (startTime.getTime() < lastStartTime.getTime()) {
+                        if (startTime.isBefore(lastStartTime)) {
                             reporter.notifyWarning("Invalid cue start time");
                         }
                     }
@@ -158,8 +151,8 @@ public class VttCue extends BaseSubtitleCue {
                         break;
                     case "region":
                         // region id
-                        if (vtt != null) {
-                            VttRegion region = vtt.getRegion(value);
+                        if (vttObject != null) {
+                            VttRegion region = vttObject.getRegion(value);
                             if (region == null) {
                                 reporter.notifyWarning("No REGION with id " + value);
                             }
@@ -257,20 +250,6 @@ public class VttCue extends BaseSubtitleCue {
         }
     }
 
-//    void content(SubtitleReader cueText) throws IOException {
-//        while (!eof) {
-//            text();
-//            tag();
-//            text();
-//        }
-//    }
-//
-//    private void tag() {
-//        String s = startTag();
-//        content(s);
-//        endTag(s);
-//    }
-
 
     /**
      * Parse the cue text and validate the tags, ...
@@ -292,7 +271,6 @@ public class VttCue extends BaseSubtitleCue {
         // - styles
         do {
             int c = reader.read();
-            len++;
             if (c == -1) {
                 if (len == 0) {
                     reporter.notifyError("Empty cue is not allowed");
@@ -306,7 +284,7 @@ public class VttCue extends BaseSubtitleCue {
             } else if (c != ' ' && c != '\t') {
                 wasNL = false;
             }
-
+            len++;
 
             if (c == '-') {
                 reader.mark(2);
@@ -325,8 +303,7 @@ public class VttCue extends BaseSubtitleCue {
                 c = reader.lookNext();
                 if (c != -1) {
                     if (c == '/') {
-                        reader.skip(1);
-                        len++;
+                        len += reader.skip(1);
                         tagStatus = TagStatus.CLOSE;
                     } else {
                         tagStatus = TagStatus.OPEN;
@@ -386,14 +363,20 @@ public class VttCue extends BaseSubtitleCue {
 
             } else if (c == '&') {
                 StringBuilder entity = new StringBuilder();
-                while (c != -1 && c != ';' && !Character.isWhitespace(c)) {
+                c = reader.read();
+                while (c != -1 && c != '<' && c != '&' && !Character.isWhitespace(c) && c != ';') {
                     entity.append((char) c);
                     c = reader.read();
                 }
                 if (c != ';') {
                     reporter.notifyWarning("Missing ';' in entity " + entity);
                 }
-                parseEntity(entity.toString());
+                EntityParser.parse(reporter, entity.toString());
+                if (tagStatus == TagStatus.NONE) {
+                    textBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                } else {
+                    tagBuilder.append("&" + entity + ";"); // TODO: add resolved?
+                }
             }
             else {
                 switch (tagStatus) {
@@ -424,56 +407,11 @@ public class VttCue extends BaseSubtitleCue {
         while (current != null && current != tree) {
             if (!current.isLeaf()) {
                 // <v> does not need end tag
-                if (!"v".equals(current.getTag())) {
+                if (!TAG_VOICE.equals(current.getTag())) {
                     reporter.notifyWarning("Missing close tag: </" + current.getTag() + ">");
                 }
             }
             current = current.getParent();
-        }
-    }
-
-    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
-        long value = 0;
-        String[] parts = timeCodeString.split("\\.", 2);
-        if (parts.length > 2) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        String[] subparts = parts[0].split(":");
-        if (subparts.length > 3) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        try {
-            for (String subpart : subparts) {
-                value = value * 60 + Long.parseLong(subpart);
-            }
-
-            long stamp = value * 1000 + subtitleOffset;
-            if (parts.length > 1) {
-                stamp += Long.parseLong(parts[1]);
-            }
-
-            return new SubtitleTimeCode(stamp);
-
-        } catch (NumberFormatException e) {
-            reporter.notifyError("Invalid time format: " + timeCodeString);
-        } catch (IllegalArgumentException e) {
-            reporter.notifyError("Invalid time value: " + timeCodeString);
-        }
-        return null;
-    }
-
-    private void parseEntity(String entity) {
-        switch (entity) {
-            case "&lt": // <
-            case "&gt": // >
-            case "&nbsp": // ' '
-            case "&amp": // &
-                break;
-            default:
-                reporter.notifyWarning("Unsupported entity: '" + entity + ";'");
-                break;
         }
     }
 
@@ -495,7 +433,7 @@ public class VttCue extends BaseSubtitleCue {
         }
 
         // timestamp tag
-        if (CUE_TIME_TAG_PATTERN.matcher(wholeName).matches()) {
+        if (TimeCodeParser.matchesVtt(wholeName)) {
             if (!annotation.isEmpty()) {
                 reporter.notifyWarning("Annotation in timestamp tag");
             }
@@ -559,28 +497,29 @@ public class VttCue extends BaseSubtitleCue {
                 break;
         }
 
-        checkNesting(current, tagName);
+        if (!TAG_CLASS.equals(tagName)) {
+            checkNesting(current, tagName);
+        }
 
         if (!TAG_RT.equals(tagName) && TAG_RUBY.equals(current.getTag())) {
             reporter.notifyWarning("Tag <" + TAG_RUBY + "> can contain only <" + TAG_RT + "> tags");
         }
 
-        CueElemData cueTag = new CueElemData(tagName, classes, annotation);
-        return cueTag;
+        return new CueElemData(tagName, classes, annotation);
     }
 
     private CueData createTimestampTag(String wholeName) {
-        SubtitleTimeCode middleTime = parseTimeCode(wholeName, 0);
+        SubtitleTimeCode middleTime = TimeCodeParser.parseVtt(reporter, wholeName, 0);
 
         CueTimeStampData middleStamp = new CueTimeStampData(middleTime);
         if (middleTime != null) {
             // validate timing sequence
             SubtitleTimeCode startTime = getStartTime();
-            if (startTime != null && middleTime.compareTo(startTime) < 0) {
+            if (startTime != null && middleTime.isBefore(startTime)) {
                 reporter.notifyWarning("Timestamp before cue start time");
             }
             SubtitleTimeCode endTime = getEndTime();
-            if (endTime != null && middleTime.compareTo(endTime) > 0) {
+            if (endTime != null && middleTime.isAfter(endTime)) {
                 reporter.notifyWarning("Timestamp after cue end time");
             }
         }

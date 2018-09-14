@@ -15,31 +15,42 @@ package com.blackboard.collaborate.validator.subtitle.srt;
 import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleParser;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleObject;
 import com.blackboard.collaborate.validator.subtitle.model.ValidationReporter;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitlePlainText;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleReader;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTextLine;
-import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by clebeaupin on 21/09/15.
  */
 public class SrtParser extends BaseSubtitleParser {
-    private enum CursorStatus {
-        NONE,
+    private enum SrtEvent {
         CUE_ID,
         CUE_TIMECODE,
-        CUE_TEXT
+        EMPTY_LINE
     }
-
-    static final String ARROW = "-->";
-    private static final Pattern CUE_TIME_PATTERN = Pattern.compile("^\\s*(\\S+)\\s+" + ARROW + "\\s+(\\S+)(.*)?$");
 
     public SrtParser(ValidationReporter reporter, SubtitleReader reader) {
         super(reporter, reader);
+    }
+
+    /**
+     * Positions the input right before the next event, and returns the kind of event found. Does not
+     * consume any data from such event, if any.
+     *
+     * @return The kind of event found.
+     */
+    private SrtEvent getNextEvent(String line) {
+        SrtEvent foundEvent;
+
+        if (line.contains(SrtCue.ARROW)) {
+            foundEvent = SrtEvent.CUE_TIMECODE;
+        } else if (!line.trim().isEmpty()) {
+            foundEvent = SrtEvent.CUE_ID;
+        } else {
+            foundEvent = SrtEvent.EMPTY_LINE;
+        }
+
+        return foundEvent;
     }
 
     @Override
@@ -48,105 +59,42 @@ public class SrtParser extends BaseSubtitleParser {
         SrtObject srtObject = new SrtObject(); // current SrtObject
 
         String textLine;
-        CursorStatus cursorStatus = CursorStatus.NONE;
         SrtCue cue = null;
-
+        int lastCueNumber = 0;
+        
         while ((textLine = reader.readLine()) != null) {
-            textLine = textLine.trim().replace('\u0000', '\uFFFD');
+            textLine = textLine.replace('\u0000', '\uFFFD');
+            SrtEvent event = getNextEvent(textLine);
 
-            if (cursorStatus == CursorStatus.NONE) {
-                if (textLine.isEmpty()) {
-                    continue;
-                }
-
-                // New cue
-                cue = new SrtCue();
-
-                // First textLine is the cue number
-                try {
-                    Integer.parseInt(textLine);
-                } catch (NumberFormatException e) {
-                    notifyError("Unable to parse cue number: " + textLine);
-                }
-
-                cue.setId(textLine);
-                cursorStatus = CursorStatus.CUE_ID;
-                continue;
+            switch (event) {
+                case CUE_ID:
+                    // First is cue number
+                    // New cue
+                    cue = new SrtCue(reporter, srtObject);
+                    lastCueNumber = cue.parseCueId(textLine, lastCueNumber);
+                    break;
+                case CUE_TIMECODE:
+                    // Second textLine defines the start and end time codes
+                    // 00:01:21,456 --> 00:01:23,417
+                    if (cue == null) {
+                        notifyError("Cue timecode without ID");
+                        cue = new SrtCue(reporter, srtObject);
+                    }
+                    if (cue.parseCueHeader(textLine, subtitleOffset)) {
+                        cue.parseCueText(reader);
+                        srtObject.addCue(cue);
+                    }
+                    cue = null;
+                    break;
+                case EMPTY_LINE:
+                    break; // read next line
             }
-
-            // Second textLine defines the start and end time codes
-            // 00:01:21,456 --> 00:01:23,417
-            if (cursorStatus == CursorStatus.CUE_ID) {
-                Matcher m = CUE_TIME_PATTERN.matcher(textLine);
-                if (!m.matches()) {
-                    notifyError("Timecode '" + textLine + "' is badly formated");
-                }
-                else {
-                    cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12), subtitleOffset));
-                    cue.setEndTime(this.parseTimeCode(textLine.substring(17), subtitleOffset));
-                }
-                cursorStatus = CursorStatus.CUE_TIMECODE;
-                continue;
-            }
-
-            // Following lines are the cue lines
-            if (!textLine.isEmpty() && (
-                    cursorStatus == CursorStatus.CUE_TIMECODE || cursorStatus == CursorStatus.CUE_TEXT)) {
-                SubtitleTextLine line = new SubtitleTextLine();
-                line.addText(new SubtitlePlainText(textLine));
-                cue.addLine(line);
-                cursorStatus = CursorStatus.CUE_TEXT;
-                continue;
-            }
-
-            if (cursorStatus == CursorStatus.CUE_TEXT && textLine.isEmpty()) {
-                // End of cue
-                srtObject.addCue(cue);
-                cue = null;
-                cursorStatus = CursorStatus.NONE;
-                continue;
-            }
-
-            notifyError("Unexpected line: " + textLine);
         }
 
         if (cue != null) {
-            srtObject.addCue(cue);
+            notifyError("Cue ID without body");
         }
 
         return srtObject;
-    }
-
-    // duplicity in VTT
-    protected SubtitleTimeCode parseTimeCode(String timeCodeString, int subtitleOffset) {
-        long value = 0;
-        String[] parts = timeCodeString.split("\\.", 2);
-        if (parts.length > 2) {
-            notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        String[] subparts = parts[0].split(":");
-        if (subparts.length > 3) {
-            notifyError("Invalid time value: " + timeCodeString);
-            return null;
-        }
-        try {
-            for (String subpart : subparts) {
-                value = value * 60 + Long.parseLong(subpart);
-            }
-
-            long stamp = value * 1000 + subtitleOffset;
-            if (parts.length > 1) {
-                stamp += Long.parseLong(parts[1]);
-            }
-
-            return new SubtitleTimeCode(stamp);
-
-        } catch (NumberFormatException e) {
-            notifyError("Invalid time format: " + timeCodeString);
-        } catch (IllegalArgumentException e) {
-            notifyError("Invalid time value: " + timeCodeString);
-        }
-        return null;
     }
 }

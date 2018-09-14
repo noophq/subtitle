@@ -124,12 +124,12 @@ public class StlParserTest {
 //
 //    @Test
 //    public void testGsiTcp() throws Exception {
-//        assertEquals(36000000, testedGsi.getTcp().getTime());
+//        assertEquals(36, testedGsi.getTcp().getTime());
 //    }
 //
 //    @Test
 //    public void testGsiTcf() throws Exception {
-//        assertEquals(36000000, testedGsi.getTcf().getTime());
+//        assertEquals(36, testedGsi.getTcf().getTime());
 //    }
 //
 //    @Test
