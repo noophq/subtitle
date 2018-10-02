@@ -19,8 +19,10 @@ import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriter;
 import fr.noop.subtitle.util.SubtitleRegion;
+import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
+import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
 
 import java.awt.SystemColor;
 import java.io.IOException;
@@ -42,7 +44,7 @@ public class VttWriter implements SubtitleWriter {
         try {
             // Write header
             os.write(new String("WEBVTT\n\n").getBytes(this.charset));
-            
+
             // Write cues
             for (SubtitleCue cue : subtitleObject.getCues()) {
                 if (cue.getId() != null) {
@@ -56,16 +58,24 @@ public class VttWriter implements SubtitleWriter {
                         this.formatTimeCode(cue.getStartTime()),
                         this.formatTimeCode(cue.getEndTime()),
                         this.verticalPosition(cue));
-               
+
                 os.write(startToEnd.getBytes(this.charset));
                 // Write text
                 //String text = String.format("%s\n", cue.getText());
-                
+
                 String text = "";
                 for (SubtitleLine line : cue.getLines()) {
                     for (SubtitleText inText : line.getTexts()) {
                         if (inText instanceof SubtitleStyled) {
-                            text += String.format("<c.%s>%s</c>", ((SubtitleStyled)inText).getStyle().getColor(), inText.toString());
+                            SubtitleStyle style = ((SubtitleStyled)inText).getStyle();
+                            String textString = inText.toString();
+                            if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
+                                textString = String.format("<i>%s</i>", textString);
+                            }
+                            if (style.getColor() != null){
+                                textString = String.format("<c.%s>%s</c>", style.getColor(), textString);
+                            }
+                            text += textString;
                         } else {
                             text += inText.toString();
                         }
@@ -76,9 +86,9 @@ public class VttWriter implements SubtitleWriter {
 
                 // Write empty line
                 os.write("\n".getBytes(this.charset));
-                
+
                 // Get region
-                
+
             }
         } catch (UnsupportedEncodingException e) {
             throw new IOException("Encoding error in input subtitle");

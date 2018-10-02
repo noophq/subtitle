@@ -96,11 +96,14 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
                 // FIXME: Process text decoration
                 if (cByte == 0x80 || cByte == 0x82 || cByte == 0x84) {
+                    startText = true;
                     if (cByte == StlTti.TextStyle.ITALIC_ON.getValue()) {
                         textStyle.setFontStyle(FontStyle.ITALIC);
-                        System.out.println("Style : " + textStyle.getFontStyle());
-
                     }
+                    if (cByte == StlTti.TextStyle.ITALIC_OFF.getValue()) {
+                        textStyle.getProperties().remove(SubtitleStyle.Property.FONT_STYLE);
+                    }
+                    //UNDER
                     continue;
                 }
 
@@ -108,7 +111,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 if ((cByte >= 0x00 && cByte <= 0x07) ||
                         (cByte >= 0x10 && cByte <= 0x17)) {
                     textStyle.setColor(StlTti.TextColor.getEnum(cByte).getColor());
-                    
+
                     continue;
                 }
 
@@ -129,7 +132,6 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                         if (textStyle == null) {
                             line.addText(new SubtitlePlainText(text));
                         } else {
-                            System.out.println("Color : "+textStyle.getColor()+"\t"+text);
                             line.addText(new SubtitleStyledText(text, textStyle));
                         }
                     }
