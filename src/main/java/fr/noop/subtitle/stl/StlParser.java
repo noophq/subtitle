@@ -220,7 +220,6 @@ public class StlParser implements SubtitleParser {
 
         // Read User-Defined Area (UDA)
         gsi.setUda(this.readString(dis, 576));
-        System.out.println(gsi);
         return gsi;
     }
 
@@ -265,7 +264,6 @@ public class StlParser implements SubtitleParser {
         // Read TextField (TF)
         byte [] tfBytes = new byte[112];
         dis.readFully(tfBytes, 0, 112);
-        System.out.println( "KIKI" + new String(tfBytes, charset));
         tti.setTf(new String(tfBytes, charset));
 
         // TTI is fully parsed
