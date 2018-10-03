@@ -1,0 +1,11 @@
+#!/bin/bash
+set -x
+DIRNAME=$(dirname $0)
+source $DIRNAME/codebuildenv.sh
+
+VERSION=$(git describe --tags --always)
+if [ "$CODEBUILD_PULL_REQUEST" == false ]; then
+  if [ "$CODEBUILD_GIT_BRANCH" == "master" ] || [ "$CODEBUILD_GIT_BRANCH" == "beta" ] || [ "$CODEBUILD_GIT_BRANCH" == "prod" ] || [ "$CODEBUILD_GIT_BRANCH" == "demo42loops" ] || [ "$CODEBUILD_GIT_BRANCH" == "demomaxime" ] || [ "$CODEBUILD_GIT_BRANCH" == "demopat" ] || [ "$CODEBUILD_GIT_BRANCH" == "demovivien" ] || [ "$CODEBUILD_GIT_BRANCH" == "demoseb" ] ; then
+    aws s3 cp target/subtitle-$VERSION-jar-with-dependencies.jar s3://$AWS_BUCKET --region $AWS_REGION
+  fi
+fi

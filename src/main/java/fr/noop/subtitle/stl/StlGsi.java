@@ -398,4 +398,9 @@ public class StlGsi {
     public void setUda(String uda) {
         this.uda = uda;
     }
+    @Override
+    public String toString() {
+
+        return "Langage CODE : " + this.cct;
+    }
 }

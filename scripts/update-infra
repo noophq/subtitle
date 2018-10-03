@@ -1,0 +1,63 @@
+#!/bin/bash
+
+DIRNAME=$(dirname $0)
+source $DIRNAME/codebuildenv.sh
+set -e
+
+update_version() {
+  if [ "${VERSION}" != "" ]
+  then
+    echo "Updating uploader version to ${VERSION} in ${1}"
+    sed -i "s|^\(export UPLOAD_VERSION\)=.*\$|\1=${VERSION}|g" ${1}
+  fi
+}
+
+checkout_infra(){
+  ssh-agent bash -c "ssh-add /tmp/aws-codebuild_rsa && git clone git@github.com:nomalab/infra.git /tmp/infra"
+  cd /tmp/infra
+  if [ "${CODEBUILD_GIT_BRANCH}" == "master" ] || [ "${CODEBUILD_GIT_BRANCH}" == "beta" ]
+  then
+    git checkout $CODEBUILD_GIT_BRANCH
+  else
+    git checkout -b $CODEBUILD_GIT_BRANCH
+  fi
+  git config --global user.email "tech@nomalab.com"
+  git config --global user.name "Aws CodeBuild"
+}
+
+push() {
+  if [ "${VERSION}" != "" ]
+  then
+    git commit ${1} -m "Update upload app in ${1} to ${VERSION}"
+    if [ "${CODEBUILD_GIT_BRANCH}" == "master" ] || [ "${CODEBUILD_GIT_BRANCH}" == "beta" ]
+    then
+      ssh-agent bash -c "ssh-add /tmp/aws-codebuild_rsa && git push origin ${CODEBUILD_GIT_BRANCH}"
+    else
+      ssh-agent bash -c "ssh-add /tmp/aws-codebuild_rsa && git push -f origin ${CODEBUILD_GIT_BRANCH}"
+    fi
+  fi
+}
+
+update_repo() {
+  envFile="envs/${1}/docker-tags.env.sh"
+  update_version ${envFile}
+  push ${envFile}
+}
+
+PULL_REQUEST=${PULL_REQUEST:-false}
+VERSION=$(git describe --tags --always)
+if [ "${CODEBUILD_GIT_BRANCH}" == "master" ] || [ "${CODEBUILD_GIT_BRANCH}" == "beta" ] || [ "${CODEBUILD_GIT_BRANCH}" == "demo42loops" ] || [ "${CODEBUILD_GIT_BRANCH}" == "demomaxime" ] || [ "${CODEBUILD_GIT_BRANCH}" == "demopat" ] || [ "${CODEBUILD_GIT_BRANCH}" == "demovivien" ] || [ "${CODEBUILD_GIT_BRANCH}" == "demoseb" ] && [ "${PULL_REQUEST}" == "false" ]
+then
+  checkout_infra
+  if [ "${CODEBUILD_GIT_BRANCH}" == "master" ]
+  then
+  echo "updating infra repo demo with version '${VERSION}'"
+    update_repo "demo"
+  else
+    echo "updating infra repo ${CODEBUILD_GIT_BRANCH} with version '${VERSION}'"
+    update_repo "${CODEBUILD_GIT_BRANCH}"
+  fi
+
+else
+  echo "Skipping  as we are not on branch 'master' or 'beta' or 'demo[42loops|maxime|pat|vivien]'"
+fi

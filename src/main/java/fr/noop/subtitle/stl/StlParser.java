@@ -31,7 +31,7 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 public class StlParser implements SubtitleParser {
     public StlParser() {
     }
-    
+
     public StlObject parse(InputStream is) throws SubtitleParsingException {
     	return parse(is, true);
     }
@@ -188,7 +188,6 @@ public class StlParser implements SubtitleParser {
 
         // Read Maximum Number of Displayable Rows (MNR)
         gsi.setMnr(Integer.parseInt(this.readString(dis, 2)));
-
         // Read Time Code: Status (TCS)
         gsi.setTcs((short) dis.readUnsignedByte());
 
@@ -221,7 +220,6 @@ public class StlParser implements SubtitleParser {
 
         // Read User-Defined Area (UDA)
         gsi.setUda(this.readString(dis, 576));
-
         return gsi;
     }
 
