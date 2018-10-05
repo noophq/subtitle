@@ -31,7 +31,7 @@ import fr.noop.subtitle.util.SubtitleTimeCode;
 public class StlParser implements SubtitleParser {
     public StlParser() {
     }
-    
+
     public StlObject parse(InputStream is) throws SubtitleParsingException {
     	return parse(is, true);
     }
@@ -139,7 +139,7 @@ public class StlParser implements SubtitleParser {
         gsi.setDsc(StlGsi.Dsc.getEnum(dis.readUnsignedByte()));
 
         // Read Character Code Table number (CCT)
-        gsi.setCct(StlGsi.Cct.getEnum(Short.reverseBytes(dis.readShort())));
+        gsi.setCct(StlGsi.Cct.getEnum(dis.readShort()));
 
         // Read Character Language Code (LC)
         gsi.setLc(Short.reverseBytes(dis.readShort()));
@@ -220,7 +220,6 @@ public class StlParser implements SubtitleParser {
 
         // Read User-Defined Area (UDA)
         gsi.setUda(this.readString(dis, 576));
-
         return gsi;
     }
 

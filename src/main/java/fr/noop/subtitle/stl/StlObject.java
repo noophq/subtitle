@@ -51,7 +51,7 @@ public class StlObject extends BaseSubtitleObject {
         this.ttis.add(tti);
 
         // Create cue from tti
-        StlCue cue = new StlCue(tti);
+        StlCue cue = new StlCue(tti, gsi);
 
         // Do not create cue if tti text field is empty
         if (cue.isEmpty()) {
@@ -72,13 +72,13 @@ public class StlObject extends BaseSubtitleObject {
 
         // Consider that all regions are rows taking 100% of the width
         SubtitleRegion region = new SubtitleRegion(0, 100.0f-((gsi.getMnr()-newVp)*rowHeight));
-        
+
         if (this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2){
             if (tti.getVp() == 1){
                 region.setVerticalAlign(VerticalAlign.TOP);
             }
         }
-        
+
         cue.setRegion(region);
 
         // Add cue to stl object

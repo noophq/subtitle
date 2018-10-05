@@ -34,9 +34,11 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
     // - width: 100
     // height and y values vary depending on TTI vp value and cue number of lines
     SubtitleRegion region;
+    StlGsi.Dsc dsc;
 
-    public StlCue(StlTti tti) {
+    public StlCue(StlTti tti, StlGsi gsi) {
         super(tti.getTci(), tti.getTco());
+        this.dsc = gsi.getDsc();
         this.addTti(tti);
     }
 
@@ -59,29 +61,30 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
             SubtitleTextLine line = new SubtitleTextLine();
             SubtitleStyle textStyle = null;
             String text = null;
-            boolean startText = false; // Set to true to start ingesting text
+            boolean startText = true; // Set to true to start ingesting text
             int cIndex = 0; // Char index
 
             while (cIndex < tfPart.length()) {
                 // Current char and current byte
                 char cc = tfPart.charAt(cIndex);
-                int cByte = (cc & 0xff);
+                int cByte = (cc & 0xff); // get unsigned byte
                 cIndex++;
 
                 // If not defined, create new text with new style
                 if (text == null) {
                     text = new String();
                     textStyle = new SubtitleStyle();
-
-                    if (tti.getJc() == StlTti.Jc.NONE) {
-                        // Start ingesting text before start box directive (0x0b)
-                        startText = true;
-                    } else {
-                        startText = false;
+                    if (dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_1 || dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_2){ // teletext case
+                        if (tti.getJc() == StlTti.Jc.NONE) {
+                            // Start ingesting text before start box directive (0x0b)
+                            startText = true;
+                        } else {
+                            startText = false;
+                        }
                     }
                 }
 
-                // Start box directive
+                // Start box directive // teletext case
                 if (cByte == 0x0b) {
                     startText = true;
                 }
@@ -96,10 +99,12 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
                 // FIXME: Process text decoration
                 if (cByte == 0x80 || cByte == 0x82 || cByte == 0x84) {
+                    startText = true;
                     if (cByte == StlTti.TextStyle.ITALIC_ON.getValue()) {
                         textStyle.setFontStyle(FontStyle.ITALIC);
-                        System.out.println("Style : " + textStyle.getFontStyle());
-
+                    }
+                    if (cByte == StlTti.TextStyle.ITALIC_OFF.getValue()) {
+                        textStyle.getProperties().remove(SubtitleStyle.Property.FONT_STYLE);
                     }
                     continue;
                 }
@@ -108,7 +113,6 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 if ((cByte >= 0x00 && cByte <= 0x07) ||
                         (cByte >= 0x10 && cByte <= 0x17)) {
                     textStyle.setColor(StlTti.TextColor.getEnum(cByte).getColor());
-                    
                     continue;
                 }
 
@@ -129,7 +133,6 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                         if (textStyle == null) {
                             line.addText(new SubtitlePlainText(text));
                         } else {
-                            System.out.println("Color : "+textStyle.getColor()+"\t"+text);
                             line.addText(new SubtitleStyledText(text, textStyle));
                         }
                     }
@@ -144,7 +147,14 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     text += cc;
                 }
             }
-
+            // if line not added before; add it
+            if (line.isEmpty() && text != null){
+                if (textStyle == null) {
+                    line.addText(new SubtitlePlainText(text));
+                } else {
+                    line.addText(new SubtitleStyledText(text, textStyle));
+                }
+            }
             // Add text row
             if (!line.isEmpty()) {
                 this.addLine(line);
