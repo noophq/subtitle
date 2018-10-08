@@ -55,7 +55,18 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
+    <repositories>
+        <repository>
+            <id>charset-6937</id>
+            <url>https://raw.githubusercontent.com/nomalab/java-charset/master/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -64,9 +75,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>fr.noop</groupId>
-            <artifactId>charset</artifactId>
-            <version>1.0.1</version>
+            <groupId>java-charset</groupId>
+            <artifactId>charset-6937</artifactId>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
