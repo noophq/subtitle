@@ -69,13 +69,14 @@ public class StlParser implements SubtitleParser {
         return stl;
     }
 
-    private Date readDate(String dateString) throws IOException {
+    private Date readDate(String dateString) {
         DateFormat df = new SimpleDateFormat("yyMMdd");
 
         try {
             return df.parse(dateString);
         } catch (ParseException e) {
-            throw new IOException("Unable to parse date");
+            System.out.printf("Warning :: Unable to parse Date : '%s', using default date\n", dateString);
+            return new Date(0);
         }
     }
 
