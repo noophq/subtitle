@@ -139,7 +139,7 @@ public class StlParser implements SubtitleParser {
         gsi.setDsc(StlGsi.Dsc.getEnum(dis.readUnsignedByte()));
 
         // Read Character Code Table number (CCT)
-        gsi.setCct(StlGsi.Cct.getEnum(Short.reverseBytes(dis.readShort())));
+        gsi.setCct(StlGsi.Cct.getEnum(dis.readShort()));
 
         // Read Character Language Code (LC)
         gsi.setLc(Short.reverseBytes(dis.readShort()));
