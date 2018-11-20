@@ -166,7 +166,7 @@ public class Convert {
                 .hasArg()
                 .desc("Output charset")
                 .build());
-        
+
 
         // Output charset option
         this.options.addOption(Option.builder("dsm")
@@ -283,7 +283,7 @@ public class Convert {
         String ext = this.getFileExtension(filePath);
 
         // Get subtitle parser class
-        ConvertFormat convertFormat = ConvertFormat.getEnum(ext);
+        ConvertFormat convertFormat = ConvertFormat.getEnum(ext.toLowerCase());
         ConvertParser convertParser = ConvertParser.getEnum(convertFormat);
 
         // Instantiate parser class
