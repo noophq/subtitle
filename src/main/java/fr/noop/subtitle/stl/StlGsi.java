@@ -76,8 +76,10 @@ public class StlGsi {
 
     // Disk Format Code (DFC)
     public enum Dfc {
+        STL24("STL24.01", 24),
         STL25("STL25.01", 25),
         STL30("STL30.01", 30);
+
 
         private String value;
         private int frameRate;
