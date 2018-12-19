@@ -58,23 +58,23 @@ public class StlObject extends BaseSubtitleObject {
             return;
         }
 
-        // Adjust start and end time depending on GSI Tcf
-        cue.subtractTime(this.gsi.getTcf());
+        // Adjust start and end time depending on GSI Tcp
+        cue.subtractTime(this.gsi.getTcp());
 
         // Create cue region
         // Use tti vertical position
         // and gsi maximum number of rows information
         // to build the region
-        float rowHeight = 100.0f/((float) gsi.getMnr());
+        float rowHeight = 100.0f / ((float) gsi.getMnr());
 
         // Adjust vp to align cues having 1, 2 or 3 rows
-        int newVp = tti.getVp()+(2*(cue.getLines().size()-1));
+        int newVp = tti.getVp() + (2 * (cue.getLines().size() - 1));
 
         // Consider that all regions are rows taking 100% of the width
-        SubtitleRegion region = new SubtitleRegion(0, 100.0f-((gsi.getMnr()-newVp)*rowHeight));
+        SubtitleRegion region = new SubtitleRegion(0, 100.0f - ((gsi.getMnr() - newVp) * rowHeight));
 
-        if (this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2){
-            if (tti.getVp() == 1){
+        if (this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2) {
+            if (tti.getVp() == 1) {
                 region.setVerticalAlign(VerticalAlign.TOP);
             }
         }
