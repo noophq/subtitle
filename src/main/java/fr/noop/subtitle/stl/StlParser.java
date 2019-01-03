@@ -10,6 +10,9 @@
 
 package fr.noop.subtitle.stl;
 
+import fr.noop.subtitle.model.SubtitleParser;
+import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.SubtitleTimeCode;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -18,12 +21,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
-
-import fr.noop.subtitle.model.SubtitleParser;
-import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.util.SubtitleTimeCode;
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -32,10 +30,12 @@ public class StlParser implements SubtitleParser {
     public StlParser() {
     }
 
+    @Override
     public StlObject parse(InputStream is) throws SubtitleParsingException {
-    	return parse(is, true);
+        return parse(is, true);
     }
 
+    @Override
     public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
@@ -87,10 +87,10 @@ public class StlParser implements SubtitleParser {
         int frame = Integer.parseInt(timeCodeString.substring(6, 8));
 
         // Frame duration in milliseconds
-        int frameDuration = (1000/frameRate);
+        int frameDuration = (1000 / frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, frame * frameDuration);
     }
 
     private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException {
@@ -100,14 +100,14 @@ public class StlParser implements SubtitleParser {
         int frame = dis.readUnsignedByte();
 
         // Frame duration in milliseconds
-        int frameDuration = (1000/frameRate);
+        int frameDuration = (1000 / frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame*frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, frame * frameDuration);
     }
 
     private String readString(DataInputStream dis, int length, String charset) throws IOException {
-        byte [] bytes = new byte[length];
+        byte[] bytes = new byte[length];
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
@@ -115,7 +115,7 @@ public class StlParser implements SubtitleParser {
     }
 
     private String readString(DataInputStream dis, int length) throws IOException {
-        byte [] bytes = new byte[length];
+        byte[] bytes = new byte[length];
         dis.readFully(bytes, 0, length);
 
         // Remove spaces at start and end of the string
@@ -128,7 +128,7 @@ public class StlParser implements SubtitleParser {
         StlGsi gsi = new StlGsi();
 
         // Read Code Page Number (CPN)
-        byte [] cpnBytes = new byte[3];
+        byte[] cpnBytes = new byte[3];
         dis.readFully(cpnBytes, 0, 3);
         int cpn = cpnBytes[0] << 16 | cpnBytes[1] << 8 | cpnBytes[2];
         gsi.setCpn(StlGsi.Cpn.getEnum(cpn));
@@ -193,7 +193,13 @@ public class StlParser implements SubtitleParser {
         gsi.setTcs((short) dis.readUnsignedByte());
 
         // Read Time Code: Start-of-Programme (TCP)
-        gsi.setTcp(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        try {
+            gsi.setTcp(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        } catch (NumberFormatException e) {
+            System.out.printf("Can't read timecode  with message : %s\n", e.getMessage());
+            System.out.println("Setting 0000000 as timecode");
+            gsi.setTcp(new SubtitleTimeCode(0));
+        }
 
         // Read Time Code: First In-Cue (TCF)
         gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
@@ -263,7 +269,7 @@ public class StlParser implements SubtitleParser {
         tti.setCf((short) dis.readUnsignedByte());
 
         // Read TextField (TF)
-        byte [] tfBytes = new byte[112];
+        byte[] tfBytes = new byte[112];
         dis.readFully(tfBytes, 0, 112);
         tti.setTf(new String(tfBytes, charset));
 
