@@ -11,8 +11,8 @@
 package fr.noop.subtitle.stl;
 
 import fr.noop.subtitle.util.SubtitleTimeCode;
-
 import java.util.Date;
+
 
 /**
  * Created by clebeaupin on 21/09/15.
@@ -76,6 +76,7 @@ public class StlGsi {
 
     // Disk Format Code (DFC)
     public enum Dfc {
+        STL23("STL23.01", 23),
         STL24("STL24.01", 24),
         STL25("STL25.01", 25),
         STL30("STL30.01", 30);
