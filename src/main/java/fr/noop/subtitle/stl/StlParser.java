@@ -80,30 +80,30 @@ public class StlParser implements SubtitleParser {
         }
     }
 
-    private SubtitleTimeCode readTimeCode(String timeCodeString, int frameRate) throws IOException {
+    private SubtitleTimeCode readTimeCode(String timeCodeString, float frameRate) throws IOException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
         int frame = Integer.parseInt(timeCodeString.substring(6, 8));
 
         // Frame duration in milliseconds
-        int frameDuration = (1000 / frameRate);
+        float frameDuration = (1000 / frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame * frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, Math.round(frame * frameDuration));
     }
 
-    private SubtitleTimeCode readTimeCode(DataInputStream dis, int frameRate) throws IOException {
+    private SubtitleTimeCode readTimeCode(DataInputStream dis, float frameRate) throws IOException {
         int hour = dis.readUnsignedByte();
         int minute = dis.readUnsignedByte();
         int second = dis.readUnsignedByte();
         int frame = dis.readUnsignedByte();
 
         // Frame duration in milliseconds
-        int frameDuration = (1000 / frameRate);
+        float frameDuration = (1000 / frameRate);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, frame * frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, Math.round(frame * frameDuration));
     }
 
     private String readString(DataInputStream dis, int length, String charset) throws IOException {
@@ -235,7 +235,7 @@ public class StlParser implements SubtitleParser {
         String charset = gsi.getCct().getCharset();
 
         // Get frame rate from gsi
-        int frameRate = gsi.getDfc().getFrameRate();
+        float frameRate = gsi.getDfc().getFrameRate();
 
         // Read and extract metadata from TTI block
         // Each TTI block is 128 bytes long

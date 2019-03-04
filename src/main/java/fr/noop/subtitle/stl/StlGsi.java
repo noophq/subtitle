@@ -76,6 +76,7 @@ public class StlGsi {
 
     // Disk Format Code (DFC)
     public enum Dfc {
+        STL29("STL29.01", 29.97002997f),
         STL23("STL23.01", 23),
         STL24("STL24.01", 24),
         STL25("STL25.01", 25),
@@ -83,9 +84,9 @@ public class StlGsi {
 
 
         private String value;
-        private int frameRate;
+        private float frameRate;
 
-        Dfc(String value, int frameRate) {
+        Dfc(String value, float frameRate) {
             this.value = value;
             this.frameRate = frameRate;
         }
@@ -94,7 +95,7 @@ public class StlGsi {
             return this.value;
         }
 
-        public int getFrameRate() {
+        public float getFrameRate() {
             return this.frameRate;
         }
 
