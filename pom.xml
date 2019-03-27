@@ -4,7 +4,7 @@
 
     <groupId>fr.noop</groupId>
     <artifactId>subtitle</artifactId>
-    <version>0.9.11-SNAPSHOT</version>
+    <version>0.9.12-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>subtitle</name>
     <description>
