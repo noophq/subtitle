@@ -273,7 +273,7 @@ public class VttCue extends BaseSubtitleCue {
             int c = reader.read();
             if (c == -1) {
                 if (len == 0) {
-                    reporter.notifyError("Empty cue is not allowed");
+                    reporter.notifyWarning("Empty cue");
                 }
                 break; // end of file
             } else if (c == '\n') {
