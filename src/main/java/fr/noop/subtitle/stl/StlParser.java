@@ -81,6 +81,10 @@ public class StlParser implements SubtitleParser {
     }
 
     private SubtitleTimeCode readTimeCode(String timeCodeString, float frameRate) throws IOException {
+        if (timeCodeString.equals("")){
+            return new SubtitleTimeCode(0,0,0,0);
+        }
+
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
