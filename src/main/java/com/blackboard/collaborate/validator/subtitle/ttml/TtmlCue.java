@@ -14,29 +14,42 @@ package com.blackboard.collaborate.validator.subtitle.ttml;
 
 import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleCue;
+import com.blackboard.collaborate.validator.subtitle.model.SubtitleLine;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleRegionCue;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleRegion;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
+@Getter
 public class TtmlCue extends BaseSubtitleCue implements SubtitleRegionCue {
+    @Setter
     private SubtitleRegion region;
+
+    private List<SubtitleLine> lines; // Lines composed of texts
 
     public TtmlCue(SubtitleCue cue) {
         super(cue);
 
+        this.lines = new ArrayList<>();
         if (cue instanceof SubtitleRegionCue) {
             this.setRegion(new SubtitleRegion(((SubtitleRegionCue) cue).getRegion()));
         }
     }
 
-    public void setRegion(SubtitleRegion region) {
-        this.region = region;
-    }
-
     @Override
-    public SubtitleRegion getRegion() {
-        return this.region;
+    public String getText() {
+        StringBuilder bld = new StringBuilder();
+
+        for (SubtitleLine line : lines) {
+            bld.append(line.toString()).append("\n");
+        }
+
+        return bld.toString();
     }
 }

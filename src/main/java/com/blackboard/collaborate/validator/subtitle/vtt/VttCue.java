@@ -536,7 +536,7 @@ public class VttCue extends BaseSubtitleCue {
 
     @Override
     public String getText() {
-        return tree.toStyledString();
+        return (tree == null) ? "" : tree.toStyledString();
     }
 
     @Override

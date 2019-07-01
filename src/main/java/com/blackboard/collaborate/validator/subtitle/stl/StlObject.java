@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class StlObject extends BaseSubtitleObject {
     private StlGsi gsi;
-    List<StlTti> ttis = new ArrayList<>();
+    private List<StlTti> ttis = new ArrayList<>();
 
     public StlObject(StlGsi gsi) {
         this.setProperty(SubtitleObject.Property.TITLE, gsi.getOpt());

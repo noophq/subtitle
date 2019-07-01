@@ -273,6 +273,11 @@ public class SrtCue extends BaseSubtitleCue {
         // N/A
     }
 
+    @Override
+    public String getText() {
+        return (tree == null) ? "" : tree.toStyledString();
+    }
+
     private void checkNesting(CueTreeNode current, String tag) {
         if (current.findParentByTag(tag) != null) {
             reporter.notifyWarning("Nested <" + tag + "> tag not allowed");

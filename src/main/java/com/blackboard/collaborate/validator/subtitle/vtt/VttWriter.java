@@ -30,6 +30,7 @@ import java.util.Map;
 public class VttWriter implements SubtitleWriter {
     private final Writer writer;
 
+    // created throught reflection
     public VttWriter(OutputStream outputStream, Charset charset) {
         this.writer = new OutputStreamWriter(outputStream, charset);
     }
@@ -52,12 +53,6 @@ public class VttWriter implements SubtitleWriter {
     }
 
     private void writeCue(SubtitleCue cue) throws IOException {
-        if (cue.getId() != null) {
-            // Write number of subtitle
-            writer.write(cue.getId());
-            writer.write("\n");
-        }
-
         // Write Start time and end time
         writer.write(TimeCodeParser.formatVtt(cue.getStartTime()));
         writer.write(" ");

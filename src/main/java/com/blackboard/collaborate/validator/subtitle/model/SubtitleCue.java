@@ -14,7 +14,6 @@ package com.blackboard.collaborate.validator.subtitle.model;
 
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTimeCode;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,8 +25,6 @@ public interface SubtitleCue {
     SubtitleTimeCode getStartTime();
 
     SubtitleTimeCode getEndTime();
-
-    List<SubtitleLine> getLines();
 
     String getText();
 

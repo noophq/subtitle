@@ -13,9 +13,35 @@
 package com.blackboard.collaborate.validator.subtitle.sami;
 
 import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
+import com.blackboard.collaborate.validator.subtitle.model.SubtitleLine;
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
 public class SamiCue extends BaseSubtitleCue {
+    @Getter
+    private List<SubtitleLine> lines; // Lines composed of texts
+
+    public SamiCue() {
+        this.lines = new ArrayList<>();
+    }
+
+    @Override
+    public String getText() {
+        StringBuilder bld = new StringBuilder();
+
+        for (SubtitleLine line : lines) {
+            bld.append(line.toString()).append("\n");
+        }
+
+        return bld.toString();
+    }
+
+    public void addLine(SubtitleLine line) {
+        this.lines.add(line);
+    }
 }

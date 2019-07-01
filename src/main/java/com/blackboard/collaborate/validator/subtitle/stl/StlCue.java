@@ -13,12 +13,15 @@
 package com.blackboard.collaborate.validator.subtitle.stl;
 
 import com.blackboard.collaborate.validator.subtitle.base.BaseSubtitleCue;
+import com.blackboard.collaborate.validator.subtitle.model.SubtitleLine;
 import com.blackboard.collaborate.validator.subtitle.model.SubtitleRegionCue;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitlePlainText;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleRegion;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleStyle;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleStyledText;
 import com.blackboard.collaborate.validator.subtitle.util.SubtitleTextLine;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +41,16 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
     // - x: 0
     // - width: 100
     // height and y values vary depending on TTI vp value and cue number of lines
-    SubtitleRegion region;
+    @Getter
+    @Setter
+    private SubtitleRegion region;
+
+    @Getter
+    private List<SubtitleLine> lines; // Lines composed of texts
 
     public StlCue(StlTti tti) {
         super(tti.getTci(), tti.getTco());
+        this.lines = new ArrayList<>();
         this.addTti(tti);
     }
 
@@ -141,7 +150,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
             // Add text row
             if (!line.isEmpty()) {
-                this.addLine(line);
+                this.lines.add(line);
             }
         }
     }
@@ -151,11 +160,13 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
     }
 
     @Override
-    public SubtitleRegion getRegion() {
-       return this.region;
-    }
+    public String getText() {
+        StringBuilder bld = new StringBuilder();
 
-    public void setRegion(SubtitleRegion region) {
-        this.region = region;
+        for (SubtitleLine line : lines) {
+            bld.append(line.toString()).append("\n");
+        }
+
+        return bld.toString();
     }
 }
