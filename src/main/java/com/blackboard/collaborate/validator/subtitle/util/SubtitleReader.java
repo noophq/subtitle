@@ -39,6 +39,20 @@ public class SubtitleReader extends LineNumberReader implements ParsePositionPro
         setLineNumber(1); // start with line 1
     }
 
+    public void skipBom() throws IOException {
+        // UTF-8 0xEF,0xBB,0xBF
+        // UTF-16 U+FEFF
+        synchronized (lock) {
+            super.mark(1);
+            int c = read();
+            if (c != -1 && (char) c != '\uFEFF') {
+                super.reset();
+            } else {
+                column = 0; //skip BOM, reset column
+            }
+        }
+    }
+
     @Override
     public int read() throws IOException {
         synchronized (lock) {

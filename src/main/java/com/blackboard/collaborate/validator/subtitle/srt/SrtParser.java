@@ -31,6 +31,7 @@ public class SrtParser extends BaseSubtitleParser {
 
     public SrtParser(ValidationReporter reporter, SubtitleReader reader) {
         super(reporter, reader);
+
     }
 
     /**
@@ -61,7 +62,8 @@ public class SrtParser extends BaseSubtitleParser {
         String textLine;
         SrtCue cue = null;
         int lastCueNumber = 0;
-        
+
+        reader.skipBom();
         while ((textLine = reader.readLine()) != null) {
             textLine = textLine.replace('\u0000', '\uFFFD');
             SrtEvent event = getNextEvent(textLine);
