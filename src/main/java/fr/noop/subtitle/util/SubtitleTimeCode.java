@@ -1,3 +1,4 @@
+
 /*
  *  This file is part of the noOp organization .
  *
@@ -41,10 +42,10 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
      * @param time Time in milliseconds
      */
     public SubtitleTimeCode(long time) {
-        this.hour = (int) (time/MS_HOUR);
-        this.minute = (int) ((time-(this.hour*MS_HOUR))/MS_MINUTE);
-        this.second = (int) ((time-(this.hour*MS_HOUR+this.minute*MS_MINUTE))/MS_SECOND);
-        this.millisecond = (int) (time-(this.hour*MS_HOUR+this.minute*MS_MINUTE+this.second*MS_SECOND));
+        this.hour = (int) (time / MS_HOUR);
+        this.minute = (int) ((time - (this.hour * MS_HOUR)) / MS_MINUTE);
+        this.second = (int) ((time - (this.hour * MS_HOUR + this.minute * MS_MINUTE)) / MS_SECOND);
+        this.millisecond = (int) (time - (this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND));
     }
 
     @Override
@@ -105,7 +106,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
      * @return Time in milliseconds
      */
     public long getTime() {
-        return this.hour*MS_HOUR+this.minute*MS_MINUTE+this.second*MS_SECOND+this.getMillisecond();
+        return this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND + this.getMillisecond();
     }
 
     public int compareTo(SubtitleTimeCode toCompare) {

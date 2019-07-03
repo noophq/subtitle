@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
@@ -81,8 +83,8 @@ public class StlParser implements SubtitleParser {
     }
 
     private SubtitleTimeCode readTimeCode(String timeCodeString, float frameRate) throws IOException {
-        if (timeCodeString.equals("")){
-            return new SubtitleTimeCode(0,0,0,0);
+        if (timeCodeString.equals("")) {
+            return new SubtitleTimeCode(0, 0, 0, 0);
         }
 
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
@@ -97,17 +99,59 @@ public class StlParser implements SubtitleParser {
         return new SubtitleTimeCode(hour, minute, second, Math.round(frame * frameDuration));
     }
 
-    private SubtitleTimeCode readTimeCode(DataInputStream dis, float frameRate) throws IOException {
-        int hour = dis.readUnsignedByte();
-        int minute = dis.readUnsignedByte();
-        int second = dis.readUnsignedByte();
-        int frame = dis.readUnsignedByte();
+    class InnerTime {
+        int hour;
+        int minute;
+        int second;
+        int millisecond;
 
+        public String toString() {
+            return String.format("%02d:%02d:%02d.%03d", this.hour, this.minute, this.second, this.millisecond);
+        }
+    }
+
+    private InnerTime fixTime(InnerTime t) {
+        if (t.millisecond >= 1000) {
+            int newHours = t.hour;
+            int newMinutes = t.minute;
+            int newMillis = t.millisecond - 1000;
+            int newSeconds = t.second + 1;
+            if (newSeconds > 60) {
+                newSeconds -= 60;
+                newMinutes += 1;
+            }
+            if (newMinutes > 60) {
+                newMinutes -= 0;
+                newHours += 1;
+            }
+            InnerTime newt = new InnerTime();
+            newt.hour = newHours;
+            newt.second = newSeconds;
+            newt.minute = newMinutes;
+            newt.second = newSeconds;
+            newt.millisecond = newMillis;
+            return newt;
+        } else {
+            return t;
+        }
+    }
+
+    private SubtitleTimeCode readTimeCode(DataInputStream dis, float frameRate) throws IOException {
+        InnerTime t = new InnerTime();
+
+        t.hour = dis.readUnsignedByte();
+        t.minute = dis.readUnsignedByte();
+        t.second = dis.readUnsignedByte();
+        int frame = dis.readUnsignedByte();
         // Frame duration in milliseconds
         float frameDuration = (1000 / frameRate);
+        t.millisecond = Math.round(frame * frameDuration);
+        // and some STL have 1-25 encoded frame...
+        InnerTime fixedT = fixTime(t);
 
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, Math.round(frame * frameDuration));
+        SubtitleTimeCode st = new SubtitleTimeCode(fixedT.hour, fixedT.minute, fixedT.second, fixedT.millisecond);
+        return st;
     }
 
     private String readString(DataInputStream dis, int length, String charset) throws IOException {
