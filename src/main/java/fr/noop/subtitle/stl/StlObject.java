@@ -49,7 +49,6 @@ public class StlObject extends BaseSubtitleObject {
 
     public void addTti(StlTti tti) {
         this.ttis.add(tti);
-
         // Create cue from tti
         StlCue cue = new StlCue(tti, gsi);
 
@@ -57,9 +56,6 @@ public class StlObject extends BaseSubtitleObject {
         if (cue.isEmpty()) {
             return;
         }
-
-        // Adjust start and end time depending on GSI Tcp
-        cue.subtractTime(this.gsi.getTcp());
 
         // Create cue region
         // Use tti vertical position
