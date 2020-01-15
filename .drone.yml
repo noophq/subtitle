@@ -1,0 +1,75 @@
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: restore-cache
+  image: meltwater/drone-cache:dev
+  settings:
+    bucket: player-drone-cache
+    mount:
+    - .m2
+    region: us-east-1
+    restore: true
+
+- name: build-maven
+  pull: always
+  image: hotmart/pipeline-maven:3-jdk-8-slim
+  command:
+  - mvn clean source:jar package dependency:resolve-plugins
+  environment:
+    MAVEN_SETTINGS:
+      from_secret: maven_settings
+  depends_on:
+  - restore-cache
+
+- name: rebuild-cache
+  image: meltwater/drone-cache:dev
+  settings:
+    bucket: player-drone-cache
+    mount:
+    - .m2
+    rebuild: true
+    region: us-east-1
+  depends_on:
+  - build-maven
+
+- name: artifactory
+  image: athieriot/drone-artifactory 
+  settings:
+    url: https://mvnrepository.vulcano.rocks
+    username: drone
+    pom: pom.xml
+    force_upload: true
+    files:
+      - target/*.jar
+      - pom.xml
+  environment:
+    ARTIFACTORY_PASSWORD:
+      from_secret: artifactory_password
+    DRONE_VERSION: 1.6.0
+  when:
+    branch:
+      - master
+  depends_on:
+    - build-maven
+
+services:
+- name: docker
+  image: docker:dind
+  command:
+  - --max-concurrent-downloads
+  - 6
+  environment:
+    DOCKER_TLS_CERTDIR: ""
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
