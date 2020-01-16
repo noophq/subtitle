@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotmart.subtitle.util.TimecodeBadlyFormatedException;
+import com.hotmart.subtitle.util.TimecodeBadlyFormattedException;
 
 import fr.noop.subtitle.exception.InvalidTimeRangeException;
 import fr.noop.subtitle.model.SubtitleParsingException;
@@ -30,7 +30,7 @@ public class SrtParserTest {
         
         try {
         	srtParser.parse(is);
-        } catch (TimecodeBadlyFormatedException e) {
+        } catch (TimecodeBadlyFormattedException e) {
         	lineError = e.getLineError();
 		}
         

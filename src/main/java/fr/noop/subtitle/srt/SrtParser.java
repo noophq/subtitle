@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.hotmart.subtitle.util.TimecodeBadlyFormatedException;
+import com.hotmart.subtitle.util.TimecodeBadlyFormattedException;
 
 import fr.noop.subtitle.exception.InvalidTimeRangeException;
 import fr.noop.subtitle.model.SubtitleParser;
@@ -89,7 +89,7 @@ public class SrtParser implements SubtitleParser {
             // 00:01:21,456 --> 00:01:23,417
             if (cursorStatus == CursorStatus.CUE_ID) {
                 if (!textLine.substring(13, 16).equals("-->")) {
-                	throw new TimecodeBadlyFormatedException(String.format(
+                	throw new TimecodeBadlyFormattedException(String.format(
                             "Timecode textLine is badly formated: %s", textLine), lineCount);
                 }
 
