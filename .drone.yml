@@ -1,10 +1,11 @@
-  fbm: &filter_branch_master
-    when:
-      branch:
-      - master
-      event:
-        exclude:
-        - pull_request
+---
+fbm: &filter_branch_master
+  when:
+    branch:
+    - master
+    event:
+      exclude:
+      - pull_request
 
 kind: pipeline
 name: default
