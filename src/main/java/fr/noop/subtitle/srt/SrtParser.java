@@ -92,9 +92,17 @@ public class SrtParser implements SubtitleParser {
                 	throw new TimecodeBadlyFormattedException(String.format(
                             "Timecode textLine is badly formated: %s", textLine), lineCount);
                 }
+                
+                String startTime = textLine.substring(0, 12);
+                String endTime = textLine.substring(17);
+                
+                if (startTime.length() != 12 || endTime.length() != 12) {
+                	throw new TimecodeBadlyFormattedException(String.format(
+                            "Timecode textLine is badly formated: %s", textLine), lineCount);
+                }
 
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                cue.setStartTime(this.parseTimeCode(startTime));
+                cue.setEndTime(this.parseTimeCode(endTime));
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }

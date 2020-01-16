@@ -24,8 +24,8 @@ public class SrtParserTest {
     }
     
     @Test
-    public void expectedTimecodeBadlyFormatedException() throws IOException, SubtitleParsingException, InvalidTimeRangeException {
-        FileInputStream is = new FileInputStream("src/test/resources/srt/invalid_format.srt");
+    public void expectedTimecodeBadlyFormatedException_atStartTime() throws IOException, SubtitleParsingException, InvalidTimeRangeException {
+        FileInputStream is = new FileInputStream("src/test/resources/srt/error_line6.srt");
         int lineError = -1;
         
         try {
@@ -35,5 +35,19 @@ public class SrtParserTest {
 		}
         
         Assert.assertEquals(6, lineError);
+    }
+    
+    @Test
+    public void expectedTimecodeBadlyFormatedException_atEndTime() throws IOException, SubtitleParsingException, InvalidTimeRangeException {
+        FileInputStream is = new FileInputStream("src/test/resources/srt/error_line22.srt");
+        int lineError = -1;
+        
+        try {
+        	srtParser.parse(is);
+        } catch (TimecodeBadlyFormattedException e) {
+        	lineError = e.getLineError();
+		}
+        
+        Assert.assertEquals(22, lineError);
     }
 }
