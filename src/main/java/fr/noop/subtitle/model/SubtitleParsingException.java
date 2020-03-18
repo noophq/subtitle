@@ -15,12 +15,12 @@ package fr.noop.subtitle.model;
  */
 @SuppressWarnings("serial")
 public class SubtitleParsingException extends Exception {
-	private int lineError;
+	private Integer lineError;
     public SubtitleParsingException(String message) {
         super(message);
     }
     
-    public SubtitleParsingException(String message, int lineError) {
+    public SubtitleParsingException(String message, Integer lineError) {
         super(message);
         this.lineError = lineError;
     }
