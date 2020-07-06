@@ -52,12 +52,21 @@ public class VttWriter implements SubtitleWriter {
                     String number = String.format("%s\n", cue.getId());
                     os.write(number.getBytes(this.charset));
                 }
-
+                
                 // Write Start time and end time
-                String startToEnd = String.format("%s --> %s %s\n",
+                String startToEnd = null;
+                if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)){
+                    SubtitleTimeCode startTimeCode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
+                    startToEnd = String.format("%s --> %s %s\n",
+                        this.formatTimeCode(cue.getStartTime().subtract(startTimeCode)),
+                        this.formatTimeCode(cue.getEndTime().subtract(startTimeCode)),
+                        this.verticalPosition(cue));
+                } else {
+                    startToEnd = String.format("%s --> %s %s\n",
                         this.formatTimeCode(cue.getStartTime()),
                         this.formatTimeCode(cue.getEndTime()),
                         this.verticalPosition(cue));
+                }                
 
                 os.write(startToEnd.getBytes(this.charset));
                 // Write text

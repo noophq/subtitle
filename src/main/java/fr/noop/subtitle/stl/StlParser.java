@@ -17,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -86,7 +87,6 @@ public class StlParser implements SubtitleParser {
         if (timeCodeString.equals("")) {
             return new SubtitleTimeCode(0, 0, 0, 0);
         }
-
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(2, 4));
         int second = Integer.parseInt(timeCodeString.substring(4, 6));
@@ -248,9 +248,15 @@ public class StlParser implements SubtitleParser {
             System.out.println("Setting 0000000 as timecode");
             gsi.setTcp(new SubtitleTimeCode(0));
         }
-
+        
         // Read Time Code: First In-Cue (TCF)
-        gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        try {
+            gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
+        } catch (NumberFormatException e) {
+            System.out.printf("Can't read timecode  with message : %s\n", e.getMessage());
+            System.out.println("Setting 0000000 as timecode");
+            gsi.setTcf(new SubtitleTimeCode(0));
+        }
 
         // Read Total Number of Disks (TND)
         gsi.setTnd((short) dis.readUnsignedByte());
