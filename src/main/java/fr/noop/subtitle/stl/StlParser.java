@@ -116,11 +116,11 @@ public class StlParser implements SubtitleParser {
             int newMinutes = t.minute;
             int newMillis = t.millisecond - 1000;
             int newSeconds = t.second + 1;
-            if (newSeconds > 60) {
+            if (newSeconds >= 60) {
                 newSeconds -= 60;
                 newMinutes += 1;
             }
-            if (newMinutes > 60) {
+            if (newMinutes >= 60) {
                 newMinutes -= 0;
                 newHours += 1;
             }
