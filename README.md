@@ -166,3 +166,10 @@ Convert from command line
 Usage:
 
     java -jar subtitle-*.jar -i input-file -o output-file
+
+Update lib
+----------
+
+- update version in pom.xml
+- git tag vx.x.x && git push --tags
+- create release in github : https://github.com/nomalab/subtitle/releases
