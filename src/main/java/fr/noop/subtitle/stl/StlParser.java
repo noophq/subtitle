@@ -87,16 +87,20 @@ public class StlParser implements SubtitleParser {
         if (timeCodeString.equals("")) {
             return new SubtitleTimeCode(0, 0, 0, 0);
         }
-        int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-        int minute = Integer.parseInt(timeCodeString.substring(2, 4));
-        int second = Integer.parseInt(timeCodeString.substring(4, 6));
-        int frame = Integer.parseInt(timeCodeString.substring(6, 8));
+        InnerTime t = new InnerTime();
 
+        t.hour = Integer.parseInt(timeCodeString.substring(0, 2));
+        t.minute = Integer.parseInt(timeCodeString.substring(2, 4));
+        t.second = Integer.parseInt(timeCodeString.substring(4, 6));
+        int frame = Integer.parseInt(timeCodeString.substring(6, 8));
+        
         // Frame duration in milliseconds
         float frameDuration = (1000 / frameRate);
-
+        t.millisecond = Math.round(frame * frameDuration);
+        // and some STL have 1-25 encoded frame...
+        InnerTime fixedT = fixTime(t);
         // Build time code
-        return new SubtitleTimeCode(hour, minute, second, Math.round(frame * frameDuration));
+        return new SubtitleTimeCode(fixedT.hour, fixedT.minute, fixedT.second, fixedT.millisecond);
     }
 
     class InnerTime {
