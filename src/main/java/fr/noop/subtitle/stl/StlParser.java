@@ -34,14 +34,18 @@ public class StlParser implements SubtitleParser {
     }
     
     public StlObject parse(InputStream is) throws SubtitleParsingException {
-    	return parse(is, true, false);
+    	return parse(is, true, false, false);
     }
 
-    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
-        return parse(is, strict, false);
+    public StlObject parse(InputStream is,
+                           boolean strict) throws SubtitleParsingException {
+        return parse(is, strict, false, false);
     }
 
-    public StlObject parse(InputStream is, boolean strict, boolean skipUserdataTf) throws SubtitleParsingException {
+    public StlObject parse(InputStream is,
+                           boolean strict,
+                           boolean skipUserdataTf,
+                           boolean ignoreTcf) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 
@@ -69,7 +73,7 @@ public class StlParser implements SubtitleParser {
             }
 
             if (!skipUserdataTf || tti.getEbn() != 254) {
-                stl.addTti(tti);
+                stl.addTti(tti, ignoreTcf);
             }
         }
 
