@@ -15,7 +15,7 @@ import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.model.SubtitleWriter;
 import org.apache.commons.cli.*;
-
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.*;
@@ -223,10 +223,12 @@ public class Convert {
             }
 
             InputStream is = null;
+            BOMInputStream bom = null;
 
             // Open input file
             try {
                  is = new FileInputStream(inputFilePath);
+                 bom = new BOMInputStream(is);
             } catch(IOException e) {
                 System.out.println(String.format("Input file %s does not exist: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
@@ -236,7 +238,7 @@ public class Convert {
             SubtitleObject inputSubtitle = null;
 
             try {
-                inputSubtitle = subtitleParser.parse(is, !disableStrictMode);
+                inputSubtitle = subtitleParser.parse(bom, !disableStrictMode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
