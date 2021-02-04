@@ -12,6 +12,7 @@ package fr.noop.subtitle.stl;
 
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import java.util.Date;
+import fr.noop.subtitle.stl.LanguageCode.Lc;
 
 
 /**
@@ -22,7 +23,7 @@ public class StlGsi {
     private Dfc dfc; // Disk Format Code
     private Dsc dsc; // Display Standard Code
     private Cct cct; // Character Code Table number
-    private int lc; // Language Code
+    private Lc lc; // Language Code
     private String opt; // Original Programme Title
     private String oet; // Original Episode Title
     private String tpt; // Translated Programme Title
@@ -38,7 +39,7 @@ public class StlGsi {
     private int tng; // Total Number of Subtitle Groups
     private int mnc; // Maximum Number of Displayable Characters in any text row
     private int mnr; // Maximum Number of Displayable Rows
-    private short tcs; // Time Code Status
+    private Tcs tcs; // Time Code Status
     private SubtitleTimeCode tcp; // Start-of-Programme
     private SubtitleTimeCode tcf; // Time Code: First In-Cue
     private short tnd; // Total Number of Disks
@@ -104,6 +105,12 @@ public class StlGsi {
                 if(v.getValue().equalsIgnoreCase(value)) return v;
             throw new IllegalArgumentException();
         }
+
+        public static Dfc getEnumFromFloat(float value) {
+            for(Dfc v : values())
+                if(Math.abs(value - v.getFrameRate()) < 0.01) return v;
+            throw new IllegalArgumentException();
+        }
     }
 
     // Display Standard Code (DSC)
@@ -161,7 +168,27 @@ public class StlGsi {
         }
     }
 
+    // Time Code: Status (TCS)
+    public enum Tcs {
+        NOT_INTENDED_USE(0x30),
+        INTENDED_USE(0x31);
 
+        private int value;
+
+        Tcs(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
+
+        public static Tcs getEnum(int value) {
+            for(Tcs v : values())
+                if(v.getValue() == value) return v;
+            throw new IllegalArgumentException();
+        }
+    }
 
     public Cpn getCpn() {
         return this.cpn;
@@ -195,11 +222,11 @@ public class StlGsi {
         this.cct = cct;
     }
 
-    public int getLc() {
+    public Lc getLc() {
         return this.lc;
     }
 
-    public void setLc(int lc) {
+    public void setLc(Lc lc) {
         this.lc = lc;
     }
 
@@ -323,11 +350,11 @@ public class StlGsi {
         this.mnr = mnr;
     }
 
-    public short getTcs() {
+    public Tcs getTcs() {
         return this.tcs;
     }
 
-    public void setTcs(short tcs) {
+    public void setTcs(Tcs tcs) {
         this.tcs = tcs;
     }
 

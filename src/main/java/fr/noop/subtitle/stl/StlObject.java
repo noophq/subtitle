@@ -69,6 +69,7 @@ public class StlObject extends BaseSubtitleObject {
 
         // Consider that all regions are rows taking 100% of the width
         SubtitleRegion region = new SubtitleRegion(0, 100.0f - ((gsi.getMnr() - newVp) * rowHeight));
+        region.setVerticalPosition(tti.getVp());
 
         if (this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2) {
             if (tti.getVp() == 1) {
