@@ -40,7 +40,7 @@ public class VttWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
         try {
             // Write header
             os.write(new String("WEBVTT\n\n").getBytes(this.charset));

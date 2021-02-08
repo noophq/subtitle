@@ -168,6 +168,13 @@ public class Convert {
                 .desc("Output charset")
                 .build());
 
+        // Output timecode option
+        this.options.addOption(Option.builder("otc")
+                .required(false)
+                .longOpt("output-timecode")
+                .hasArg()
+                .desc("Output timecode")
+                .build());
 
         // Output charset option
         this.options.addOption(Option.builder("dsm")
@@ -211,6 +218,7 @@ public class Convert {
             String outputFilePath = line.getOptionValue("o");
             String inputCharset = line.getOptionValue("ic", "utf-8");
             String outputCharset = line.getOptionValue("oc", "utf-8");
+            String outputTimecode = line.getOptionValue("otc");
             boolean disableStrictMode = line.hasOption("disable-strict-mode");
 
             // Build parser for input file
@@ -270,7 +278,7 @@ public class Convert {
 
             // Write output file
             try {
-                writer.write(inputSubtitle, os);
+                writer.write(inputSubtitle, os, outputTimecode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);

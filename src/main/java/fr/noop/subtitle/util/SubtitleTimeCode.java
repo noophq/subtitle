@@ -48,6 +48,20 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         this.millisecond = (int) (time - (this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND));
     }
 
+    public SubtitleTimeCode(String tcString, float frameRate) {
+        int hour = Integer.parseInt(tcString.substring(0, 2));
+        int minute = Integer.parseInt(tcString.substring(3, 5));
+        int second = Integer.parseInt(tcString.substring(6, 8));
+        int frame = Integer.parseInt(tcString.substring(9, 11));
+
+        float frameDuration = (1000 / frameRate);
+
+        this.hour = hour;
+        this.minute = minute;
+        this.second = second;
+        this.millisecond = Math.round(frame * frameDuration);
+    }
+
     @Override
     public String toString() {
         return String.format("%02d:%02d:%02d.%03d", this.hour, this.minute, this.second, this.millisecond);
@@ -131,5 +145,13 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     public SubtitleTimeCode subtract(SubtitleTimeCode toSubtract) {
         // FIXME: Throws exception if frame rate are not equals
         return new SubtitleTimeCode(this.getTime() - toSubtract.getTime());
+    }
+
+    public SubtitleTimeCode convertFromStart(SubtitleTimeCode newStartTimecode, SubtitleTimeCode originalStartTimecode) {
+        long newStartTC = newStartTimecode.getTime();
+        long origStartTC = originalStartTimecode.getTime();
+        long difference = origStartTC - newStartTC;
+        long newTC = this.getTime() - difference;
+        return new SubtitleTimeCode(newTC);
     }
 }
