@@ -30,6 +30,7 @@ public class SubtitleRegion {
     private float width; // Width of the region
     private float height; // Height of the region
     private VerticalAlign verticalAlign; // Vertical align
+    private int verticalPosition; // Vertical position
 
     public SubtitleRegion(SubtitleRegion subtitleRegion) {
         this.x = subtitleRegion.getX();
@@ -37,26 +38,28 @@ public class SubtitleRegion {
         this.width = subtitleRegion.getWidth();
         this.height = subtitleRegion.getHeight();
         this.verticalAlign = subtitleRegion.getVerticalAlign();
+        this.verticalPosition = subtitleRegion.getVerticalPosition();
     }
 
     public SubtitleRegion(float y, float height) {
-        this(0, y, 100, height, VerticalAlign.BOTTOM);
+        this(0, y, 100, height, VerticalAlign.BOTTOM, 0);
     }
 
     public SubtitleRegion(float y, float height, VerticalAlign verticalAlign) {
-        this(0, y, 100, height, verticalAlign);
+        this(0, y, 100, height, verticalAlign, 0);
     }
 
     public SubtitleRegion(float x, float y, float width, float height) {
-        this(x, y, width, height, VerticalAlign.BOTTOM);
+        this(x, y, width, height, VerticalAlign.BOTTOM, 0);
     }
 
-    public SubtitleRegion(float x, float y, float width, float height, VerticalAlign verticalAlign) {
+    public SubtitleRegion(float x, float y, float width, float height, VerticalAlign verticalAlign, int verticalPosition) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.verticalAlign = verticalAlign;
+        this.verticalPosition = verticalPosition;
     }
 
     public float getX() {
@@ -105,6 +108,14 @@ public class SubtitleRegion {
 
     public void setVerticalAlign(VerticalAlign verticalAlign) {
         this.verticalAlign = verticalAlign;
+    }
+
+    public int getVerticalPosition() {
+        return this.verticalPosition;
+    }
+
+    public void setVerticalPosition(int verticalPosition) {
+        this.verticalPosition = verticalPosition;
     }
 
     @Override

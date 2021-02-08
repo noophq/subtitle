@@ -27,6 +27,7 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
     private SubtitleTimeCode startTime; // Start displaying the cue at this time code
     private SubtitleTimeCode endTime; // Stop displaying the cue at this time code
     private List<SubtitleLine> lines; // Lines composed of texts
+    private String characterCodes; // Character codes of subtitle text
 
     protected BaseSubtitleCue(SubtitleCue cue) {
         this.id = cue.getId();
@@ -105,5 +106,13 @@ public abstract class BaseSubtitleCue implements SubtitleCue {
     @Override
     public String toString() {
         return this.getText();
+    }
+
+    public String getCharacterCodes() {
+        return this.characterCodes;
+    }
+
+    public void setCharacterCodes(String characterCodes) {
+        this.characterCodes = characterCodes;
     }
 }

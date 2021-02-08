@@ -24,4 +24,5 @@ public interface SubtitleCue {
     public SubtitleTimeCode getEndTime();
     public List<SubtitleLine> getLines();
     public String getText();
+    public String getCharacterCodes();
 }

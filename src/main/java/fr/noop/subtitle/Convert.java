@@ -93,7 +93,8 @@ public class Convert {
         SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true),
         VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true),
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true),
-        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false);
+        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false),
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false);
 
         private ConvertFormat format;
         private String className;

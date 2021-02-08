@@ -195,7 +195,7 @@ public class StlParser implements SubtitleParser {
         gsi.setCct(StlGsi.Cct.getEnum(dis.readShort()));
 
         // Read Character Language Code (LC)
-        gsi.setLc(Short.reverseBytes(dis.readShort()));
+        gsi.setLc(LanguageCode.Lc.getEnum(dis.readShort()));
 
         // Read Original Programme Title (OPT)
         gsi.setOpt(this.readString(dis, 32));
@@ -242,7 +242,7 @@ public class StlParser implements SubtitleParser {
         // Read Maximum Number of Displayable Rows (MNR)
         gsi.setMnr(Integer.parseInt(this.readString(dis, 2)));
         // Read Time Code: Status (TCS)
-        gsi.setTcs((short) dis.readUnsignedByte());
+        gsi.setTcs(StlGsi.Tcs.getEnum(dis.readUnsignedByte()));
 
         // Read Time Code: Start-of-Programme (TCP)
         try {

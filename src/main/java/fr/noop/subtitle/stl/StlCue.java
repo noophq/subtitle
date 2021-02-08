@@ -56,6 +56,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
      */
     private void addText(StlTti tti) {
         String tf = tti.getTf();
+        this.setCharacterCodes(tf);
 
         for (String tfPart: tf.split("\u008a")) {
             SubtitleTextLine line = new SubtitleTextLine();

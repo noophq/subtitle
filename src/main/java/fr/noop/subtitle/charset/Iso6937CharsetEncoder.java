@@ -33,9 +33,6 @@ public class Iso6937CharsetEncoder extends CharsetEncoder {
             while (in.hasRemaining()) {
                 char ch = in.get();
 
-                // Convert to int to get unsigned byte
-                int by = ((byte) ch & 0xff);
-
                 // Try to decompose char
                 String decomposed = Normalizer.normalize(String.valueOf(ch), Normalizer.Form.NFD);
 
@@ -50,8 +47,8 @@ public class Iso6937CharsetEncoder extends CharsetEncoder {
                 }
 
                 // This is not composed char
-                by = Iso6937CharsetMapping.encode(by);
-                out.put((byte) by);
+                int chEncoded = Iso6937CharsetMapping.encode(ch);
+                out.put((byte) chEncoded);
             }
         }
         catch (BufferOverflowException x) { return CoderResult.OVERFLOW; }
