@@ -200,14 +200,16 @@ public class StlWriter implements SubtitleWriter {
 
         // TimeCodeStartOfProgramme
         if (outputTimecode != null) {
-            gsi.setTcp(new SubtitleTimeCode(outputTimecode, gsi.getDfc().getFrameRate()));
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            gsi.setTcp(outputTC);
         } else {
             gsi.setTcp(startTimecode);
         }
 
         // TimeCodeFirstInCue
         if (outputTimecode != null) {
-            SubtitleTimeCode newTimecode = subtitleObject.getCues().get(0).getStartTime().convertFromStart(new SubtitleTimeCode(outputTimecode, gsi.getDfc().getFrameRate()), startTimecode);
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = subtitleObject.getCues().get(0).getStartTime().convertFromStart(outputTC, startTimecode);
             gsi.setTcf(newTimecode);
         } else {
             gsi.setTcf(subtitleObject.getCues().get(0).getStartTime());
@@ -295,7 +297,8 @@ public class StlWriter implements SubtitleWriter {
 
         // TimeCodeIn
         if (outputTimecode != null) {
-            SubtitleTimeCode newTimecode = cue.getStartTime().convertFromStart(new SubtitleTimeCode(outputTimecode, gsi.getDfc().getFrameRate()), originalStartTimecode);
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = cue.getStartTime().convertFromStart(outputTC, originalStartTimecode);
             tti.setTci(newTimecode);
         } else {
             tti.setTci(cue.getStartTime());
@@ -303,7 +306,8 @@ public class StlWriter implements SubtitleWriter {
 
         // TimeCodeOut
         if (outputTimecode != null) {
-            SubtitleTimeCode newTimecode = cue.getEndTime().convertFromStart(new SubtitleTimeCode(outputTimecode, gsi.getDfc().getFrameRate()), originalStartTimecode);
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = cue.getEndTime().convertFromStart(outputTC, originalStartTimecode);
             tti.setTco(newTimecode);
         } else {
             tti.setTco(cue.getEndTime());
