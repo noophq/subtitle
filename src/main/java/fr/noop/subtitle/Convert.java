@@ -28,7 +28,8 @@ public class Convert {
         SAMI(new String[] {"smi"}),
         VTT(new String[] {"vtt"}),
         SRT(new String[] {"srt"}),
-        STL(new String[] {"stl"});
+        STL(new String[] {"stl"}),
+        ASS(new String[] {"ass"});
 
         private String[] availableExtensions;
 
@@ -94,7 +95,8 @@ public class Convert {
         VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true),
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true),
         TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false),
-        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false);
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false),
+        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true);
 
         private ConvertFormat format;
         private String className;

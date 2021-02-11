@@ -58,6 +58,13 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return String.format("%02d:%02d:%02d.%03d", this.hour, this.minute, this.second, this.millisecond);
     }
 
+    public String singleHourTimeToString() throws InvalidParameterException {
+        if (this.hour > 9) {
+            throw new InvalidParameterException("Hour value must be a single digit number");
+        }
+        return String.format("%01d:%02d:%02d.%02d", this.hour, this.minute, this.second, this.millisecond / 10);
+    }
+
     public static SubtitleTimeCode fromStringWithFrames(String timeCodeString, float frameRate) throws IOException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(3, 5));

@@ -28,6 +28,17 @@ public class SubtitleTimeCodeTest  {
     }
 
     @Test
+    public void testSingleHourTimeToString() throws Exception {
+        assertEquals("1:23:12.01", tested.singleHourTimeToString());
+    }
+
+    @Test (expected = InvalidParameterException.class)
+    public void testSingleHourTimeToStringException() throws Exception {
+        tested.setHour(10);
+        tested.singleHourTimeToString();
+    }
+
+    @Test
     public void testFromString() throws Exception {
         String outputTimecode = "10:55:30:24";
         float frameRate = 25;
