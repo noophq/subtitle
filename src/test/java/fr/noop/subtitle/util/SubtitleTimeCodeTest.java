@@ -28,6 +28,29 @@ public class SubtitleTimeCodeTest  {
     }
 
     @Test
+    public void testFromString() throws Exception {
+        String outputTimecode = "10:55:30:24";
+        float frameRate = 25;
+        SubtitleTimeCode parsed = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
+        SubtitleTimeCode expected = new SubtitleTimeCode(10, 55, 30, 960);
+        assertEquals(expected.getTime(), parsed.getTime());
+    }
+
+    @Test (expected = InvalidParameterException.class)
+    public void testFromStringException() throws Exception {
+        String outputTimecode = "00:00:00:25";
+        float frameRate = 25;
+        SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
+    }
+
+    @Test (expected = NumberFormatException.class)
+    public void testFromStringException2() throws Exception {
+        String outputTimecode = "hh:mm:ss:ff";
+        float frameRate = 25;
+        SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
+    }
+
+    @Test
     public void testGetHour() throws Exception {
         assertEquals(1, tested.getHour());
     }
@@ -41,6 +64,11 @@ public class SubtitleTimeCodeTest  {
     @Test (expected = InvalidParameterException.class)
     public void testSetHourException() throws Exception {
         tested.setHour(-1);
+    }
+
+    @Test (expected = InvalidParameterException.class)
+    public void testSetHourException2() throws Exception {
+        tested.setHour(24);
     }
 
     @Test
@@ -120,9 +148,24 @@ public class SubtitleTimeCodeTest  {
 
     @Test
     public void testSubtract() throws Exception {
-        // Subtract 1 hour, 10 minutes, 3 seconds and 3 frames
+        // Subtract 1 hour, 10 minutes, 3 seconds and 3 milliseconds
         SubtitleTimeCode toSubtract = new SubtitleTimeCode(1, 10, 3, 3);
         SubtitleTimeCode expected = new SubtitleTimeCode(0, 13, 9, 7);
         assertEquals(expected.getTime(), tested.subtract(toSubtract).getTime());
+    }
+
+    @Test
+    public void testConvert() throws Exception {
+        // Convert from 0 hour, 0 minute, 0 second, 0 milliseconds to 9 hours, 59 minutes, 20 seconds and 80 milliseconds
+        SubtitleTimeCode startTC = new SubtitleTimeCode(0);
+        SubtitleTimeCode newStartTC = new SubtitleTimeCode(9, 59, 20, 80);
+        SubtitleTimeCode expected = new SubtitleTimeCode(11, 22, 32, 90);
+        assertEquals(expected.getTime(), tested.convertFromStart(newStartTC, startTC).getTime());
+
+        // Convert from 1 hour, 0 minute, 30 seconds, 10 milliseconds to 0 hour, 0 minute, 0 second, 0 millisecond
+        SubtitleTimeCode startTC2 = new SubtitleTimeCode(1, 0, 30, 10);
+        SubtitleTimeCode newStartTC2 = new SubtitleTimeCode(0);
+        SubtitleTimeCode expected2 = new SubtitleTimeCode(0, 22, 42, 0);
+        assertEquals(expected2.getTime(), tested.convertFromStart(newStartTC2, startTC2).getTime());
     }
 }

@@ -11,6 +11,7 @@
 
 package fr.noop.subtitle.util;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.LocalTime;
 
@@ -18,6 +19,7 @@ import java.time.LocalTime;
  * Created by clebeaupin on 22/09/15.
  */
 public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
+    private final int MS_MAX = 86400000;
     private final int MS_HOUR = 3600000;
     private final int MS_MINUTE = 60000;
     private final int MS_SECOND = 1000;
@@ -42,10 +44,13 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
      * @param time Time in milliseconds
      */
     public SubtitleTimeCode(long time) {
-        this.hour = (int) (time / MS_HOUR);
-        this.minute = (int) ((time - (this.hour * MS_HOUR)) / MS_MINUTE);
-        this.second = (int) ((time - (this.hour * MS_HOUR + this.minute * MS_MINUTE)) / MS_SECOND);
-        this.millisecond = (int) (time - (this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND));
+        if (time > MS_MAX) {
+            time = time - MS_MAX;
+        }
+        this.setHour((int) (time / MS_HOUR));
+        this.setMinute((int) ((time - (this.hour * MS_HOUR)) / MS_MINUTE));
+        this.setSecond((int) ((time - (this.hour * MS_HOUR + this.minute * MS_MINUTE)) / MS_SECOND));
+        this.setMillisecond((int) (time - (this.hour * MS_HOUR + this.minute * MS_MINUTE + this.second * MS_SECOND)));
     }
 
     @Override
@@ -53,13 +58,23 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return String.format("%02d:%02d:%02d.%03d", this.hour, this.minute, this.second, this.millisecond);
     }
 
+    public static SubtitleTimeCode fromStringWithFrames(String timeCodeString, float frameRate) throws IOException {
+        int hour = Integer.parseInt(timeCodeString.substring(0, 2));
+        int minute = Integer.parseInt(timeCodeString.substring(3, 5));
+        int second = Integer.parseInt(timeCodeString.substring(6, 8));
+        int frame = Integer.parseInt(timeCodeString.substring(9, 11));
+        float frameDuration = (1000 / frameRate);
+        int millisecond = Math.round(frame * frameDuration);
+        return new SubtitleTimeCode(hour, minute, second, millisecond);
+    }
+
     public int getHour() {
         return this.hour;
     }
 
     public void setHour(int hour) {
-        if (hour < 0) {
-            throw new InvalidParameterException("Hour value must be greater or equal to 0");
+        if (hour < 0 || hour > 23) {
+            throw new InvalidParameterException("Hour value must be between 0 and 23");
         }
 
         this.hour = hour;
@@ -131,5 +146,13 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     public SubtitleTimeCode subtract(SubtitleTimeCode toSubtract) {
         // FIXME: Throws exception if frame rate are not equals
         return new SubtitleTimeCode(this.getTime() - toSubtract.getTime());
+    }
+
+    public SubtitleTimeCode convertFromStart(SubtitleTimeCode newStartTimecode, SubtitleTimeCode originalStartTimecode) {
+        long newStartTC = newStartTimecode.getTime();
+        long origStartTC = originalStartTimecode.getTime();
+        long difference = origStartTC - newStartTC;
+        long newTC = this.getTime() - difference;
+        return new SubtitleTimeCode(newTC);
     }
 }

@@ -21,13 +21,18 @@ public class StlWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
-        StlGsi gsi = this.writeGsi(subtitleObject, os);
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+        // Original Start Timecode
+        SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
+        if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
+            startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
+        }
+        StlGsi gsi = this.writeGsi(subtitleObject, outputTimecode, startTimecode);
         StlObject stlObject = new StlObject(gsi);
         try {
             int subtitleIndex = 0;
             for (SubtitleCue cue : subtitleObject.getCues()) {
-                StlTti tti = this.writeTti(cue, gsi, subtitleIndex);
+                StlTti tti = this.writeTti(cue, gsi, subtitleIndex, outputTimecode, startTimecode);
                 stlObject.addTti(tti);
                 subtitleIndex++;
             }
@@ -117,7 +122,7 @@ public class StlWriter implements SubtitleWriter {
         os.write(StringUtils.rightPad(gsi.getUda(), 576).getBytes("utf-8"), 0, 576);
     }
 
-    private StlGsi writeGsi(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+    private StlGsi writeGsi(SubtitleObject subtitleObject, String outputTimecode, SubtitleTimeCode startTimecode) throws IOException {
         // Write GSI block
         // GSI block is 1024 bytes long
         StlGsi gsi = new StlGsi();
@@ -194,14 +199,21 @@ public class StlWriter implements SubtitleWriter {
         gsi.setTcs(StlGsi.Tcs.getEnum(0x31));
 
         // TimeCodeStartOfProgramme
-        if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
-            gsi.setTcp((SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL));
+        if (outputTimecode != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            gsi.setTcp(outputTC);
         } else {
-            gsi.setTcp(new SubtitleTimeCode(0));
+            gsi.setTcp(startTimecode);
         }
 
         // TimeCodeFirstInCue
-        gsi.setTcf(subtitleObject.getCues().get(0).getStartTime());
+        if (outputTimecode != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = subtitleObject.getCues().get(0).getStartTime().convertFromStart(outputTC, startTimecode);
+            gsi.setTcf(newTimecode);
+        } else {
+            gsi.setTcf(subtitleObject.getCues().get(0).getStartTime());
+        }
 
         // TotalNumberOfDisks
         gsi.setTnd((short) 1);
@@ -266,7 +278,7 @@ public class StlWriter implements SubtitleWriter {
         }
     }
 
-    private StlTti writeTti(SubtitleCue cue, StlGsi gsi, int subtitleNumber) throws IOException {
+    private StlTti writeTti(SubtitleCue cue, StlGsi gsi, int subtitleNumber, String outputTimecode, SubtitleTimeCode originalStartTimecode) throws IOException {
         // Write TTI block
         // Each TTI block is 128 bytes long
         StlTti tti = new StlTti();
@@ -284,10 +296,22 @@ public class StlWriter implements SubtitleWriter {
         tti.setCs((short) 0x00);
 
         // TimeCodeIn
-        tti.setTci(cue.getStartTime());
+        if (outputTimecode != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = cue.getStartTime().convertFromStart(outputTC, originalStartTimecode);
+            tti.setTci(newTimecode);
+        } else {
+            tti.setTci(cue.getStartTime());
+        }
 
         // TimeCodeOut
-        tti.setTco(cue.getEndTime());
+        if (outputTimecode != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
+            SubtitleTimeCode newTimecode = cue.getEndTime().convertFromStart(outputTC, originalStartTimecode);
+            tti.setTco(newTimecode);
+        } else {
+            tti.setTco(cue.getEndTime());
+        }
 
         // VerticalPosition
         int verticalPos = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
