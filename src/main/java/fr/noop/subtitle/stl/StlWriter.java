@@ -1,9 +1,14 @@
 package fr.noop.subtitle.stl;
 
 import fr.noop.subtitle.model.SubtitleCue;
+import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
+import fr.noop.subtitle.model.SubtitleStyled;
+import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.stl.StlGsi.Dsc;
+import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
 import java.io.IOException;
@@ -27,12 +32,20 @@ public class StlWriter implements SubtitleWriter {
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
             startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
         }
+        Dsc originalDisplayStandard = null;
+        if (subtitleObject.hasProperty(SubtitleObject.Property.DISPLAY_STANDARD)) {
+            originalDisplayStandard = (Dsc) subtitleObject.getProperty(SubtitleObject.Property.DISPLAY_STANDARD);
+        }
+        int originalMaxRows = 1;
+        if (subtitleObject.hasProperty(SubtitleObject.Property.MAX_ROWS)) {
+            originalMaxRows = (int) subtitleObject.getProperty(SubtitleObject.Property.MAX_ROWS);
+        }
         StlGsi gsi = this.writeGsi(subtitleObject, outputTimecode, startTimecode);
         StlObject stlObject = new StlObject(gsi);
         try {
             int subtitleIndex = 0;
             for (SubtitleCue cue : subtitleObject.getCues()) {
-                StlTti tti = this.writeTti(cue, gsi, subtitleIndex, outputTimecode, startTimecode);
+                StlTti tti = this.writeTti(cue, gsi, subtitleIndex, outputTimecode, startTimecode, originalDisplayStandard, originalMaxRows);
                 stlObject.addTti(tti);
                 subtitleIndex++;
             }
@@ -278,7 +291,7 @@ public class StlWriter implements SubtitleWriter {
         }
     }
 
-    private StlTti writeTti(SubtitleCue cue, StlGsi gsi, int subtitleNumber, String outputTimecode, SubtitleTimeCode originalStartTimecode) throws IOException {
+    private StlTti writeTti(SubtitleCue cue, StlGsi gsi, int subtitleNumber, String outputTimecode, SubtitleTimeCode originalStartTimecode, Dsc originalDisplayStandard, int originalMaxRows) throws IOException {
         // Write TTI block
         // Each TTI block is 128 bytes long
         StlTti tti = new StlTti();
@@ -315,7 +328,22 @@ public class StlWriter implements SubtitleWriter {
 
         // VerticalPosition
         int verticalPos = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
-        tti.setVp((short) verticalPos);
+        if (originalDisplayStandard != null) {
+            if (originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_1 || originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_2) {
+                if (verticalPos <= originalMaxRows * 2 / 3) {
+                    verticalPos = 1;
+                }
+                tti.setVp((short) verticalPos);
+            } else {
+                if (verticalPos <= originalMaxRows * 2 / 3) {
+                    verticalPos = 0;
+                }
+                int newVerticalPos = Math.round((verticalPos * 23) / (originalMaxRows + 1) + 1);
+                tti.setVp((short) newVerticalPos);
+            }
+        } else {
+            tti.setVp((short) verticalPos);
+        }
 
         // JustificationCode
         tti.setJc(StlTti.Jc.getEnum(0x02));
@@ -324,7 +352,72 @@ public class StlWriter implements SubtitleWriter {
         tti.setCf((short) 0x00);
 
         // TextField
-        tti.setTf(cue.getCharacterCodes());
+        String textField = "";
+        int countLine = 1;
+        for (SubtitleLine line : cue.getLines()) {
+            String text = "";
+            for (SubtitleText inText : line.getTexts()) {
+                text += inText.toString();
+                if (gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2) {
+                    byte[] startBox = new byte[] {(byte) 0x0b, (byte) 0x0b};
+                    byte[] endBox = new byte[] {(byte) 0x0a, (byte) 0x0a};
+                    String startBoxString = new String(startBox, gsi.getCct().getCharset());
+                    String endBoxString = new String(endBox, gsi.getCct().getCharset());
+
+                    String concat = new StringBuilder().append(startBoxString).append(text).append(endBoxString).toString();
+                    text = concat;
+                }
+                if (inText instanceof SubtitleStyled) {
+                    SubtitleStyle style = ((SubtitleStyled)inText).getStyle();
+                    if (style.getColor() != null) {
+                        String color = style.getColor();
+                        if (color == "black") {
+                            byte[] black = new byte[] {(byte) StlTti.TextColor.ALPHA_BLACK.getValue()};
+                            color = new String(black, gsi.getCct().getCharset());
+                        }
+                        if (color == "red") {
+                            byte[] red = new byte[] {(byte) StlTti.TextColor.ALPHA_RED.getValue()};
+                            color = new String(red, gsi.getCct().getCharset());
+                        }
+                        if (color == "green") {
+                            byte[] green = new byte[] {(byte) StlTti.TextColor.ALPHA_GREEN.getValue()};
+                            color = new String(green, gsi.getCct().getCharset());
+                        }
+                        if (color == "yellow") {
+                            byte[] yellow = new byte[] {(byte) StlTti.TextColor.ALPHA_YELLOW.getValue()};
+                            color = new String(yellow, gsi.getCct().getCharset());
+                        }
+                        if (color == "blue") {
+                            byte[] blue = new byte[] {(byte) StlTti.TextColor.ALPHA_BLUE.getValue()};
+                            color = new String(blue, gsi.getCct().getCharset());
+                        }
+                        if (color == "magenta") {
+                            byte[] magenta = new byte[] {(byte) StlTti.TextColor.ALPHA_MAGENTA.getValue()};
+                            color = new String(magenta, gsi.getCct().getCharset());
+                        }
+                        if (color == "cyan") {
+                            byte[] cyan = new byte[] {(byte) StlTti.TextColor.ALPHA_CYAN.getValue()};
+                            color = new String(cyan, gsi.getCct().getCharset());
+                        }
+                        if (color == "whte") {
+                            byte[] whte = new byte[] {(byte) StlTti.TextColor.ALPHA_WHITE.getValue()};
+                            color = new String(whte, gsi.getCct().getCharset());
+                        }
+                        String colored = new StringBuilder().append(color).append(text).toString();
+                        text = colored;
+                    }
+                }
+                if (cue.getLines().size() > 1 && countLine < cue.getLines().size()) {
+                    countLine++;
+                    byte[] crlf = new byte[] {(byte) 0x8a};
+                    String crlfString = new String(crlf, gsi.getCct().getCharset());
+                    text += crlfString;
+                }
+            }
+            textField += text;
+        }
+
+        tti.setTf(textField);
 
         return tti;
     }

@@ -29,6 +29,8 @@ public class StlObject extends BaseSubtitleObject {
         this.setProperty(Property.TITLE, gsi.getOpt());
         this.setProperty(Property.FRAME_RATE, gsi.getDfc().getFrameRate());
         this.setProperty(Property.START_TIMECODE_PRE_ROLL, gsi.getTcp());
+        this.setProperty(Property.DISPLAY_STANDARD, gsi.getDsc());
+        this.setProperty(Property.MAX_ROWS, gsi.getMnr());
         this.gsi = gsi;
     }
 
