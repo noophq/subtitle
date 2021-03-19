@@ -13,7 +13,9 @@ package fr.noop.subtitle.stl;
 import fr.noop.subtitle.base.BaseSubtitleCue;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.util.*;
+import fr.noop.subtitle.util.SubtitleStyle.Effect;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
+import fr.noop.subtitle.util.SubtitleStyle.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,8 +106,11 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     if (cByte == StlTti.TextStyle.ITALIC_ON.getValue()) {
                         textStyle.setFontStyle(FontStyle.ITALIC);
                     }
-                    if (cByte == StlTti.TextStyle.ITALIC_OFF.getValue()) {
-                        textStyle.getProperties().remove(SubtitleStyle.Property.FONT_STYLE);
+                    if (cByte == StlTti.TextStyle.UNDERLINE_ON.getValue()) {
+                        textStyle.setTextDecoration(TextDecoration.UNDERLINE);
+                    }
+                    if (cByte == StlTti.TextStyle.BOXING_ON.getValue()) {
+                        textStyle.setEffect(Effect.BOX);
                     }
                     continue;
                 }
