@@ -399,9 +399,9 @@ public class StlWriter implements SubtitleWriter {
                             byte[] cyan = new byte[] {(byte) StlTti.TextColor.ALPHA_CYAN.getValue()};
                             color = new String(cyan, gsi.getCct().getCharset());
                         }
-                        if (color == "whte") {
-                            byte[] whte = new byte[] {(byte) StlTti.TextColor.ALPHA_WHITE.getValue()};
-                            color = new String(whte, gsi.getCct().getCharset());
+                        if (color == "white") {
+                            byte[] white = new byte[] {(byte) StlTti.TextColor.ALPHA_WHITE.getValue()};
+                            color = new String(white, gsi.getCct().getCharset());
                         }
                         String colored = new StringBuilder().append(color).append(text).toString();
                         text = colored;
