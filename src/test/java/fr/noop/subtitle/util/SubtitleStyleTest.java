@@ -26,6 +26,7 @@ public class SubtitleStyleTest {
         tested.setTextAlign(SubtitleStyle.TextAlign.CENTER);
         tested.setDirection(SubtitleStyle.Direction.LTR);
         tested.setFontStyle(SubtitleStyle.FontStyle.ITALIC);
+        tested.setFontWeight(SubtitleStyle.FontWeight.BOLD);
         tested.setTextDecoration(SubtitleStyle.TextDecoration.UNDERLINE);
         tested.setColor("white");
     }
@@ -64,6 +65,17 @@ public class SubtitleStyleTest {
     }
 
     @Test
+    public void testGetFontWeight() throws Exception {
+        assertEquals(SubtitleStyle.FontWeight.BOLD, tested.getFontWeight());
+    }
+
+    @Test
+    public void testSetFontWeight() throws Exception {
+        tested.setFontWeight(SubtitleStyle.FontWeight.NORMAL);
+        assertEquals(SubtitleStyle.FontWeight.NORMAL, tested.getFontWeight());
+    }
+
+    @Test
     public void testGetTextDecoration() throws Exception {
         assertEquals(SubtitleStyle.TextDecoration.UNDERLINE, tested.getTextDecoration());
     }
@@ -90,6 +102,7 @@ public class SubtitleStyleTest {
         assertEquals(SubtitleStyle.Direction.LTR, tested.getProperty(SubtitleStyle.Property.DIRECTION));
         assertEquals(SubtitleStyle.TextAlign.CENTER, tested.getProperty(SubtitleStyle.Property.TEXT_ALIGN));
         assertEquals(SubtitleStyle.FontStyle.ITALIC, tested.getProperty(SubtitleStyle.Property.FONT_STYLE));
+        assertEquals(SubtitleStyle.FontWeight.BOLD, tested.getProperty(SubtitleStyle.Property.FONT_WEIGHT));
         assertEquals(SubtitleStyle.TextDecoration.UNDERLINE, tested.getProperty(SubtitleStyle.Property.TEXT_DECORATION));
         assertEquals("white", tested.getProperty(SubtitleStyle.Property.COLOR));
     }

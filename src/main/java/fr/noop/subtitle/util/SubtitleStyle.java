@@ -112,6 +112,14 @@ public class SubtitleStyle {
         this.setProperty(Property.FONT_STYLE, fontStyle);
     }
 
+    public FontWeight getFontWeight() {
+        return (FontWeight) this.getProperty(Property.FONT_WEIGHT);
+    }
+
+    public void setFontWeight(FontWeight fontWeight) {
+        this.setProperty(Property.FONT_WEIGHT, fontWeight);
+    }
+
     public TextDecoration getTextDecoration() {
         return (TextDecoration) this.getProperty(Property.TEXT_DECORATION);
     }
