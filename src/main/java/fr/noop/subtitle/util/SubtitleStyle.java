@@ -26,7 +26,8 @@ public class SubtitleStyle {
         COLOR,
         FONT_STYLE,
         FONT_WEIGHT,
-        TEXT_DECORATION;
+        TEXT_DECORATION,
+        EFFECT;
     }
 
     // Direction
@@ -61,6 +62,10 @@ public class SubtitleStyle {
     public enum FontWeight {
         NORMAL,
         BOLD;
+    }
+
+    public enum Effect {
+        BOX;
     }
 
     // Store all style properties
@@ -113,6 +118,14 @@ public class SubtitleStyle {
 
     public void setTextDecoration(TextDecoration textDecoration) {
         this.setProperty(Property.TEXT_DECORATION, textDecoration);
+    }
+
+    public Effect getEffect() {
+        return (Effect) this.getProperty(Property.EFFECT);
+    }
+
+    public void setEffect(Effect effect) {
+        this.setProperty(Property.EFFECT, effect);
     }
 
     public Map<Property, Object> getProperties() {

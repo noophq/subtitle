@@ -30,7 +30,7 @@ public class StlTti {
     // List of colors defined in STL EBU
     public enum TextColor {
         ALPHA_BLACK(0x00, "black"),
-        ALPHA_READ(0x01, "red"),
+        ALPHA_RED(0x01, "red"),
         ALPHA_GREEN(0x02, "green"),
         ALPHA_YELLOW(0x03, "yellow"),
         ALPHA_BLUE(0x04, "blue"),
@@ -38,7 +38,7 @@ public class StlTti {
         ALPHA_CYAN(0x06, "cyan"),
         ALPHA_WHITE(0x07, "white"),
         MOSAIC_BLACK(0x10, "black"),
-        MOSAIC_READ(0x11, "red"),
+        MOSAIC_RED(0x11, "red"),
         MOSAIC_GREEN(0x12, "green"),
         MOSAIC_YELLOW(0x13, "yellow"),
         MOSAIC_BLUE(0x14, "blue"),

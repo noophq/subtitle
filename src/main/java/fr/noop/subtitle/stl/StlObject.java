@@ -29,6 +29,8 @@ public class StlObject extends BaseSubtitleObject {
         this.setProperty(Property.TITLE, gsi.getOpt());
         this.setProperty(Property.FRAME_RATE, gsi.getDfc().getFrameRate());
         this.setProperty(Property.START_TIMECODE_PRE_ROLL, gsi.getTcp());
+        this.setProperty(Property.DISPLAY_STANDARD, gsi.getDsc());
+        this.setProperty(Property.MAX_ROWS, gsi.getMnr());
         this.gsi = gsi;
     }
 
@@ -71,10 +73,10 @@ public class StlObject extends BaseSubtitleObject {
         SubtitleRegion region = new SubtitleRegion(0, 100.0f - ((gsi.getMnr() - newVp) * rowHeight));
         region.setVerticalPosition(tti.getVp());
 
-        if (this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || this.gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2) {
-            if (tti.getVp() == 1) {
-                region.setVerticalAlign(VerticalAlign.TOP);
-            }
+        // Assuming vertical position is divided in 3 cases (top, center, bottom),
+        // set 2/3 (top and center) to TOP alignment
+        if (tti.getVp() <= gsi.getMnr() * 2 / 3) {
+            region.setVerticalAlign(VerticalAlign.TOP);
         }
 
         cue.setRegion(region);
