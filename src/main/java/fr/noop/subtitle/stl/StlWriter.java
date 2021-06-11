@@ -26,7 +26,7 @@ public class StlWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
         // Original Start Timecode
         SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {

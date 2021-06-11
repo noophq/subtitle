@@ -26,7 +26,7 @@ public class StlWriterTest {
         StlWriter stlWriter = new StlWriter();
 
         source = stlParser.parse(is);
-        stlWriter.write(source, os, "01:00:00:00");
+        stlWriter.write(source, os, "01:00:00:00", null);
         sourceTimeCode = source.getGsi().getTcp();
         newTimeCode = new SubtitleTimeCode(1, 0, 0, 0);
 

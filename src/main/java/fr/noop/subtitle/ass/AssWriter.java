@@ -28,7 +28,7 @@ public class AssWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
         try {
             // Write Script Info
             this.writeScriptInfo(subtitleObject, os);

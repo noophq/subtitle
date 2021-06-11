@@ -19,6 +19,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.*;
+import java.nio.file.*;
 
 public class Convert {
     private Options options = new Options();
@@ -184,6 +185,14 @@ public class Convert {
                 .longOpt("disable-strict-mode")
                 .desc("Disable strict mode")
                 .build());
+
+        // Input header file
+        this.options.addOption(Option.builder("hf")
+                .required(false)
+                .longOpt("header-file")
+                .hasArg()
+                .desc("Input header file")
+                .build());
     }
 
     public Convert() {
@@ -221,6 +230,7 @@ public class Convert {
             String inputCharset = line.getOptionValue("ic", "utf-8");
             String outputCharset = line.getOptionValue("oc", "utf-8");
             String outputTimecode = line.getOptionValue("otc");
+            String headerFilePath = line.getOptionValue("hf");
             boolean disableStrictMode = line.hasOption("disable-strict-mode");
 
             // Build parser for input file
@@ -258,6 +268,17 @@ public class Convert {
                 System.exit(1);
             }
 
+            // Parser header file
+            String headerText = null;
+            try {
+                if (headerFilePath != null) {
+                    headerText = new String(Files.readAllBytes(Paths.get(headerFilePath)));
+                }
+            } catch(IOException e) {
+                System.out.println(String.format("Header file %s does not exist: %s", headerFilePath, e.getMessage()));
+                System.exit(1);
+            }
+
             // Build writer for the output file
             SubtitleWriter writer = null;
 
@@ -280,7 +301,7 @@ public class Convert {
 
             // Write output file
             try {
-                writer.write(inputSubtitle, os, outputTimecode);
+                writer.write(inputSubtitle, os, outputTimecode, headerText);
             } catch (IOException e) {
                 System.out.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
