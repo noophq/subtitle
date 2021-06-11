@@ -143,18 +143,6 @@ public class AssWriter implements SubtitleWriter {
 
             cueText += addStyle(cue, headerText);
 
-            int lineIndex = 0;
-            for (SubtitleLine line : cue.getLines()) {
-                lineIndex++;
-                for (SubtitleText text : line.getTexts()) {
-                    cueText += text.toString();
-                    // Add line break between rows
-                    if (lineIndex < cue.getLines().size()) {
-                        cueText += "\\N";
-                    }
-                }
-            }
-
             os.write(String.format("Dialogue: 0,%s,%s,%s,,0,0,%d,,%s\n",
                     startTC.singleHourTimeToString(), endTC.singleHourTimeToString(), styleName, vp, cueText
             ).getBytes(this.charset));
@@ -163,7 +151,7 @@ public class AssWriter implements SubtitleWriter {
     }
 
     private String addStyle(SubtitleCue cue, String headerText) {
-        String styled = "{";
+        String styled = "";
         if (headerText == null) {
             if (cue instanceof SubtitleRegionCue) {
                 SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
@@ -174,28 +162,42 @@ public class AssWriter implements SubtitleWriter {
                     int lines = cue.getLines().size();
                     posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
                 }
-                String position = String.format("\\pos(%d,%d)", posX, posY);
+                String position = String.format("{\\pos(%d,%d)}", posX, posY);
                 styled += position;
             }
         }
-        SubtitleText firstLineText = cue.getLines().get(0).getTexts().get(0);
-        if (firstLineText instanceof SubtitleStyled) {
-            SubtitleStyle style = ((SubtitleStyled) firstLineText).getStyle();
-            if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
-                styled += "\\i1";
+        int lineIndex = 0;
+            for (SubtitleLine line : cue.getLines()) {
+                lineIndex++;
+                for (SubtitleText text : line.getTexts()) {
+                    String endStyle = "";
+                    if (text instanceof SubtitleStyled) {
+                        SubtitleStyle style = ((SubtitleStyled) text).getStyle();
+                        if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
+                            styled += "{\\i1}";
+                            endStyle += "{\\i0}";
+                        }
+                        if (style.getFontWeight() == FontWeight.BOLD) {
+                            styled += "{\\b1}";
+                            endStyle += "{\\b0}";
+                        }
+                        if (style.getTextDecoration() == TextDecoration.UNDERLINE) {
+                            styled += "{\\u1}";
+                            endStyle += "{\\u0}";
+                        }
+                        if (style.getColor() != null){
+                            Color color = HexBGR.Color.getEnumFromName(style.getColor());
+                            styled += String.format("{\\c%s}", color.getHexValue());
+                        }
+                    }
+                    styled += text.toString();
+                    styled += endStyle;
+                    // Add line break between rows
+                    if (cue.getLines().size() > lineIndex) {
+                        styled += "\\N";
+                    }
+                }
             }
-            if (style.getFontWeight() == FontWeight.BOLD) {
-                styled += "\\b1";
-            }
-            if (style.getTextDecoration() == TextDecoration.UNDERLINE) {
-                styled += "\\u1";
-            }
-            if (style.getColor() != null){
-                Color color = HexBGR.Color.getEnumFromName(style.getColor());
-                styled += String.format("\\c%s", color.getHexValue());
-            }
-        }
-        styled += "}";
         return styled;
     }
 }
