@@ -15,6 +15,7 @@ import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.util.*;
 import fr.noop.subtitle.util.SubtitleStyle.Effect;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
+import fr.noop.subtitle.util.SubtitleStyle.TextAlign;
 import fr.noop.subtitle.util.SubtitleStyle.TextDecoration;
 
 import java.util.ArrayList;
@@ -77,6 +78,15 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 if (text == null) {
                     text = new String();
                     textStyle = new SubtitleStyle();
+                    if (tti.getJc() == StlTti.Jc.CENTER) {
+                        textStyle.setTextAlign(TextAlign.CENTER);
+                    }
+                    if (tti.getJc() == StlTti.Jc.LEFT) {
+                        textStyle.setTextAlign(TextAlign.LEFT);
+                    }
+                    if (tti.getJc() == StlTti.Jc.RIGHT) {
+                        textStyle.setTextAlign(TextAlign.RIGHT);
+                    }
                     if (dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_1 || dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_2){ // teletext case
                         if (tti.getJc() == StlTti.Jc.NONE) {
                             // Start ingesting text before start box directive (0x0b)

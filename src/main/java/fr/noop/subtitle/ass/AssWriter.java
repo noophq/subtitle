@@ -12,6 +12,7 @@ import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontWeight;
+import fr.noop.subtitle.util.SubtitleStyle.TextAlign;
 import fr.noop.subtitle.util.SubtitleStyle.TextDecoration;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
@@ -30,14 +31,20 @@ public class AssWriter implements SubtitleWriter {
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
         try {
-            // Write Script Info
-            this.writeScriptInfo(subtitleObject, os);
-
-            // Write Style
-            this.writeV4Styles(os);
+            if (headerText != null) {
+                // Write Header
+                os.write(headerText.getBytes(this.charset));
+                os.write(new String("\n").getBytes(this.charset));
+            } else {
+                // Write Script Info
+                this.writeScriptInfo(subtitleObject, os);
+    
+                // Write Style
+                this.writeV4Styles(os);
+            }
 
             // Write cues
-            this.writeEvents(subtitleObject, os, outputTimecode);
+            this.writeEvents(subtitleObject, os, outputTimecode, headerText);
         } catch (UnsupportedEncodingException e) {
             throw new IOException("Encoding error in input subtitle");
         }
@@ -70,7 +77,7 @@ public class AssWriter implements SubtitleWriter {
         os.write(new String("\n").getBytes(this.charset));
     }
 
-    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
         SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
             startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
@@ -97,8 +104,44 @@ public class AssWriter implements SubtitleWriter {
                 endTC = cue.getEndTime().convertFromStart(outputTC, startTimecode);
             }
 
-            int vp = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
-            cueText += addStyle(cue);
+            String styleName = "Nomalab_Default";
+            int vp = 0;
+
+            if (headerText != null) {
+                // styles defined in input header file
+                styleName = "Default";
+                if (cue instanceof SubtitleRegionCue) {
+                    SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
+                    SubtitleText firstLineText = cue.getLines().get(0).getTexts().get(0);
+                    if (firstLineText instanceof SubtitleStyled) {
+                        SubtitleStyle style = ((SubtitleStyled) firstLineText).getStyle();
+                        if (region.getVerticalAlign() == VerticalAlign.TOP) {
+                            if (style.getTextAlign() == TextAlign.CENTER) {
+                                styleName = "Top";
+                            }
+                            if (style.getTextAlign() == TextAlign.LEFT) {
+                                styleName = "Top_Left";
+                            }
+                            if (style.getTextAlign() == TextAlign.RIGHT) {
+                                styleName = "Top_Right";
+                            }
+                        } else {
+                            if (style.getTextAlign() == TextAlign.LEFT) {
+                                styleName = "Bottom_Left";
+                            }
+                            if (style.getTextAlign() == TextAlign.RIGHT) {
+                                styleName = "Bottom_Right";
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (cue instanceof SubtitleRegionCue) {
+                    vp = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
+                }
+            }
+
+            cueText += addStyle(cue, headerText);
 
             int lineIndex = 0;
             for (SubtitleLine line : cue.getLines()) {
@@ -112,27 +155,30 @@ public class AssWriter implements SubtitleWriter {
                 }
             }
 
-            os.write(String.format("Dialogue: 0,%s,%s,Nomalab_Default,,0,0,%d,,%s\n",
-                    startTC.singleHourTimeToString(), endTC.singleHourTimeToString(), vp, cueText
+            os.write(String.format("Dialogue: 0,%s,%s,%s,,0,0,%d,,%s\n",
+                    startTC.singleHourTimeToString(), endTC.singleHourTimeToString(), styleName, vp, cueText
             ).getBytes(this.charset));
         }
         os.write(new String("\n").getBytes(this.charset));
     }
 
-    private String addStyle(SubtitleCue cue) {
-        SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
+    private String addStyle(SubtitleCue cue, String headerText) {
         String styled = "{";
-        int posX = 1920 / 2;
-        // FIXME : use Math.round(1080 * region.getHeight() / 100) and recalculate height region in StlObject
-        int posY = 1080 - Math.round(region.getHeight());
-        if (region.getVerticalAlign() == VerticalAlign.TOP) {
-            int lines = cue.getLines().size();
-            posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
+        if (headerText == null) {
+            if (cue instanceof SubtitleRegionCue) {
+                SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
+                int posX = 1920 / 2;
+                // FIXME : use Math.round(1080 * region.getHeight() / 100) and recalculate height region in StlObject
+                int posY = 1080 - Math.round(region.getHeight());
+                if (region.getVerticalAlign() == VerticalAlign.TOP) {
+                    int lines = cue.getLines().size();
+                    posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
+                }
+                String position = String.format("\\pos(%d,%d)", posX, posY);
+                styled += position;
+            }
         }
-        String position = String.format("\\pos(%d,%d)", posX, posY);
         SubtitleText firstLineText = cue.getLines().get(0).getTexts().get(0);
-
-        styled += position;
         if (firstLineText instanceof SubtitleStyled) {
             SubtitleStyle style = ((SubtitleStyled) firstLineText).getStyle();
             if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
