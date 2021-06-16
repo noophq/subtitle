@@ -31,7 +31,7 @@ public class SrtWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
         try {
             int subtitleIndex = 0;
 

@@ -14,6 +14,8 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.model.SubtitleWriterWithHeader;
+
 import org.apache.commons.cli.*;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -92,21 +94,24 @@ public class Convert {
     }
 
     private enum ConvertWriter {
-        SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true),
-        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true),
-        SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true),
-        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false),
-        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false),
-        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true);
+        SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true, false),
+        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false),
+        SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false),
+        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false),
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false),
+        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, false),
+        ASSWithHeader(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriterWithHeader", true, true);
 
         private ConvertFormat format;
         private String className;
         private boolean charsetConstructor;
+        private boolean withHeader;
 
-        ConvertWriter(ConvertFormat format, String className, boolean charsetConstructor) {
+        ConvertWriter(ConvertFormat format, String className, boolean charsetConstructor, boolean withHeader) {
             this.format = format;
             this.className = className;
             this.charsetConstructor = charsetConstructor;
+            this.withHeader = withHeader;
         }
 
         public ConvertFormat getFormat() {
@@ -122,6 +127,10 @@ public class Convert {
          */
         public boolean hasCharsetConstructor() {
             return this.charsetConstructor;
+        }
+
+        public boolean withHeader() {
+            return this.withHeader;
         }
 
         public static ConvertWriter getEnum(ConvertFormat format) {
@@ -283,7 +292,7 @@ public class Convert {
             SubtitleWriter writer = null;
 
             try {
-                writer = this.buildWriter(outputFilePath, outputCharset);
+                writer = this.buildWriter(outputFilePath, outputCharset, headerText);
             } catch(IOException e) {
                 System.out.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
@@ -301,7 +310,7 @@ public class Convert {
 
             // Write output file
             try {
-                writer.write(inputSubtitle, os, outputTimecode, headerText);
+                writer.write(inputSubtitle, os, outputTimecode);
             } catch (IOException e) {
                 System.out.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
@@ -334,7 +343,7 @@ public class Convert {
         }
     }
 
-    private SubtitleWriter buildWriter(String filePath, String charset) throws IOException {
+    private SubtitleWriter buildWriter(String filePath, String charset, String headerText) throws IOException {
         String ext = this.getFileExtension(filePath);
 
         // Get subtitle writer class
@@ -344,12 +353,17 @@ public class Convert {
         // Instantiate writer class
         try {
             Class<?> writerClass = Class.forName(convertWriter.getClassName());
-
+            SubtitleWriter instance = null;
             if (convertWriter.hasCharsetConstructor()) {
-                return (SubtitleWriter) writerClass.getConstructor(String.class).newInstance(charset);
+                instance = (SubtitleWriter) writerClass.getConstructor(String.class).newInstance(charset);
             } else {
-                return (SubtitleWriter) writerClass.getConstructor().newInstance();
+                instance = (SubtitleWriter) writerClass.getConstructor().newInstance();
             }
+            if (convertWriter.withHeader()){
+                ((SubtitleWriterWithHeader)instance).setHeaderText(headerText);
+
+            }
+            return instance;
         } catch (Exception e) {
             throw new IOException(String.format("Unable to instantiate class %s", convertWriter.getClassName()));
         }

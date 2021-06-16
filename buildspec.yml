@@ -8,8 +8,8 @@ env:
 phases:
   install:
      commands:
-       - apt-get update
        - apt-get install maven -y
+       - java -version
 
   build:
     commands: 

@@ -8,6 +8,7 @@ import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.model.SubtitleWriterWithHeader;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
@@ -21,17 +22,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-public class AssWriter implements SubtitleWriter {
+public class AssWriter implements SubtitleWriterWithHeader {
     private String charset; // Charset used to encode file
+    private String headerText;
 
+    
     public AssWriter(String charset) {
         this.charset = charset;
     }
-
+    
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
         try {
-            if (headerText != null) {
+            if (this.headerText != null) {
                 // Write Header
                 os.write(headerText.getBytes(this.charset));
                 os.write(new String("\n").getBytes(this.charset));
@@ -199,5 +202,11 @@ public class AssWriter implements SubtitleWriter {
                 }
             }
         return styled;
+    }
+
+    @Override
+    public void setHeaderText(String headerText) {
+        this.headerText = headerText;
+        
     }
 }

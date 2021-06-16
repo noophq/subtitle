@@ -35,7 +35,7 @@ public class TtmlWriter implements SubtitleWriter {
     private final static String NS_XML = "http://www.w3.org/XML/1998/namespace";
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) {
+    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) {
         TtmlObject ttmlObject = new TtmlObject(subtitleObject);
         
         // Prepare XML
