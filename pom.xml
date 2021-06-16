@@ -189,7 +189,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnError>false</failOnError>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                    <source>8</source>
                 </configuration>
             </plugin>
             <plugin>
