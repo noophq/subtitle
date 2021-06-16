@@ -99,8 +99,7 @@ public class Convert {
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false),
         TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false),
         STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false),
-        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, false),
-        ASSWithHeader(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriterWithHeader", true, true);
+        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, true);
 
         private ConvertFormat format;
         private String className;
@@ -359,9 +358,8 @@ public class Convert {
             } else {
                 instance = (SubtitleWriter) writerClass.getConstructor().newInstance();
             }
-            if (convertWriter.withHeader()){
-                ((SubtitleWriterWithHeader)instance).setHeaderText(headerText);
-
+            if (convertWriter.withHeader()) {
+                ((SubtitleWriterWithHeader) instance).setHeaderText(headerText);
             }
             return instance;
         } catch (Exception e) {

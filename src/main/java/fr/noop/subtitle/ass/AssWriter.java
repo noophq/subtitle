@@ -7,7 +7,6 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
-import fr.noop.subtitle.model.SubtitleWriter;
 import fr.noop.subtitle.model.SubtitleWriterWithHeader;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
@@ -26,24 +25,19 @@ public class AssWriter implements SubtitleWriterWithHeader {
     private String charset; // Charset used to encode file
     private String headerText;
 
-    
     public AssWriter(String charset) {
         this.charset = charset;
     }
-    
+
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
         try {
             if (this.headerText != null) {
-                // Write Header
+                // Write Header from file ([Script Info] & [V4+ Styles])
                 os.write(headerText.getBytes(this.charset));
                 os.write(new String("\n").getBytes(this.charset));
             } else {
-                // Write Script Info
-                this.writeScriptInfo(subtitleObject, os);
-    
-                // Write Style
-                this.writeV4Styles(os);
+                this.writeDefaultHeader(subtitleObject, os);
             }
 
             // Write cues
@@ -78,6 +72,14 @@ public class AssWriter implements SubtitleWriterWithHeader {
                 "Style: Nomalab_Default,Arial,52,&H00FFFFFF,&H0300FFFF,&H00000000,&H02000000,0,0,0,0,100,100,0,0,1,2,0,2,10,10,10,1\n"
         ).getBytes(this.charset));
         os.write(new String("\n").getBytes(this.charset));
+    }
+
+    private void writeDefaultHeader(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+        // Write Script Info
+        this.writeScriptInfo(subtitleObject, os);
+
+        // Write Style
+        this.writeV4Styles(os);
     }
 
     private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
@@ -207,6 +209,5 @@ public class AssWriter implements SubtitleWriterWithHeader {
     @Override
     public void setHeaderText(String headerText) {
         this.headerText = headerText;
-        
     }
 }
