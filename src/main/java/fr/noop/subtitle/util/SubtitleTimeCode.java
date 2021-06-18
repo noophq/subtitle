@@ -162,4 +162,9 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         long newTC = this.getTime() - difference;
         return new SubtitleTimeCode(newTC);
     }
+
+    public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, String newFrameRate) throws IOException {
+        long newTime = (long) ((float) this.getTime() * originalFrameRate / Float.parseFloat(newFrameRate));
+        return new SubtitleTimeCode(newTime);
+    }
 }

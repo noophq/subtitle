@@ -7,6 +7,7 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
+import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.model.SubtitleWriterWithHeader;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
@@ -21,9 +22,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-public class AssWriter implements SubtitleWriterWithHeader {
+public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFrameRate {
     private String charset; // Charset used to encode file
     private String headerText;
+    private String newFrameRate;
 
     public AssWriter(String charset) {
         this.charset = charset;
@@ -41,7 +43,7 @@ public class AssWriter implements SubtitleWriterWithHeader {
             }
 
             // Write cues
-            this.writeEvents(subtitleObject, os, outputTimecode, headerText);
+            this.writeEvents(subtitleObject, os, outputTimecode, headerText, newFrameRate);
         } catch (UnsupportedEncodingException e) {
             throw new IOException("Encoding error in input subtitle");
         }
@@ -82,7 +84,7 @@ public class AssWriter implements SubtitleWriterWithHeader {
         this.writeV4Styles(os);
     }
 
-    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText) throws IOException {
+    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText, String newFrameRate) throws IOException {
         SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
             startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
@@ -107,6 +109,10 @@ public class AssWriter implements SubtitleWriterWithHeader {
             if (outputTimecode != null) {
                 SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
                 endTC = cue.getEndTime().convertFromStart(outputTC, startTimecode);
+            }
+            if (newFrameRate != null) {
+                startTC = startTC.convertWithFrameRate(frameRate, newFrameRate);
+                endTC = endTC.convertWithFrameRate(frameRate, newFrameRate);
             }
 
             String styleName = "Nomalab_Default";
@@ -209,5 +215,10 @@ public class AssWriter implements SubtitleWriterWithHeader {
     @Override
     public void setHeaderText(String headerText) {
         this.headerText = headerText;
+    }
+
+    @Override
+    public void setFrameRate(String frameRate) {
+        this.newFrameRate = frameRate;
     }
 }
