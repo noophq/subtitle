@@ -9,6 +9,7 @@ import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.model.SubtitleWriterWithHeader;
+import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
@@ -22,17 +23,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFrameRate {
+public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFrameRate, SubtitleWriterWithTimecode {
     private String charset; // Charset used to encode file
     private String headerText;
     private String newFrameRate;
+    private String outputTimecode;
 
     public AssWriter(String charset) {
         this.charset = charset;
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         try {
             if (this.headerText != null) {
                 // Write Header from file ([Script Info] & [V4+ Styles])
@@ -220,5 +222,10 @@ public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFr
     @Override
     public void setFrameRate(String frameRate) {
         this.newFrameRate = frameRate;
+    }
+
+    @Override
+    public void setTimecode(String timecode) {
+        this.outputTimecode= timecode;
     }
 }

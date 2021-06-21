@@ -6,7 +6,7 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
-import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.stl.StlGsi.Dsc;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -21,12 +21,14 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class StlWriter implements SubtitleWriter {
+public class StlWriter implements SubtitleWriterWithTimecode {
+    private String outputTimecode;
+
     public StlWriter() {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         // Original Start Timecode
         SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
@@ -420,5 +422,10 @@ public class StlWriter implements SubtitleWriter {
         tti.setTf(textField);
 
         return tti;
+    }
+
+    @Override
+    public void setTimecode(String timecode) {
+        this.outputTimecode= timecode;
     }
 }
