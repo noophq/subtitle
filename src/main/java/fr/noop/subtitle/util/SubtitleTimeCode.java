@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.LocalTime;
 
+import fr.noop.subtitle.util.SubtitleFrameRate.FrameRate;
+
 /**
  * Created by clebeaupin on 22/09/15.
  */
@@ -164,7 +166,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
     }
 
     public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, String newFrameRate) throws IOException {
-        long newTime = (long) ((float) this.getTime() * originalFrameRate / Float.parseFloat(newFrameRate));
+        long newTime = (long) ((float) this.getTime() * originalFrameRate / FrameRate.getEnum(newFrameRate).getFrameRate());
         return new SubtitleTimeCode(newTime);
     }
 }
