@@ -29,7 +29,7 @@ public class SamiWriter implements SubtitleWriter {
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         try {
             // Start SAMI
             os.write(new String("<SAMI>\n").getBytes(this.charset));

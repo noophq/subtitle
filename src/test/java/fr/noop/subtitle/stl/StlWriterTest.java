@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import static org.junit.Assert.*;
 import org.junit.*;
 
+import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
 public class StlWriterTest {
@@ -26,7 +27,8 @@ public class StlWriterTest {
         StlWriter stlWriter = new StlWriter();
 
         source = stlParser.parse(is);
-        stlWriter.write(source, os, "01:00:00:00");
+        ((SubtitleWriterWithTimecode) stlWriter).setTimecode("01:00:00:00");
+        stlWriter.write(source, os);
         sourceTimeCode = source.getGsi().getTcp();
         newTimeCode = new SubtitleTimeCode(1, 0, 0, 0);
 

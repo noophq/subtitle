@@ -7,11 +7,14 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
-import fr.noop.subtitle.model.SubtitleWriter;
+import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
+import fr.noop.subtitle.model.SubtitleWriterWithHeader;
+import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
 import fr.noop.subtitle.util.SubtitleStyle.FontWeight;
+import fr.noop.subtitle.util.SubtitleStyle.TextAlign;
 import fr.noop.subtitle.util.SubtitleStyle.TextDecoration;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
@@ -20,24 +23,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-public class AssWriter implements SubtitleWriter {
+public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFrameRate, SubtitleWriterWithTimecode {
     private String charset; // Charset used to encode file
+    private String headerText;
+    private String newFrameRate;
+    private String outputTimecode;
 
     public AssWriter(String charset) {
         this.charset = charset;
     }
 
     @Override
-    public void write(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         try {
-            // Write Script Info
-            this.writeScriptInfo(subtitleObject, os);
-
-            // Write Style
-            this.writeV4Styles(os);
+            if (this.headerText != null) {
+                // Write Header from file ([Script Info] & [V4+ Styles])
+                os.write(headerText.getBytes(this.charset));
+                os.write(new String("\n").getBytes(this.charset));
+            } else {
+                this.writeDefaultHeader(subtitleObject, os);
+            }
 
             // Write cues
-            this.writeEvents(subtitleObject, os, outputTimecode);
+            this.writeEvents(subtitleObject, os, outputTimecode, headerText, newFrameRate);
         } catch (UnsupportedEncodingException e) {
             throw new IOException("Encoding error in input subtitle");
         }
@@ -70,7 +78,15 @@ public class AssWriter implements SubtitleWriter {
         os.write(new String("\n").getBytes(this.charset));
     }
 
-    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode) throws IOException {
+    private void writeDefaultHeader(SubtitleObject subtitleObject, OutputStream os) throws IOException {
+        // Write Script Info
+        this.writeScriptInfo(subtitleObject, os);
+
+        // Write Style
+        this.writeV4Styles(os);
+    }
+
+    private void writeEvents(SubtitleObject subtitleObject, OutputStream os, String outputTimecode, String headerText, String newFrameRate) throws IOException {
         SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
             startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
@@ -96,60 +112,120 @@ public class AssWriter implements SubtitleWriter {
                 SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
                 endTC = cue.getEndTime().convertFromStart(outputTC, startTimecode);
             }
+            if (newFrameRate != null) {
+                startTC = startTC.convertWithFrameRate(frameRate, newFrameRate);
+                endTC = endTC.convertWithFrameRate(frameRate, newFrameRate);
+            }
 
-            int vp = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
-            cueText += addStyle(cue);
+            String styleName = "Nomalab_Default";
+            int vp = 0;
 
-            int lineIndex = 0;
-            for (SubtitleLine line : cue.getLines()) {
-                lineIndex++;
-                for (SubtitleText text : line.getTexts()) {
-                    cueText += text.toString();
-                    // Add line break between rows
-                    if (lineIndex < cue.getLines().size()) {
-                        cueText += "\\N";
+            if (headerText != null) {
+                // styles defined in input header file
+                styleName = "Default";
+                if (cue instanceof SubtitleRegionCue) {
+                    SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
+                    SubtitleText firstLineText = cue.getLines().get(0).getTexts().get(0);
+                    if (firstLineText instanceof SubtitleStyled) {
+                        SubtitleStyle style = ((SubtitleStyled) firstLineText).getStyle();
+                        if (region.getVerticalAlign() == VerticalAlign.TOP) {
+                            if (style.getTextAlign() == TextAlign.CENTER) {
+                                styleName = "Top";
+                            }
+                            if (style.getTextAlign() == TextAlign.LEFT) {
+                                styleName = "Top_Left";
+                            }
+                            if (style.getTextAlign() == TextAlign.RIGHT) {
+                                styleName = "Top_Right";
+                            }
+                        } else {
+                            if (style.getTextAlign() == TextAlign.LEFT) {
+                                styleName = "Bottom_Left";
+                            }
+                            if (style.getTextAlign() == TextAlign.RIGHT) {
+                                styleName = "Bottom_Right";
+                            }
+                        }
                     }
+                }
+            } else {
+                if (cue instanceof SubtitleRegionCue) {
+                    vp = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
                 }
             }
 
-            os.write(String.format("Dialogue: 0,%s,%s,Nomalab_Default,,0,0,%d,,%s\n",
-                    startTC.singleHourTimeToString(), endTC.singleHourTimeToString(), vp, cueText
+            cueText += addStyle(cue, headerText);
+
+            os.write(String.format("Dialogue: 0,%s,%s,%s,,0,0,%d,,%s\n",
+                    startTC.singleHourTimeToString(), endTC.singleHourTimeToString(), styleName, vp, cueText
             ).getBytes(this.charset));
         }
         os.write(new String("\n").getBytes(this.charset));
     }
 
-    private String addStyle(SubtitleCue cue) {
-        SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
-        String styled = "{";
-        int posX = 1920 / 2;
-        // FIXME : use Math.round(1080 * region.getHeight() / 100) and recalculate height region in StlObject
-        int posY = 1080 - Math.round(region.getHeight());
-        if (region.getVerticalAlign() == VerticalAlign.TOP) {
-            int lines = cue.getLines().size();
-            posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
-        }
-        String position = String.format("\\pos(%d,%d)", posX, posY);
-        SubtitleText firstLineText = cue.getLines().get(0).getTexts().get(0);
-
-        styled += position;
-        if (firstLineText instanceof SubtitleStyled) {
-            SubtitleStyle style = ((SubtitleStyled) firstLineText).getStyle();
-            if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
-                styled += "\\i1";
-            }
-            if (style.getFontWeight() == FontWeight.BOLD) {
-                styled += "\\b1";
-            }
-            if (style.getTextDecoration() == TextDecoration.UNDERLINE) {
-                styled += "\\u1";
-            }
-            if (style.getColor() != null){
-                Color color = HexBGR.Color.getEnumFromName(style.getColor());
-                styled += String.format("\\c%s", color.getHexValue());
+    private String addStyle(SubtitleCue cue, String headerText) {
+        String styled = "";
+        if (headerText == null) {
+            if (cue instanceof SubtitleRegionCue) {
+                SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
+                int posX = 1920 / 2;
+                // FIXME : use Math.round(1080 * region.getHeight() / 100) and recalculate height region in StlObject
+                int posY = 1080 - Math.round(region.getHeight());
+                if (region.getVerticalAlign() == VerticalAlign.TOP) {
+                    int lines = cue.getLines().size();
+                    posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
+                }
+                String position = String.format("{\\pos(%d,%d)}", posX, posY);
+                styled += position;
             }
         }
-        styled += "}";
+        int lineIndex = 0;
+            for (SubtitleLine line : cue.getLines()) {
+                lineIndex++;
+                for (SubtitleText text : line.getTexts()) {
+                    String endStyle = "";
+                    if (text instanceof SubtitleStyled) {
+                        SubtitleStyle style = ((SubtitleStyled) text).getStyle();
+                        if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
+                            styled += "{\\i1}";
+                            endStyle += "{\\i0}";
+                        }
+                        if (style.getFontWeight() == FontWeight.BOLD) {
+                            styled += "{\\b1}";
+                            endStyle += "{\\b0}";
+                        }
+                        if (style.getTextDecoration() == TextDecoration.UNDERLINE) {
+                            styled += "{\\u1}";
+                            endStyle += "{\\u0}";
+                        }
+                        if (style.getColor() != null){
+                            Color color = HexBGR.Color.getEnumFromName(style.getColor());
+                            styled += String.format("{\\c%s}", color.getHexValue());
+                        }
+                    }
+                    styled += text.toString();
+                    styled += endStyle;
+                    // Add line break between rows
+                    if (cue.getLines().size() > lineIndex) {
+                        styled += "\\N";
+                    }
+                }
+            }
         return styled;
+    }
+
+    @Override
+    public void setHeaderText(String headerText) {
+        this.headerText = headerText;
+    }
+
+    @Override
+    public void setFrameRate(String frameRate) {
+        this.newFrameRate = frameRate;
+    }
+
+    @Override
+    public void setTimecode(String timecode) {
+        this.outputTimecode= timecode;
     }
 }

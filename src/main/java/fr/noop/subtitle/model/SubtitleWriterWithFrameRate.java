@@ -10,14 +10,7 @@
 
 package fr.noop.subtitle.model;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-/**
- * Created by clebeaupin on 02/10/15.
- */
-public interface SubtitleWriter {
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException;
+public interface SubtitleWriterWithFrameRate extends SubtitleWriter {
+    public void setFrameRate(String frameRate);
 }

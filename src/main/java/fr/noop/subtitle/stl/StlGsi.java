@@ -77,8 +77,8 @@ public class StlGsi {
 
     // Disk Format Code (DFC)
     public enum Dfc {
-        STL29("STL29.01", 29.97002997f),
-        STL23("STL23.01", 23.976023976f),
+        STL29("STL29.01", 29.97f),
+        STL23("STL23.01", 23.976f),
         STL24("STL24.01", 24),
         STL25("STL25.01", 25),
         STL30("STL30.01", 30);

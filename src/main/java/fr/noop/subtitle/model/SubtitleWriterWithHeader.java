@@ -18,6 +18,6 @@ import java.io.OutputStream;
 /**
  * Created by clebeaupin on 02/10/15.
  */
-public interface SubtitleWriter {
-    public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException;
+public interface SubtitleWriterWithHeader extends SubtitleWriter{
+    public void setHeaderText(String headerText);
 }
