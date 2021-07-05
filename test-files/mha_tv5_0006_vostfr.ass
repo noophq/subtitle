@@ -1,0 +1,405 @@
+[Script Info]
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1920
+PlayResY: 1080
+ScaledBorderAndShadow: yes
+Video Aspect Ratio: 0
+Video Zoom: 6
+Video Position: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,2,205,205,115,1
+Style: Bottom_Left,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,1,205,20,115,1
+Style: Bottom_Right,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,3,20,205,115,1
+Style: Top,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,8,20,20,115,1
+Style: Top_Left,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,7,205,20,115,1
+Style: Top_Right,Verdana,60,&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,-1,0,0,0,100,100,0,0,1,3,2,9,20,205,115,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:02.33,0:00:03.91,Default,,0,0,0,,Mais qui voilà ?
+Dialogue: 0,0:00:05.08,0:00:08.41,Default,,0,0,0,,La bande des touristes !
+Dialogue: 0,0:00:08.58,0:00:10.75,Default,,0,0,0,,Vous vous croyez invincibles ?
+Dialogue: 0,0:00:12.29,0:00:15.95,Default,,0,0,0,,La seconde A ! Vous allez voir\Nqui sont les plus forts !
+Dialogue: 0,0:00:17.04,0:00:17.70,Default,,0,0,0,,SECONDE A VS SECONDE B
+Dialogue: 0,0:00:17.87,0:00:18.70,Default,,0,0,0,,PREMIER COMBAT
+Dialogue: 0,0:00:22.16,0:00:24.00,Default,,0,0,0,,{\i1}Les deux classes de seconde{\i0}
+Dialogue: 0,0:00:24.33,0:00:26.25,Default,,0,0,0,,{\i1}de la filière héroïque de Yuei{\i0}
+Dialogue: 0,0:00:26.54,0:00:28.62,Default,,0,0,0,,{\i1}suivent un entraînement commun.{\i0}
+Dialogue: 0,0:00:29.50,0:00:30.79,Default,,0,0,0,,{\i1}Lors du 1er combat,{\i0}
+Dialogue: 0,0:00:33.00,0:00:36.62,Default,,0,0,0,,{\i1}Hitoshi et son Alter{\i0}\N{\i1}ont déstabilisé l'équipe adverse.{\i0}
+Dialogue: 0,0:00:37.20,0:00:39.25,Default,,0,0,0,,{\i1}La seconde A a gagné.{\i0}
+Dialogue: 0,0:00:39.66,0:00:40.50,Default,,0,0,0,,DEUXIÈME COMBAT
+Dialogue: 0,0:00:43.50,0:00:44.20,Default,,0,0,0,,Bon.
+Dialogue: 0,0:00:44.54,0:00:45.45,Default,,0,0,0,,On y va ?
+Dialogue: 0,0:00:45.62,0:00:46.58,Default,,0,0,0,,OK !
+Dialogue: 0,0:00:47.70,0:00:49.66,Default,,0,0,0,,Pars en éclaireur comme prévu.
+Dialogue: 0,0:00:50.41,0:00:51.25,Default,,0,0,0,,Fumikage !
+Dialogue: 0,0:00:51.54,0:00:53.04,Default,,0,0,0,,Bien reçu.\NDark Shadow !
+Dialogue: 0,0:00:53.50,0:00:54.54,Default,,0,0,0,,{\i1}Ouais !{\i0}
+Dialogue: 0,0:00:54.87,0:00:57.50,Default,,0,0,0,,- Trouve-les et préviens-moi.\N{\i1}- C'est parti !{\i0}
+Dialogue: 0,0:01:00.79,0:01:03.33,Default,,0,0,0,,{\i1}Puis le deuxième combat a commencé.{\i0}
+Dialogue: 0,0:01:06.54,0:01:07.87,Default,,0,0,0,,Je vais faire un tour.
+Dialogue: 0,0:01:09.75,0:01:10.66,Default,,0,0,0,,Écartez-vous !
+Dialogue: 0,0:01:13.37,0:01:14.95,Default,,0,0,0,,{\i1}Contre toute attente,{\i0}
+Dialogue: 0,0:01:15.29,0:01:17.16,Default,,0,0,0,,{\i1}Shihai attaque seul la seconde A.{\i0}
+Dialogue: 0,0:01:22.83,0:01:25.25,Default,,0,0,0,,{\i1}Mais Fumikage répond{\i0}\N{\i1}par sa nouvelle attaque,{\i0}
+Dialogue: 0,0:01:25.91,0:01:27.37,Default,,0,0,0,,{\i1}l'Ange déchu des ténèbres.{\i0}
+Dialogue: 0,0:01:28.66,0:01:30.00,Default,,0,0,0,,{\i1}L'issue du combat{\i0}
+Dialogue: 0,0:01:30.20,0:01:33.25,Default,,0,0,0,,{\i1}reste encore incertaine{\i0}\N{\i1}tant la situation oscille.{\i0}
+Dialogue: 0,0:01:33.83,0:01:34.75,Default,,0,0,0,,Plurilaser !
+Dialogue: 0,0:01:37.91,0:01:40.91,Top,,0,0,0,,Œuvre originale : Kôhei Horikoshi
+Dialogue: 0,0:01:43.29,0:01:45.87,Top,,0,0,0,,Montage : Kumiko Sakamoto
+Dialogue: 0,0:01:53.37,0:01:57.37,Top,,0,0,0,,Structure de la série :\NYôsuke Kuroda
+Dialogue: 0,0:01:59.00,0:02:02.87,Top,,0,0,0,,Character design :\NYoshihiko Umakoshi, Hitomi Odashima
+Dialogue: 0,0:02:04.08,0:02:07.66,Top_Right,,0,0,0,,Directeurs artistiques :\NS. Ikeda, Y. Maruyama
+Dialogue: 0,0:02:08.83,0:02:12.00,Top_Left,,0,0,0,,Responsable 3D : Yôta Andô
+Dialogue: 0,0:02:14.66,0:02:17.37,Top_Left,,0,0,0,,Direction sonore : Masafumi Mima
+Dialogue: 0,0:02:18.00,0:02:20.75,Top,,0,0,0,,Musique : Yûki Hayashi
+Dialogue: 0,0:02:21.37,0:02:24.33,Top_Left,,0,0,0,,Effets sonores :\NShizuo Kurahashi
+Dialogue: 0,0:02:25.37,0:02:28.62,Top,,0,0,0,,Couleurs : Kazuko Kikuchi
+Dialogue: 0,0:02:30.50,0:02:33.29,Top,,0,0,0,,Directeur de la photographie :\NTakashi Sawa
+Dialogue: 0,0:02:35.95,0:02:40.00,Top,,0,0,0,,Générique de début : "No.1"
+Dialogue: 0,0:02:46.62,0:02:49.12,Top,,0,0,0,,Réalisation : Masahiro Mukai
+Dialogue: 0,0:02:55.70,0:02:58.37,Top,,0,0,0,,Supervision : Kenji Nagasaki
+Dialogue: 0,0:03:01.04,0:03:03.62,Top,,0,0,0,,Production de l'animation : BONES
+Dialogue: 0,0:03:05.33,0:03:07.62,Top,,0,0,0,,Présenté par My Hero Academia\NProduction Committee
+Dialogue: 0,0:03:12.08,0:03:13.37,Default,,0,0,0,,Toru, il est sorti !
+Dialogue: 0,0:03:13.79,0:03:16.00,Default,,0,0,0,,OK, je vais l'attraper !
+Dialogue: 0,0:03:17.08,0:03:18.12,Default,,0,0,0,,C'est terminé !
+Dialogue: 0,0:03:18.29,0:03:19.83,Default,,0,0,0,,Tu ne nous échapperas pas !
+Dialogue: 0,0:03:20.83,0:03:22.87,Bottom_Right,,0,0,0,,Je ne pensais pas\Nque tu attaquerais seul.
+Dialogue: 0,0:03:23.29,0:03:25.95,Bottom_Left,,0,0,0,,Mais il n'y a aucun imprévu
+Dialogue: 0,0:03:26.25,0:03:29.37,Default,,0,0,0,,que je n'aie pas déjà anticipé !
+Dialogue: 0,0:03:29.91,0:03:32.04,Default,,0,0,0,,Si tu le dis...
+Dialogue: 0,0:03:32.20,0:03:34.37,Default,,0,0,0,,- Reviens !\N- Accepte ta défaite !
+Dialogue: 0,0:03:37.66,0:03:39.29,Default,,0,0,0,,Des champignons !
+Dialogue: 0,0:03:41.16,0:03:42.20,Default,,0,0,0,,Vous voyez ?
+Dialogue: 0,0:03:42.87,0:03:45.20,Default,,0,0,0,,Itsuka a toujours un coup d'avance.
+Dialogue: 0,0:03:46.66,0:03:48.91,Default,,0,0,0,,Itsuka avait vu juste.
+Dialogue: 0,0:03:49.33,0:03:52.58,Default,,0,0,0,,Si on aperçoit de la lumière,\Nc'est que Shihai a échoué.
+Dialogue: 0,0:03:54.79,0:03:56.62,Default,,0,0,0,,On passe donc au plan B.
+Dialogue: 0,0:03:57.87,0:04:00.33,Default,,0,0,0,,Faire pousser des champignons partout.
+Dialogue: 0,0:04:02.16,0:04:06.00,Default,,0,0,0,,UNE LONGUEUR D'AVANCE
+Dialogue: 0,0:04:08.70,0:04:09.45,Default,,0,0,0,,Non !
+Dialogue: 0,0:04:10.04,0:04:12.54,Default,,0,0,0,,C'est gênant !\NOn va voir mes formes !
+Dialogue: 0,0:04:17.04,0:04:19.41,Top,,0,0,0,,CHAMPIGNONS
+Dialogue: 0,0:04:19.62,0:04:21.29,Top,,0,0,0,,Ils se propagent partout !
+Dialogue: 0,0:04:21.87,0:04:24.25,Default,,0,0,0,,Les champignons vont tout recouvrir.
+Dialogue: 0,0:04:24.62,0:04:27.25,Default,,0,0,0,,Je ne vois plus Shihai.\NTu crois que...
+Dialogue: 0,0:04:27.41,0:04:29.29,Default,,0,0,0,,Oui, ça ne peut être qu'elle.
+Dialogue: 0,0:04:31.75,0:04:35.70,Default,,0,0,0,,{\i1}Mes petits ionomidotis frondosa{\i0}\Net tricholomes équestres !
+Dialogue: 0,0:04:38.75,0:04:41.95,Default,,0,0,0,,Collybie à pied velouté,\Ncoprin noir d'encre !
+Dialogue: 0,0:04:42.79,0:04:44.29,Default,,0,0,0,,Multipliez-vous !
+Dialogue: 0,0:04:44.45,0:04:47.45,Default,,0,0,0,,Que le monde\Ntombe sous le charme fongique !
+Dialogue: 0,0:04:47.62,0:04:50.75,Top,,0,0,0,,{\i1}Kinoko Komori, alias "Magirolle" !{\i0}
+Dialogue: 0,0:04:50.91,0:04:52.25,Top,,0,0,0,,{\i1}Alter : Champignon !{\i0}
+Dialogue: 0,0:04:52.41,0:04:56.45,Top_Left,,0,0,0,,{\i1}Elle émet des spores qui font pousser{\i0}\N{\i1}des champignons partout !{\i0}
+Dialogue: 0,0:04:56.62,0:04:59.25,Top,,0,0,0,,{\i1}Plus il y a d'humidité,{\i0}\N{\i1}plus ils se répandent !{\i0}
+Dialogue: 0,0:05:00.45,0:05:03.29,Default,,0,0,0,,Beurk, ça pousse même sur le corps !
+Dialogue: 0,0:05:03.70,0:05:05.29,Top,,0,0,0,,C'est un film d'horreur !
+Dialogue: 0,0:05:05.45,0:05:09.91,Top,,0,0,0,,Elle ne se retient pas, ses champignons\Ndisparaissent en 2 ou 3 heures.
+Dialogue: 0,0:05:10.25,0:05:12.79,Default,,0,0,0,,Par contre, elle a tendance à en abuser.
+Dialogue: 0,0:05:14.62,0:05:16.33,Top,,0,0,0,,Ça pousse sur la caméra !
+Dialogue: 0,0:05:16.50,0:05:17.25,Top,,0,0,0,,Dégoûtant...
+Dialogue: 0,0:05:24.87,0:05:25.83,Default,,0,0,0,,{\i1}Plan A,{\i0}
+Dialogue: 0,0:05:26.25,0:05:29.33,Default,,0,0,0,,{\i1}Shihai s'empare de Dark Shadow{\i0}\N{\i1}pour attaquer par surprise.{\i0}
+Dialogue: 0,0:05:29.91,0:05:34.08,Default,,0,0,0,,{\i1}Ils enverront forcément Dark Shadow{\i0}\N{\i1}pour nous débusquer.{\i0}
+Dialogue: 0,0:05:34.50,0:05:36.58,Default,,0,0,0,,{\i1}Il est fort, et c'est sans risques.{\i0}
+Dialogue: 0,0:05:37.70,0:05:41.83,Default,,0,0,0,,{\i1}Ils ne se douteront pas{\i0}\N{\i1}que tu es capable de le contrôler.{\i0}
+Dialogue: 0,0:05:42.16,0:05:44.12,Default,,0,0,0,,{\i1}Captures-en un aussitôt.{\i0}
+Dialogue: 0,0:05:44.79,0:05:46.08,Default,,0,0,0,,{\i1}À l'aide !{\i0}
+Dialogue: 0,0:05:47.00,0:05:48.41,Default,,0,0,0,,{\i1}Facile à dire.{\i0}
+Dialogue: 0,0:05:48.58,0:05:49.70,Default,,0,0,0,,{\i1}Facile !{\i0}
+Dialogue: 0,0:05:49.91,0:05:52.70,Default,,0,0,0,,{\i1}On risque quoi si je rate mon coup ?{\i0}
+Dialogue: 0,0:05:53.95,0:05:58.04,Default,,0,0,0,,{\i1}Pour te faire face,{\i0}\N{\i1}ils emploieront la lumière.{\i0}
+Dialogue: 0,0:05:58.83,0:06:01.66,Default,,0,0,0,,{\i1}Ça nous indiquera déjà leur position.{\i0}
+Dialogue: 0,0:06:02.08,0:06:05.12,Default,,0,0,0,,{\i1}De plus, cela affaiblira Dark Shadow.{\i0}
+Dialogue: 0,0:06:06.04,0:06:09.79,Default,,0,0,0,,{\i1}Même si tu échoues,{\i0}\N{\i1}nous serons là pour les abattre.{\i0}
+Dialogue: 0,0:06:11.25,0:06:13.20,Default,,0,0,0,,{\i1}Le plan A a échoué.{\i0}
+Dialogue: 0,0:06:13.91,0:06:15.95,Default,,0,0,0,,{\i1}Battons en retraite.{\i0}
+Dialogue: 0,0:06:17.66,0:06:19.16,Default,,0,0,0,,{\i1}Passons au plan B.{\i0}
+Dialogue: 0,0:06:20.25,0:06:22.04,Default,,0,0,0,,{\i1}À toi de jouer, Kinoko !{\i0}
+Dialogue: 0,0:06:24.66,0:06:27.33,Default,,0,0,0,,On a beau les enlever, ils repoussent !
+Dialogue: 0,0:06:27.70,0:06:28.95,Default,,0,0,0,,J'en ai marre !
+Dialogue: 0,0:06:30.45,0:06:34.25,Default,,0,0,0,,{\i1}Ils avaient prévu un plan{\i0}\N{\i1}au cas où Shihai échouerait.{\i0}
+Dialogue: 0,0:06:34.75,0:06:36.45,Default,,0,0,0,,{\i1}Ça ne m'étonne pas d'Itsuka.{\i0}
+Dialogue: 0,0:06:37.00,0:06:40.00,Default,,0,0,0,,Gardons notre calme et restons groupés !
+Dialogue: 0,0:06:40.70,0:06:42.33,Default,,0,0,0,,Bim ! Bam ! Boum !
+Dialogue: 0,0:06:43.58,0:06:44.75,Default,,0,0,0,,Craaac ! Brooom !
+Dialogue: 0,0:06:49.00,0:06:49.66,Default,,0,0,0,,Quoi ?
+Dialogue: 0,0:06:50.75,0:06:52.37,Default,,0,0,0,,CRAAAC ! BROOOM !
+Dialogue: 0,0:06:52.54,0:06:55.08,Default,,0,0,0,,C'est quoi ce truc ?
+Dialogue: 0,0:06:55.66,0:06:57.54,Default,,0,0,0,,Je suis au top, là !
+Dialogue: 0,0:06:57.70,0:07:00.41,Default,,0,0,0,,C'est sorti tout seul !\NBim ! Boum !
+Dialogue: 0,0:07:00.58,0:07:02.95,Default,,0,0,0,,Ça fait "Waouh !" dans ma tête !
+Dialogue: 0,0:07:03.16,0:07:04.00,Default,,0,0,0,,Beurp !
+Dialogue: 0,0:07:04.20,0:07:07.83,Top,,0,0,0,,{\i1}Manga Fukidashi en seconde B,{\i0}\N{\i1}alias Comic Man.{\i0}
+Dialogue: 0,0:07:08.00,0:07:09.37,Top,,0,0,0,,{\i1}Alter : Comics !{\i0}
+Dialogue: 0,0:07:09.54,0:07:14.04,Top_Right,,0,0,0,,{\i1}Il a le pouvoir de matérialiser{\i0}\N{\i1}les onomatopées de bandes dessinées.{\i0}
+Dialogue: 0,0:07:14.25,0:07:17.95,Top,,0,0,0,,{\i1}Les effets varient{\i0}\N{\i1}selon le type d'onomatopée !{\i0}
+Dialogue: 0,0:07:18.79,0:07:21.95,Default,,0,0,0,,Ba-bam ! Glang ! Ta-ta-tan !
+Dialogue: 0,0:07:22.66,0:07:25.16,Default,,0,0,0,,BABAM ! GLANG ! TATATAN !
+Dialogue: 0,0:07:26.45,0:07:28.79,Default,,0,0,0,,Comment faire...
+Dialogue: 0,0:07:29.50,0:07:32.16,Default,,0,0,0,,Yaomomo !\NT'es où ?
+Dialogue: 0,0:07:34.41,0:07:37.25,Default,,0,0,0,,Mon laser ne l'érafle même pas !
+Dialogue: 0,0:07:37.58,0:07:41.75,Default,,0,0,0,,Plic plic, fiouuuh...\NPlic plic, fiouuuh...
+Dialogue: 0,0:07:43.37,0:07:45.58,Default,,0,0,0,,C'est quoi, ça, "plic plic" ?
+Dialogue: 0,0:07:47.16,0:07:48.37,Default,,0,0,0,,Non !
+Dialogue: 0,0:07:48.70,0:07:51.91,Default,,0,0,0,,Un humidificateur !\NLes champignons adorent !
+Dialogue: 0,0:07:52.16,0:07:53.87,Default,,0,0,0,,Y en a partout !
+Dialogue: 0,0:07:54.41,0:07:57.00,Default,,0,0,0,,- Invisible Girl !\N- Je vais vomir...
+Dialogue: 0,0:07:58.87,0:08:02.04,Default,,0,0,0,,{\i1}Manga et Kinoko{\i0}\N{\i1}à la rescousse de Shihai !{\i0}
+Dialogue: 0,0:08:02.41,0:08:06.37,Default,,0,0,0,,{\i1}La seconde A est acculée{\i0}\N{\i1}par leurs attaques à distance !{\i0}
+Dialogue: 0,0:08:06.79,0:08:09.20,Bottom_Left,,0,0,0,,{\i1}La seconde B{\i0}\N{\i1}dévoile enfin son vrai potentiel !{\i0}
+Dialogue: 0,0:08:09.41,0:08:12.62,Default,,0,0,0,,- À bas le favoritisme !\N- C'est la troisième fois !
+Dialogue: 0,0:08:13.04,0:08:15.50,Top,,0,0,0,,Ils sont deux à avoir\Ndes attaques à grande échelle.
+Dialogue: 0,0:08:15.70,0:08:20.00,Default,,0,0,0,,Mais je me demande si les onomatopées\Nde Manga marchent à l'étranger ?
+Dialogue: 0,0:08:20.20,0:08:21.00,Default,,0,0,0,,Aucune idée.
+Dialogue: 0,0:08:21.50,0:08:23.62,Default,,0,0,0,,- T'as vu ça, Deku ?\N- Oui...
+Dialogue: 0,0:08:23.79,0:08:27.50,Default,,0,0,0,,Momo a été isolée du groupe\Navec ces murs.
+Dialogue: 0,0:08:28.58,0:08:31.41,Default,,0,0,0,,Est-ce que c'était leur objectif ?
+Dialogue: 0,0:08:33.45,0:08:34.75,Default,,0,0,0,,{\i1}Nous avons été séparés.{\i0}
+Dialogue: 0,0:08:36.25,0:08:39.16,Default,,0,0,0,,{\i1}Était-ce le vrai but de ces attaques ?{\i0}
+Dialogue: 0,0:08:41.83,0:08:43.33,Default,,0,0,0,,{\i1}On a écarté le cerveau.{\i0}
+Dialogue: 0,0:08:44.00,0:08:45.54,Default,,0,0,0,,Place à la force brute !
+Dialogue: 0,0:08:55.54,0:08:57.54,Default,,0,0,0,,{\i1}Elle a défoncé une plaque en tungstène !{\i0}
+Dialogue: 0,0:08:59.37,0:09:03.16,Top,,0,0,0,,{\i1}Itsuka Kendo en seconde B,{\i0}\N{\i1}alias Battle Fist !{\i0}
+Dialogue: 0,0:09:03.33,0:09:06.50,Top,,0,0,0,,{\i1}Alter : Giant Fist.{\i0}\N{\i1}Ses poings grossissent !{\i0}
+Dialogue: 0,0:09:06.66,0:09:09.83,Top,,0,0,0,,{\i1}La puissance de ses poings{\i0}\N{\i1}augmente avec leur taille !{\i0}
+Dialogue: 0,0:09:10.45,0:09:12.04,Default,,0,0,0,,Je ne te laisserai pas réfléchir !
+Dialogue: 0,0:09:16.79,0:09:18.91,Default,,0,0,0,,Un concours d'endurance ?\NÇa me va !
+Dialogue: 0,0:09:19.37,0:09:22.58,Default,,0,0,0,,Tu fabriques des objets\Nen puisant dans tes ressources !
+Dialogue: 0,0:09:22.95,0:09:25.66,Default,,0,0,0,,Tu fatigueras forcément avant moi !
+Dialogue: 0,0:09:29.83,0:09:31.16,Default,,0,0,0,,{\i1}Ne t'arrête pas.{\i0}
+Dialogue: 0,0:09:31.87,0:09:33.54,Default,,0,0,0,,{\i1}Souviens-toi du tournoi.{\i0}
+Dialogue: 0,0:09:34.25,0:09:36.75,Default,,0,0,0,,{\i1}Il ne faut pas la laisser réfléchir.{\i0}
+Dialogue: 0,0:09:38.08,0:09:39.54,Default,,0,0,0,,{\i1}Frappe-la sans cesse !{\i0}
+Dialogue: 0,0:09:43.20,0:09:46.33,Default,,0,0,0,,Elle a pris l'avantage\Nen un rien de temps !
+Dialogue: 0,0:09:46.66,0:09:48.29,Default,,0,0,0,,Super stratégie !
+Dialogue: 0,0:09:48.45,0:09:52.41,Bottom_Right,,0,0,0,,On vous l'avait dit ! Elle réfléchit\Nvite et bien, et avec calme !
+Dialogue: 0,0:09:52.58,0:09:54.66,Default,,0,0,0,,Elle assure, notre Itsuka Kendo !
+Dialogue: 0,0:09:55.25,0:09:57.58,Top,,0,0,0,,Ce n'est peut-être pas\Nla meilleure idée.
+Dialogue: 0,0:09:59.58,0:10:03.66,Default,,0,0,0,,Elle n'aurait peut-être pas dû\Nécarter Momo du groupe par vigilance.
+Dialogue: 0,0:10:05.16,0:10:07.29,Default,,0,0,0,,{\i1}Momo, tu as une idée, non ?{\i0}
+Dialogue: 0,0:10:09.12,0:10:12.00,Default,,0,0,0,,{\i1}Mais ton plan n'a pas fonctionné...{\i0}
+Dialogue: 0,0:10:12.20,0:10:13.62,Default,,0,0,0,,{\i1}Alors le mien...{\i0}
+Dialogue: 0,0:10:13.83,0:10:15.33,Default,,0,0,0,,{\i1}On s'en tape, dépêche !{\i0}
+Dialogue: 0,0:10:15.50,0:10:18.12,Default,,0,0,0,,{\i1}Ton plan marchera sûrement{\i0}\N{\i1}mieux que le mien !{\i0}
+Dialogue: 0,0:10:19.20,0:10:22.20,Default,,0,0,0,,{\i1}Tu as eu deux voix{\i0}\N{\i1}à l'élection des délégués, non ?{\i0}
+Dialogue: 0,0:10:22.83,0:10:24.41,Default,,0,0,0,,{\i1}C'était moi, l'autre voix !{\i0}
+Dialogue: 0,0:10:24.87,0:10:27.70,Default,,0,0,0,,{\i1}Parce que je croyais en toi !{\i0}
+Dialogue: 0,0:10:33.04,0:10:34.45,Default,,0,0,0,,{\i1}J'ai un plan, oui !{\i0}
+Dialogue: 0,0:10:35.08,0:10:36.33,Default,,0,0,0,,{\i1}Je pense avoir...{\i0}
+Dialogue: 0,0:10:37.87,0:10:39.79,Default,,0,0,0,,{\i1}un moyen infaillible de vaincre.{\i0}
+Dialogue: 0,0:10:41.75,0:10:44.50,Default,,0,0,0,,{\i1}Ça me trottait dans la tête{\i0}\N{\i1}depuis le début.{\i0}
+Dialogue: 0,0:10:46.12,0:10:48.08,Default,,0,0,0,,S'ils avaient peur de Momo,
+Dialogue: 0,0:10:48.33,0:10:51.37,Default,,0,0,0,,ils auraient dû\Nl'attaquer à quatre contre un.
+Dialogue: 0,0:10:51.83,0:10:55.79,Default,,0,0,0,,Elle a sûrement prévu ce scénario.
+Dialogue: 0,0:11:01.45,0:11:04.41,Default,,0,0,0,,{\i1}Comme tu as de meilleures notes{\i0}\N{\i1}et un meilleur Alter,{\i0}
+Dialogue: 0,0:11:04.58,0:11:06.29,Default,,0,0,0,,{\i1}le fait qu'on nous associe{\i0}
+Dialogue: 0,0:11:06.58,0:11:08.16,Default,,0,0,0,,{\i1}me dérangeait un peu.{\i0}
+Dialogue: 0,0:11:09.45,0:11:10.45,Default,,0,0,0,,{\i1}Itsuka.{\i0}
+Dialogue: 0,0:11:11.12,0:11:12.83,Default,,0,0,0,,{\i1}Tu te trompes, en fait...{\i0}
+Dialogue: 0,0:11:13.29,0:11:17.00,Default,,0,0,0,,{\i1}Je suis loin d'être aussi brillante{\i0}\N{\i1}que tu le penses.{\i0}
+Dialogue: 0,0:11:17.79,0:11:20.87,Default,,0,0,0,,{\i1}Mais puisque{\i0}\N{\i1}tu me considères comme telle,{\i0}
+Dialogue: 0,0:11:21.45,0:11:24.29,Default,,0,0,0,,{\i1}je dois m'en montrer digne !{\i0}
+Dialogue: 0,0:11:25.54,0:11:27.45,Default,,0,0,0,,Comme elle s'y attendait,
+Dialogue: 0,0:11:27.66,0:11:30.58,Default,,0,0,0,,elle élabore déjà\Nun plan pour la victoire.
+Dialogue: 0,0:11:31.33,0:11:33.66,Default,,0,0,0,,C'est la spécialité de Momo.
+Dialogue: 0,0:11:39.54,0:11:40.20,Default,,0,0,0,,{\i1}Momo !{\i0}
+Dialogue: 0,0:11:40.70,0:11:42.79,Default,,0,0,0,,{\i1}Mets en œuvre ce que tu as accumulé.{\i0}
+Dialogue: 0,0:11:44.00,0:11:46.12,Default,,0,0,0,,{\i1}Et montre ce dont tu es capable !{\i0}
+Dialogue: 0,0:11:46.62,0:11:47.62,Default,,0,0,0,,Carrément ?
+Dialogue: 0,0:11:48.66,0:11:50.04,Default,,0,0,0,,Un canon ?
+Dialogue: 0,0:11:51.83,0:11:53.54,Default,,0,0,0,,Ça demande pas mal de temps
+Dialogue: 0,0:11:54.25,0:11:56.33,Default,,0,0,0,,pour fabriquer de gros objets !
+Dialogue: 0,0:11:57.25,0:12:01.08,Default,,0,0,0,,MOMO YAOYOROZU\NALTER : CRÉATION
+Dialogue: 0,0:12:01.25,0:12:05.08,Default,,0,0,0,,ITSUKA KENDO\NALTER : GIANT FIST
+Dialogue: 0,0:12:12.54,0:12:14.29,Default,,0,0,0,,On ne voit plus Shihai.
+Dialogue: 0,0:12:14.75,0:12:17.00,Default,,0,0,0,,On a également perdu Toru de vue.
+Dialogue: 0,0:12:17.45,0:12:20.50,Default,,0,0,0,,Doit-on rejoindre Momo\Nde l'autre côté du mur ?
+Dialogue: 0,0:12:20.66,0:12:21.58,Default,,0,0,0,,Ou plutôt...
+Dialogue: 0,0:12:24.75,0:12:26.12,Default,,0,0,0,,Can't Stop Twinkling !
+Dialogue: 0,0:12:31.08,0:12:33.25,Default,,0,0,0,,Champi-champi-champi...
+Dialogue: 0,0:12:35.45,0:12:37.91,Default,,0,0,0,,Ces saletés de champignons\Nme dérangent !
+Dialogue: 0,0:12:38.33,0:12:39.04,Default,,0,0,0,,Boing !
+Dialogue: 0,0:12:39.20,0:12:39.79,Default,,0,0,0,,VIOU !
+Dialogue: 0,0:12:49.33,0:12:51.62,Default,,0,0,0,,Je commence à avoir mal à la gorge.
+Dialogue: 0,0:12:57.37,0:12:58.29,Default,,0,0,0,,Ouin...
+Dialogue: 0,0:12:59.29,0:13:00.66,Default,,0,0,0,,Invisible Girl ?
+Dialogue: 0,0:13:02.66,0:13:04.41,Default,,0,0,0,,{\i1}Ils ont réussi à isoler Momo.{\i0}
+Dialogue: 0,0:13:04.75,0:13:06.33,Default,,0,0,0,,{\i1}Ils restent cachés{\i0}
+Dialogue: 0,0:13:06.50,0:13:09.50,Default,,0,0,0,,{\i1}et parviennent à nous attaquer{\i0}\N{\i1}en nous encerclant.{\i0}
+Dialogue: 0,0:13:10.04,0:13:11.08,Default,,0,0,0,,{\i1}Ils sont forts.{\i0}
+Dialogue: 0,0:13:11.79,0:13:13.37,Default,,0,0,0,,{\i1}Et également vicieux.{\i0}
+Dialogue: 0,0:13:14.87,0:13:15.54,Default,,0,0,0,,{\i1}Kinoko.{\i0}
+Dialogue: 0,0:13:16.87,0:13:17.79,Default,,0,0,0,,{\i1}Manga.{\i0}
+Dialogue: 0,0:13:18.87,0:13:19.70,Default,,0,0,0,,{\i1}Shihai.{\i0}
+Dialogue: 0,0:13:21.00,0:13:23.33,Default,,0,0,0,,{\i1}Si nous ne les localisons pas,{\i0}
+Dialogue: 0,0:13:24.00,0:13:25.25,Default,,0,0,0,,{\i1}nous perdrons.{\i0}
+Dialogue: 0,0:13:26.12,0:13:28.00,Default,,0,0,0,,{\i1}Il faut un plan de secours...{\i0}
+Dialogue: 0,0:13:32.08,0:13:32.79,Default,,0,0,0,,Carrément ?
+Dialogue: 0,0:13:34.12,0:13:35.45,Default,,0,0,0,,Un canon ?
+Dialogue: 0,0:13:36.04,0:13:37.79,Default,,0,0,0,,Ça demande pas mal de temps
+Dialogue: 0,0:13:38.33,0:13:40.33,Default,,0,0,0,,pour fabriquer de gros objets !
+Dialogue: 0,0:13:44.25,0:13:45.29,Default,,0,0,0,,Sans déconner ?
+Dialogue: 0,0:13:45.62,0:13:47.50,Bottom_Right,,0,0,0,,Mais elle va la tuer !
+Dialogue: 0,0:13:47.75,0:13:50.00,Bottom_Right,,0,0,0,,Elle a l'air d'aimer les canons.
+Dialogue: 0,0:13:50.79,0:13:52.45,Default,,0,0,0,,Elle va pas tirer, si ?
+Dialogue: 0,0:13:53.12,0:13:53.91,Default,,0,0,0,,Alors là...
+Dialogue: 0,0:13:59.00,0:14:00.20,Default,,0,0,0,,{\i1}Elle bluffe...{\i0}
+Dialogue: 0,0:14:01.95,0:14:03.79,Default,,0,0,0,,{\i1}Elle veut détruire le mur de Manga !{\i0}
+Dialogue: 0,0:14:10.04,0:14:11.58,Default,,0,0,0,,{\i1}Pardon de t'avoir fait peur !{\i0}
+Dialogue: 0,0:14:12.91,0:14:13.83,Default,,0,0,0,,T'es dangereuse !
+Dialogue: 0,0:14:14.87,0:14:18.00,Default,,0,0,0,,{\i1}J'agrandirai mes poings{\i0}\N{\i1}au moment de l'attaque.{\i0}
+Dialogue: 0,0:14:18.62,0:14:20.04,Default,,0,0,0,,Double Mega Punch !
+Dialogue: 0,0:14:24.87,0:14:26.25,Default,,0,0,0,,{\i1}Elle ne visait pas le mur ?{\i0}
+Dialogue: 0,0:14:26.83,0:14:28.20,Default,,0,0,0,,{\i1}Elle a envoyé un truc en l'air.{\i0}
+Dialogue: 0,0:14:30.33,0:14:33.12,Default,,0,0,0,,{\i1}Quand tu m'as imposé{\i0}\N{\i1}le combat rapproché,{\i0}
+Dialogue: 0,0:14:33.87,0:14:35.83,Default,,0,0,0,,{\i1}je savais que je ne rivaliserais pas.{\i0}
+Dialogue: 0,0:14:37.33,0:14:38.16,Default,,0,0,0,,{\i1}En revanche,{\i0}
+Dialogue: 0,0:14:39.16,0:14:41.45,Default,,0,0,0,,{\i1}pour que nous puissions gagner...{\i0}
+Dialogue: 0,0:14:45.62,0:14:48.75,Default,,0,0,0,,{\i1}Ce bruit, ce n'était pas Manga...{\i0}
+Dialogue: 0,0:14:49.12,0:14:50.33,Default,,0,0,0,,{\i1}Ça venait de l'autre côté.{\i0}
+Dialogue: 0,0:14:51.95,0:14:52.50,Default,,0,0,0,,{\i1}C'est quoi ?{\i0}
+Dialogue: 0,0:14:53.45,0:14:54.58,Default,,0,0,0,,{\i1}Ça vient de Momo ?{\i0}
+Dialogue: 0,0:14:55.45,0:14:57.66,Default,,0,0,0,,- Dark Shadow !\N{\i1}- C'est parti !{\i0}
+Dialogue: 0,0:14:59.16,0:15:01.87,Default,,0,0,0,,POCHETTE-SURPRISE DE MOMO
+Dialogue: 0,0:15:03.00,0:15:03.87,Default,,0,0,0,,{\i1}Qu'est-ce que...{\i0}
+Dialogue: 0,0:15:07.33,0:15:08.54,Default,,0,0,0,,Kinoko...
+Dialogue: 0,0:15:09.12,0:15:11.00,Default,,0,0,0,,Quoi ?\NParle plus fort.
+Dialogue: 0,0:15:12.41,0:15:13.75,Default,,0,0,0,,Je l'ai capturé...
+Dialogue: 0,0:15:14.16,0:15:14.75,Default,,0,0,0,,Yu...
+Dialogue: 0,0:15:15.79,0:15:16.75,Default,,0,0,0,,Yuga Aoyama.
+Dialogue: 0,0:15:17.54,0:15:20.33,Default,,0,0,0,,Bien joué !\NT'es le meilleur !
+Dialogue: 0,0:15:20.50,0:15:22.83,Default,,0,0,0,,Capturons les deux autres.
+Dialogue: 0,0:15:25.12,0:15:27.33,Default,,0,0,0,,{\i1}Elle m'a félicité !{\i0}
+Dialogue: 0,0:15:27.83,0:15:30.66,Default,,0,0,0,,Ils ne savent pas où nous sommes.
+Dialogue: 0,0:15:30.95,0:15:33.33,Default,,0,0,0,,On va tous les mettre en conserve.
+Dialogue: 0,0:15:33.62,0:15:35.00,Default,,0,0,0,,OK...
+Dialogue: 0,0:15:39.50,0:15:40.66,Default,,0,0,0,,Dis, Kinoko...
+Dialogue: 0,0:15:41.33,0:15:42.08,Default,,0,0,0,,Champi ?
+Dialogue: 0,0:15:44.33,0:15:45.25,Default,,0,0,0,,La seconde A...
+Dialogue: 0,0:15:46.29,0:15:48.20,Default,,0,0,0,,Ils ne nous auraient pas repérés ?
+Dialogue: 0,0:15:56.66,0:15:58.45,Default,,0,0,0,,{\i1}Lunettes à vision thermique.{\i0}
+Dialogue: 0,0:16:00.12,0:16:02.87,Default,,0,0,0,,{\i1}Je vois l'ennemi qui nous observe.{\i0}
+Dialogue: 0,0:16:04.41,0:16:06.08,Default,,0,0,0,,{\i1}Quand on regarde l'abysse,{\i0}
+Dialogue: 0,0:16:06.58,0:16:09.16,Default,,0,0,0,,{\i1}l'abysse nous regarde aussi !{\i0}
+Dialogue: 0,0:16:10.58,0:16:11.33,Default,,0,0,0,,POCHETTE-SURPRISE DE MOMO
+Dialogue: 0,0:16:11.50,0:16:12.79,Default,,0,0,0,,{\i1}Une pochette-surprise ?{\i0}
+Dialogue: 0,0:16:13.75,0:16:14.66,Default,,0,0,0,,{\i1}Y a quoi dedans ?{\i0}
+Dialogue: 0,0:16:15.04,0:16:16.33,Default,,0,0,0,,{\i1}Donne.{\i0}
+Dialogue: 0,0:16:18.08,0:16:18.95,Default,,0,0,0,,{\i1}Que...{\i0}
+Dialogue: 0,0:16:19.75,0:16:22.20,Default,,0,0,0,,{\i1}Des lunettes et de l'éthanol ?{\i0}
+Dialogue: 0,0:16:23.00,0:16:24.12,Default,,0,0,0,,{\i1}Des sprays antifongiques.{\i0}
+Dialogue: 0,0:16:24.54,0:16:25.95,Default,,0,0,0,,{\i1}T'as vu les lunettes ?{\i0}
+Dialogue: 0,0:16:26.12,0:16:28.87,Default,,0,0,0,,{\i1}Elles s'adaptent à ta morphologie.{\i0}
+Dialogue: 0,0:16:31.08,0:16:33.50,Default,,0,0,0,,{\i1}Pas besoin de paroles pour comprendre.{\i0}
+Dialogue: 0,0:16:34.29,0:16:35.58,Default,,0,0,0,,{\i1}Gardons notre calme{\i0}
+Dialogue: 0,0:16:35.83,0:16:37.16,Default,,0,0,0,,{\i1}et restons groupés !{\i0}
+Dialogue: 0,0:16:38.45,0:16:39.54,Default,,0,0,0,,{\i1}Momo.{\i0}
+Dialogue: 0,0:16:40.08,0:16:43.54,Default,,0,0,0,,{\i1}Elle avait déjà ce plan en tête.{\i0}
+Dialogue: 0,0:16:45.75,0:16:47.08,Default,,0,0,0,,Comment ?
+Dialogue: 0,0:16:47.45,0:16:50.70,Default,,0,0,0,,Fumikage fonce droit vers Kinoko.
+Dialogue: 0,0:16:51.08,0:16:52.66,Default,,0,0,0,,Vers toi aussi.
+Dialogue: 0,0:16:52.83,0:16:53.62,Default,,0,0,0,,Gloups !
+Dialogue: 0,0:16:54.58,0:16:57.95,Default,,0,0,0,,Je me demandais pourquoi\Nvous n'aviez pas de champignons.
+Dialogue: 0,0:16:58.41,0:17:00.12,Default,,0,0,0,,Vous avez reçu un traitement.
+Dialogue: 0,0:17:00.66,0:17:02.33,Default,,0,0,0,,Mais où es-tu ?
+Dialogue: 0,0:17:02.50,0:17:03.95,Default,,0,0,0,,Tu aimerais savoir ?
+Dialogue: 0,0:17:04.12,0:17:05.20,Default,,0,0,0,,Jamais !
+Dialogue: 0,0:17:11.87,0:17:13.87,Default,,0,0,0,,{\i1}Une fois mes proies repérées...{\i0}
+Dialogue: 0,0:17:19.54,0:17:21.04,Default,,0,0,0,,Il vient droit sur nous !
+Dialogue: 0,0:17:21.54,0:17:25.50,Default,,0,0,0,,{\i1}... je fonds sur elles{\i0}\N{\i1}sans leur laisser une chance de fuir.{\i0}
+Dialogue: 0,0:17:30.33,0:17:31.50,Default,,0,0,0,,Comme le dit Hawks,
+Dialogue: 0,0:17:33.16,0:17:34.91,Default,,0,0,0,,la vitesse surpasse la force.
+Dialogue: 0,0:17:40.25,0:17:41.08,Default,,0,0,0,,Black Ânkh...
+Dialogue: 0,0:17:42.70,0:17:43.75,Default,,0,0,0,,Sabbath !
+Dialogue: 0,0:17:43.91,0:17:46.25,Default,,0,0,0,,BLACK ÂNKH SABBATH
+Dialogue: 0,0:17:46.91,0:17:48.04,Default,,0,0,0,,Champi !
+Dialogue: 0,0:17:48.58,0:17:49.54,Default,,0,0,0,,Kinoko !
+Dialogue: 0,0:17:50.25,0:17:53.58,Default,,0,0,0,,{\i1}C'est mort, il est trop rapide.{\i0}\N{\i1}Du noir, vite !{\i0}
+Dialogue: 0,0:17:54.75,0:17:56.41,Default,,0,0,0,,Cherches-tu les ténèbres ?
+Dialogue: 0,0:18:05.20,0:18:06.62,Default,,0,0,0,,Je t'offre ma cape.
+Dialogue: 0,0:18:07.75,0:18:08.70,Default,,0,0,0,,Quoi ?
+Dialogue: 0,0:18:08.87,0:18:11.95,Default,,0,0,0,,Impossible pour toi de bouger.
+Dialogue: 0,0:18:12.33,0:18:14.08,Default,,0,0,0,,{\i1}Je l'ai capturée !{\i0}
+Dialogue: 0,0:18:16.95,0:18:20.04,Default,,0,0,0,,Il en a chopé deux d'un coup !
+Dialogue: 0,0:18:20.41,0:18:21.79,Default,,0,0,0,,Ils prennent le dessus !
+Dialogue: 0,0:18:22.20,0:18:25.00,Default,,0,0,0,,- Grâce aux outils de Momo.\N- Oui !
+Dialogue: 0,0:18:25.20,0:18:29.54,Default,,0,0,0,,Toru domine également,\Nils peuvent gagner à trois contre un.
+Dialogue: 0,0:18:30.58,0:18:32.75,Default,,0,0,0,,Dark Shadow, emmenons-les...
+Dialogue: 0,0:18:36.66,0:18:37.50,Default,,0,0,0,,{\i1}Fumikage ?{\i0}
+Dialogue: 0,0:18:39.75,0:18:43.75,Default,,0,0,0,,Désolée, je les gardais cachés\Ncar ce n'est pas très "spore"...
+Dialogue: 0,0:18:44.25,0:18:47.75,Default,,0,0,0,,Mais ça vaut toujours mieux\Nque la défaite.
+Dialogue: 0,0:18:48.91,0:18:50.04,Default,,0,0,0,,{\i1}Ma trachée...{\i0}
+Dialogue: 0,0:18:52.29,0:18:53.50,Default,,0,0,0,,L'ennemi des poumons.
+Dialogue: 0,0:18:54.00,0:18:56.00,Default,,0,0,0,,Mon petit schizophylle.
+Dialogue: 0,0:18:57.41,0:19:01.50,Bottom_Left,,0,0,0,,Kinoko n'est pas puissante,\Nmais elle est très dangereuse.
+Dialogue: 0,0:19:01.95,0:19:05.29,Bottom_Left,,0,0,0,,Fumikage, tu t'es relâché\Ncar ce n'est qu'un entraînement.
+Dialogue: 0,0:19:06.33,0:19:08.41,Default,,0,0,0,,Tu aurais dû l'assommer.
+Dialogue: 0,0:19:09.50,0:19:11.75,Default,,0,0,0,,Prends ça !
+Dialogue: 0,0:19:11.91,0:19:14.62,Default,,0,0,0,,Je suis largué !\NJe la vois même pas !
+Dialogue: 0,0:19:15.08,0:19:18.75,Default,,0,0,0,,{\i1}Je dois vite le battre{\i0}\N{\i1}et aller aider mes amis !{\i0}
+Dialogue: 0,0:19:19.16,0:19:22.79,Default,,0,0,0,,{\i1}Je m'inquiète pour Fumikage et Momo !{\i0}
+Dialogue: 0,0:19:23.66,0:19:25.20,Default,,0,0,0,,{\i1}Je suis Invisible Girl...{\i0}
+Dialogue: 0,0:19:25.54,0:19:27.33,Default,,0,0,0,,{\i1}Je suis invincible !{\i0}
+Dialogue: 0,0:19:35.45,0:19:36.70,Default,,0,0,0,,Pardon du retard.
+Dialogue: 0,0:19:38.25,0:19:40.66,Default,,0,0,0,,Itsuka ! Merci !
+Dialogue: 0,0:19:43.29,0:19:44.70,Default,,0,0,0,,C'est quoi ce truc ?
+Dialogue: 0,0:19:45.16,0:19:46.20,Default,,0,0,0,,Ah, ça ?
+Dialogue: 0,0:19:46.37,0:19:47.95,Default,,0,0,0,,Je l'ai assommée,
+Dialogue: 0,0:19:49.16,0:19:50.62,Default,,0,0,0,,mais elle m'a eue avant.
+Dialogue: 0,0:19:52.08,0:19:54.62,Default,,0,0,0,,Son canon et elle sont accrochés à moi.
+Dialogue: 0,0:19:55.66,0:19:57.66,Default,,0,0,0,,J'ai du mal à me déplacer.
+Dialogue: 0,0:19:59.20,0:20:02.91,Default,,0,0,0,,Elle a un coup d'avance\Nsur chaque objet qu'elle fabrique.
+Dialogue: 0,0:20:03.66,0:20:05.25,Default,,0,0,0,,Je ne me sens pas victorieuse.
+Dialogue: 0,0:20:12.79,0:20:14.25,Default,,0,0,0,,Tu m'as sauvé, Kinoko.
+Dialogue: 0,0:20:14.41,0:20:17.00,Default,,0,0,0,,C'est normal d'aider ses camarades.
+Dialogue: 0,0:20:17.83,0:20:19.04,Default,,0,0,0,,Itsuka, Manga,
+Dialogue: 0,0:20:19.41,0:20:20.58,Default,,0,0,0,,vous êtes encore là ?
+Dialogue: 0,0:20:20.91,0:20:22.29,Default,,0,0,0,,C'était chaud.
+Dialogue: 0,0:20:27.04,0:20:28.58,Default,,0,0,0,,{\i1}Fumikage, ça va ?{\i0}
+Dialogue: 0,0:20:29.83,0:20:31.79,Default,,0,0,0,,Kinoko, tu les as utilisés ?
+Dialogue: 0,0:20:32.04,0:20:34.12,Default,,0,0,0,,Je n'ai pas eu d'autre choix.
+Dialogue: 0,0:20:34.87,0:20:35.95,Default,,0,0,0,,Je comprends.
+Dialogue: 0,0:20:37.95,0:20:40.08,Default,,0,0,0,,Nos adversaires étaient redoutables.
+Dialogue: 0,0:20:41.20,0:20:42.29,Default,,0,0,0,,Sincèrement...
+Dialogue: 0,0:20:45.00,0:20:49.12,Default,,0,0,0,,Bravo, Itsuka !\NTu leur as montré qui était le boss !
+Dialogue: 0,0:20:49.91,0:20:53.16,Default,,0,0,0,,J'espère que Momo s'en remettra.
+Dialogue: 0,0:20:54.29,0:20:57.50,Top,,0,0,0,,Momo a l'étoffe des grands leaders.
+Dialogue: 0,0:20:58.08,0:21:01.20,Default,,0,0,0,,Je suis comblée\Nde les avoir vus se surpasser.
+Dialogue: 0,0:21:02.45,0:21:04.00,Default,,0,0,0,,{\i1}Ils ont été vaincus,{\i0}
+Dialogue: 0,0:21:04.75,0:21:06.45,Default,,0,0,0,,{\i1}mais Fumikage et sa technique,{\i0}
+Dialogue: 0,0:21:06.87,0:21:10.25,Default,,0,0,0,,{\i1}ainsi que Momo et son don d'anticiper,{\i0}
+Dialogue: 0,0:21:10.87,0:21:13.91,Default,,0,0,0,,{\i1}témoignent des progrès qu'ils ont faits.{\i0}
+Dialogue: 0,0:21:15.25,0:21:17.41,Bottom_Right,,0,0,0,,{\i1}Ils avancent pas à pas{\i0}
+Dialogue: 0,0:21:18.45,0:21:20.00,Default,,0,0,0,,{\i1}vers leur souhait...{\i0}
+Dialogue: 0,0:21:21.54,0:21:23.25,Default,,0,0,0,,{\i1}Notre rêve à tous...{\i0}
+Dialogue: 0,0:21:25.33,0:21:26.66,Default,,0,0,0,,{\i1}Devenir des héros.{\i0}
+Dialogue: 0,0:21:32.29,0:21:33.70,Default,,0,0,0,,BIENVENUE !
+Dialogue: 0,0:21:33.87,0:21:34.95,Default,,0,0,0,,{\i1}Deuxième combat,{\i0}
+Dialogue: 0,0:21:35.45,0:21:38.45,Default,,0,0,0,,{\i1}victoire totale de la seconde B,{\i0}\N{\i1}quatre à zéro !{\i0}
+Dialogue: 0,0:21:39.12,0:21:41.16,Default,,0,0,0,,{\i1}Félicitations à la seconde B !{\i0}
+Dialogue: 0,0:21:41.33,0:21:43.16,Default,,0,0,0,,{\i1}À bas le favoritisme !{\i0}
+Dialogue: 0,0:21:43.33,0:21:44.62,Default,,0,0,0,,{\i1}Ça devient pénible !{\i0}
+Dialogue: 0,0:21:45.33,0:21:47.91,Default,,0,0,0,,Félicitations !
+Dialogue: 0,0:21:48.70,0:21:52.20,Top,,0,0,0,,Izuku Midoriya : Daiki Yamashita\NHitoshi Shinso : Wataru Hatano
+Dialogue: 0,0:21:53.12,0:21:57.66,Top_Right,,0,0,0,,Denki Kaminari : Tasuku Hatanaka\NTsuyu Asui : Aoi Yûki
+Dialogue: 0,0:22:00.70,0:22:03.70,Top_Right,,0,0,0,,Eijiro Kirishima : Toshiki Masuda\NHiryu Rin : Kôsuke Kuwano
+Dialogue: 0,0:22:04.45,0:22:07.25,Top_Right,,0,0,0,,Kosei Tsuburaba : Masakazu Nishida\NIbara Shiozaki : Miho Masaka
+Dialogue: 0,0:23:18.58,0:23:19.79,Default,,0,0,0,,PROCHAIN ÉPISODE
+Dialogue: 0,0:23:19.95,0:23:21.20,Default,,0,0,0,,{\i1}À suivre !{\i0}
+Dialogue: 0,0:23:22.29,0:23:24.41,Default,,0,0,0,,{\i1}La seconde A contre la seconde B.{\i0}
+Dialogue: 0,0:23:24.70,0:23:27.58,Default,,0,0,0,,{\i1}Une victoire partout{\i0}\N{\i1}avant le troisième match.{\i0}
+Dialogue: 0,0:23:28.50,0:23:31.87,Default,,0,0,0,,{\i1}La vitesse de Tenya{\i0}\N{\i1}et la glace et le feu de Shoto{\i0}
+Dialogue: 0,0:23:32.45,0:23:34.87,Default,,0,0,0,,{\i1}devraient leur donner l'avantage.{\i0}
+Dialogue: 0,0:23:35.45,0:23:37.16,Default,,0,0,0,,{\i1}Courage, les amis !{\i0}
+Dialogue: 0,0:23:37.95,0:23:39.95,Default,,0,0,0,,{\i1}Prochain épisode : "Troisième manche".{\i0}
+Dialogue: 0,0:23:40.79,0:23:43.79,Default,,0,0,0,,{\i1}La capacité de Juzo Honenuki{\i0}\N{\i1}à s'adapter est fascinante.{\i0}
+Dialogue: 0,0:23:44.58,0:23:47.08,Default,,0,0,0,,{\i1}Au-delà des limites !{\i0}\N{\i1}Plus Ultra !{\i0}
+Dialogue: 0,0:23:47.29,0:23:48.37,Default,,0,0,0,,TROISIÈME MANCHE
+
