@@ -329,7 +329,10 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         }
 
         // VerticalPosition
-        int verticalPos = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
+        int verticalPos = 21; // set default
+        if (cue instanceof SubtitleRegionCue) {
+            verticalPos = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
+        }
         if (originalDisplayStandard != null) {
             if (originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_1 || originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_2) {
                 if (verticalPos <= originalMaxRows * 2 / 3) {
