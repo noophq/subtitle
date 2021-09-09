@@ -9,6 +9,8 @@ import static org.junit.Assert.*;
 import org.junit.*;
 
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
+import fr.noop.subtitle.srt.SrtObject;
+import fr.noop.subtitle.srt.SrtParser;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
 public class StlWriterTest {
@@ -36,6 +38,15 @@ public class StlWriterTest {
         tested = stlParser.parse(isTested);
         testedGsi = tested.getGsi();
         testedTti = tested.getTtis().get(0);
+
+        // test from srt to stl
+        InputStream isSrt = new FileInputStream("src/test/resources/srt/no-eof-nl.srt");
+
+        SrtParser srtParser = new SrtParser("utf-8");
+        SrtObject srtSource = srtParser.parse(isSrt);
+        OutputStream stlOs = new FileOutputStream("src/test/resources/stl/tested2.stl");
+        stlWriter.write(srtSource, stlOs);
+
     }
 
     @Test
