@@ -158,14 +158,18 @@ where pom.xml is (Note: Maven must already be installed):
 
     mvn package
 
-This will create the executable jar under target/subtitle-.*.jar
+This will create the executable jar under target/subtitle-*-jar-with-dependencies.jar
 
 Convert from command line
 -------------------------
 
 Usage:
 
-    java -jar subtitle-*.jar -i input-file -o output-file
+    java -jar subtitle-*-jar-with-dependencies.jar -i input-file -o output-file
+
+To see more options, run :
+
+    java -jar subtitle-*-jar-with-dependencies.jar -h
 
 Update lib
 ----------
