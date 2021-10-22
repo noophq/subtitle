@@ -4,7 +4,7 @@ public class HexBGR {
     public enum Color {
         BLACK("&H000000&", "black"),
         RED("&H0000FF&", "red"),
-        GREEN("&H000800&", "green"),
+        GREEN("&H008000&", "green"),
         YELLOW("&H00FFFF&", "yellow"),
         BLUE("&HFF0000&", "blue"),
         MAGENTA("&HFF00FF&", "magenta"),
