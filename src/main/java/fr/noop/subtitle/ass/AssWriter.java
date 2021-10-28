@@ -166,18 +166,19 @@ public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFr
     private String addStyle(SubtitleCue cue, String headerText) {
         String styled = "";
         if (headerText == null) {
+            int posX = 1920 / 2;
+            int posY = 990; //default vertical position
             if (cue instanceof SubtitleRegionCue) {
                 SubtitleRegion region = ((SubtitleRegionCue) cue).getRegion();
-                int posX = 1920 / 2;
                 // FIXME : use Math.round(1080 * region.getHeight() / 100) and recalculate height region in StlObject
-                int posY = 1080 - Math.round(region.getHeight());
+                posY = 1080 - Math.round(region.getHeight());
                 if (region.getVerticalAlign() == VerticalAlign.TOP) {
                     int lines = cue.getLines().size();
                     posY = Math.round(1080 * region.getHeight() / 100) + 52 * lines;
                 }
-                String position = String.format("{\\pos(%d,%d)}", posX, posY);
-                styled += position;
             }
+            String position = String.format("{\\pos(%d,%d)}", posX, posY);
+            styled += position;
         }
         int lineIndex = 0;
             for (SubtitleLine line : cue.getLines()) {
