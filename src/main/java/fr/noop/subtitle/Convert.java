@@ -344,7 +344,7 @@ public class Convert {
         }
     }
 
-    private SubtitleParser buildParser(String filePath, String charset) throws IOException {
+    public SubtitleParser buildParser(String filePath, String charset) throws IOException {
         String ext = this.getFileExtension(filePath);
 
         // Get subtitle parser class

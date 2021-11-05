@@ -32,6 +32,13 @@ public class SubtitleTimeCodeTest  {
         assertEquals("1:23:12.01", tested.singleHourTimeToString());
     }
 
+    @Test
+    public void testFormatWithFramerate() throws Exception {
+        float frameRate = 25;
+        tested.setMillisecond(80);
+        assertEquals("01:23:12:02", tested.formatWithFramerate(frameRate));
+    }
+
     @Test (expected = InvalidParameterException.class)
     public void testSingleHourTimeToStringException() throws Exception {
         tested.setHour(10);
