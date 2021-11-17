@@ -67,6 +67,12 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return String.format("%01d:%02d:%02d.%02d", this.hour, this.minute, this.second, this.millisecond / 10);
     }
 
+    public String formatWithFramerate(float frameRate) {
+        float frameDuration = (1000 / frameRate);
+        int frames = Math.round(this.millisecond / frameDuration);
+        return String.format("%02d:%02d:%02d:%02d", this.hour, this.minute, this.second, frames);
+    }
+
     public static SubtitleTimeCode fromStringWithFrames(String timeCodeString, float frameRate) throws IOException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(3, 5));

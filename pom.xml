@@ -4,12 +4,12 @@
 
     <groupId>com.nomalab</groupId>
     <artifactId>subtitle</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <packaging>jar</packaging>
     <name>subtitle</name>
     <description>
         Convert subtitles from one format to another format.
-        Supported formats: STL EBU, TTML SMI, VTT, SRT, STT XML, ASS
+        Supported formats: STL EBU, TTML, SMI, VTT, SRT, ASS
     </description>
     <inceptionYear>2015</inceptionYear>
     <url>https://github.com/nomalab/subtitle</url>
@@ -83,6 +83,11 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
         </dependency>
     </dependencies>
 
