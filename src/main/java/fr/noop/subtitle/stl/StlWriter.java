@@ -7,9 +7,11 @@ import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
+import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.stl.StlGsi.Dsc;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
+import fr.noop.subtitle.util.SubtitleFrameRate.FrameRate;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,8 +23,9 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class StlWriter implements SubtitleWriterWithTimecode {
+public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate {
     private String outputTimecode;
+    private String outputFrameRate;
 
     public StlWriter() {
     }
@@ -30,9 +33,9 @@ public class StlWriter implements SubtitleWriterWithTimecode {
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         // Original Start Timecode
-        SubtitleTimeCode startTimecode = new SubtitleTimeCode(0);
+        SubtitleTimeCode originalStartTimecode = new SubtitleTimeCode(0);
         if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)) {
-            startTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
+            originalStartTimecode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
         }
         Dsc originalDisplayStandard = null;
         if (subtitleObject.hasProperty(SubtitleObject.Property.DISPLAY_STANDARD)) {
@@ -42,12 +45,16 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         if (subtitleObject.hasProperty(SubtitleObject.Property.MAX_ROWS)) {
             originalMaxRows = (int) subtitleObject.getProperty(SubtitleObject.Property.MAX_ROWS);
         }
-        StlGsi gsi = this.writeGsi(subtitleObject, outputTimecode, startTimecode);
+        float originalFrameRate = 25;
+        if (subtitleObject.hasProperty(SubtitleObject.Property.FRAME_RATE)) {
+            originalFrameRate = (float) subtitleObject.getProperty(SubtitleObject.Property.FRAME_RATE);
+        }
+        StlGsi gsi = this.writeGsi(subtitleObject, originalStartTimecode, originalFrameRate);
         StlObject stlObject = new StlObject(gsi);
         try {
             int subtitleIndex = 0;
             for (SubtitleCue cue : subtitleObject.getCues()) {
-                StlTti tti = this.writeTti(cue, gsi, subtitleIndex, outputTimecode, startTimecode, originalDisplayStandard, originalMaxRows);
+                StlTti tti = this.writeTti(cue, gsi, subtitleIndex, originalStartTimecode, originalFrameRate, originalDisplayStandard, originalMaxRows);
                 stlObject.addTti(tti);
                 subtitleIndex++;
             }
@@ -137,7 +144,11 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         os.write(StringUtils.rightPad(gsi.getUda(), 576).getBytes("utf-8"), 0, 576);
     }
 
-    private StlGsi writeGsi(SubtitleObject subtitleObject, String outputTimecode, SubtitleTimeCode startTimecode) throws IOException {
+    private StlGsi writeGsi(
+        SubtitleObject subtitleObject,
+        SubtitleTimeCode originalStartTimecode,
+        float originalFrameRate
+    ) throws IOException {
         // Write GSI block
         // GSI block is 1024 bytes long
         StlGsi gsi = new StlGsi();
@@ -146,10 +157,10 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         gsi.setCpn(StlGsi.Cpn.getEnum(0x383530));
 
         // DiskFormatCode
-        if (subtitleObject.hasProperty(SubtitleObject.Property.FRAME_RATE)) {
-            gsi.setDfc(StlGsi.Dfc.getEnumFromFloat((float) subtitleObject.getProperty(SubtitleObject.Property.FRAME_RATE)));
+        if (outputFrameRate != null) {
+            gsi.setDfc(StlGsi.Dfc.getEnumFromFloat(FrameRate.getEnum(outputFrameRate).getFrameRate()));
         } else {
-            gsi.setDfc(StlGsi.Dfc.getEnum("STL25.01"));
+            gsi.setDfc(StlGsi.Dfc.getEnumFromFloat(originalFrameRate));
         }
 
         // DisplayStandardCode
@@ -214,21 +225,21 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         gsi.setTcs(StlGsi.Tcs.getEnum(0x31));
 
         // TimeCodeStartOfProgramme
+        SubtitleTimeCode outputTC = originalStartTimecode;
         if (outputTimecode != null) {
-            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
-            gsi.setTcp(outputTC);
-        } else {
-            gsi.setTcp(startTimecode);
+            outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
         }
+        gsi.setTcp(outputTC);
 
         // TimeCodeFirstInCue
+        SubtitleTimeCode firstTC = subtitleObject.getCues().get(0).getStartTime();
         if (outputTimecode != null) {
-            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
-            SubtitleTimeCode newTimecode = subtitleObject.getCues().get(0).getStartTime().convertFromStart(outputTC, startTimecode);
-            gsi.setTcf(newTimecode);
-        } else {
-            gsi.setTcf(subtitleObject.getCues().get(0).getStartTime());
+            firstTC = firstTC.convertFromStart(outputTC, originalStartTimecode);
         }
+        if (outputFrameRate != null) {
+            firstTC = firstTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
+        }
+        gsi.setTcf(firstTC);
 
         // TotalNumberOfDisks
         gsi.setTnd((short) 1);
@@ -293,7 +304,15 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         }
     }
 
-    private StlTti writeTti(SubtitleCue cue, StlGsi gsi, int subtitleNumber, String outputTimecode, SubtitleTimeCode originalStartTimecode, Dsc originalDisplayStandard, int originalMaxRows) throws IOException {
+    private StlTti writeTti(
+        SubtitleCue cue,
+        StlGsi gsi,
+        int subtitleNumber,
+        SubtitleTimeCode originalStartTimecode,
+        float originalFrameRate,
+        Dsc originalDisplayStandard,
+        int originalMaxRows
+    ) throws IOException {
         // Write TTI block
         // Each TTI block is 128 bytes long
         StlTti tti = new StlTti();
@@ -310,23 +329,20 @@ public class StlWriter implements SubtitleWriterWithTimecode {
         // CumulativeStatus
         tti.setCs((short) 0x00);
 
-        // TimeCodeIn
+        // TimeCodeIn / TimeCodeOut
+        SubtitleTimeCode startTC = cue.getStartTime();
+        SubtitleTimeCode endTC = cue.getEndTime();
         if (outputTimecode != null) {
             SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
-            SubtitleTimeCode newTimecode = cue.getStartTime().convertFromStart(outputTC, originalStartTimecode);
-            tti.setTci(newTimecode);
-        } else {
-            tti.setTci(cue.getStartTime());
+            startTC = startTC.convertFromStart(outputTC, originalStartTimecode);
+            endTC = endTC.convertFromStart(outputTC, originalStartTimecode);
         }
-
-        // TimeCodeOut
-        if (outputTimecode != null) {
-            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
-            SubtitleTimeCode newTimecode = cue.getEndTime().convertFromStart(outputTC, originalStartTimecode);
-            tti.setTco(newTimecode);
-        } else {
-            tti.setTco(cue.getEndTime());
+        if (outputFrameRate != null) {
+            startTC = startTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
+            endTC = endTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
         }
+        tti.setTci(startTC);
+        tti.setTco(endTC);
 
         // VerticalPosition
         int verticalPos = 21; // set default
@@ -430,5 +446,10 @@ public class StlWriter implements SubtitleWriterWithTimecode {
     @Override
     public void setTimecode(String timecode) {
         this.outputTimecode= timecode;
+    }
+
+    @Override
+    public void setFrameRate(String frameRate) {
+        this.outputFrameRate = frameRate;
     }
 }

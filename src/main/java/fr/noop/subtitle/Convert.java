@@ -100,7 +100,7 @@ public class Convert {
         VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false, false, false),
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false, false, false),
         TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false, false, false),
-        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false, false, true),
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false, true, true),
         ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, true, true, true);
 
         private ConvertFormat format;
