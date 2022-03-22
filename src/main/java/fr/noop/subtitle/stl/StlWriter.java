@@ -350,7 +350,7 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
             verticalPos = ((SubtitleRegionCue) cue).getRegion().getVerticalPosition();
         }
         if (originalDisplayStandard != null) {
-            if (originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_1 || originalDisplayStandard == Dsc.DSC_TELETEXT_LEVEL_2) {
+            if (originalDisplayStandard == Dsc.TELETEXT_LEVEL_1 || originalDisplayStandard == Dsc.TELETEXT_LEVEL_2) {
                 if (verticalPos <= originalMaxRows * 2 / 3) {
                     verticalPos = 1;
                 }
@@ -379,7 +379,7 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
             String text = "";
             for (SubtitleText inText : line.getTexts()) {
                 text += inText.toString();
-                if (gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_1 || gsi.getDsc() == Dsc.DSC_TELETEXT_LEVEL_2) {
+                if (gsi.getDsc() == Dsc.TELETEXT_LEVEL_1 || gsi.getDsc() == Dsc.TELETEXT_LEVEL_2) {
                     byte[] startBox = new byte[] {(byte) 0x0b, (byte) 0x0b};
                     byte[] endBox = new byte[] {(byte) 0x0a, (byte) 0x0a};
                     String startBoxString = new String(startBox, gsi.getCct().getCharset());

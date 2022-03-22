@@ -73,6 +73,9 @@ public class Analyse {
         if (inputSubtitle.getCues().size() > 0) {
             obj.put("first_cue", formatTimecode(inputSubtitle, (SubtitleTimeCode) inputSubtitle.getCues().get(0).getStartTime()));
         }
+        if (inputSubtitle.hasProperty(Property.DISPLAY_STANDARD)) {
+            obj.put("subtitle_type", String.format("EBU STL subtitle (%s)", inputSubtitle.getProperty(SubtitleObject.Property.DISPLAY_STANDARD)));
+        }
 
         return obj;
     }

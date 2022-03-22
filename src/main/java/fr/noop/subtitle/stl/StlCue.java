@@ -87,7 +87,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     if (tti.getJc() == StlTti.Jc.RIGHT) {
                         textStyle.setTextAlign(TextAlign.RIGHT);
                     }
-                    if (dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_1 || dsc == StlGsi.Dsc.DSC_TELETEXT_LEVEL_2){ // teletext case
+                    if (dsc == StlGsi.Dsc.TELETEXT_LEVEL_1 || dsc == StlGsi.Dsc.TELETEXT_LEVEL_2){ // teletext case
                         if (tti.getJc() == StlTti.Jc.NONE) {
                             // Start ingesting text before start box directive (0x0b)
                             startText = true;
