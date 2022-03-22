@@ -70,7 +70,9 @@ public class Analyse {
         if (inputSubtitle.hasProperty(Property.START_TIMECODE_PRE_ROLL)) {
             obj.put("start_timecode", formatTimecode(inputSubtitle, (SubtitleTimeCode) inputSubtitle.getProperty(Property.START_TIMECODE_PRE_ROLL)));
         }
-        obj.put("first_cue", formatTimecode(inputSubtitle, (SubtitleTimeCode) inputSubtitle.getCues().get(0).getStartTime()));
+        if (inputSubtitle.getCues().size() > 0) {
+            obj.put("first_cue", formatTimecode(inputSubtitle, (SubtitleTimeCode) inputSubtitle.getCues().get(0).getStartTime()));
+        }
 
         return obj;
     }
