@@ -117,8 +117,8 @@ public class StlGsi {
     public enum Dsc {
         UNDEFINED(0x20),
         OPEN_SUBTITLING(0x30),
-        DSC_TELETEXT_LEVEL_1(0x31),
-        DSC_TELETEXT_LEVEL_2(0x32);
+        TELETEXT_LEVEL_1(0x31),
+        TELETEXT_LEVEL_2(0x32);
 
         private int value;
 

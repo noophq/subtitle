@@ -55,7 +55,7 @@ public class StlParserTest {
 
     @Test
     public void testGsiDsc() throws Exception {
-        assertEquals(StlGsi.Dsc.DSC_TELETEXT_LEVEL_1, testedGsi.getDsc());
+        assertEquals(StlGsi.Dsc.TELETEXT_LEVEL_1, testedGsi.getDsc());
     }
 
     @Test
