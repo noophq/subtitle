@@ -9,8 +9,10 @@ import static org.junit.Assert.*;
 import org.junit.*;
 
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
+import fr.noop.subtitle.model.SubtitleWriterWithDsc;
 import fr.noop.subtitle.srt.SrtObject;
 import fr.noop.subtitle.srt.SrtParser;
+import fr.noop.subtitle.stl.StlGsi.Dsc;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 
 public class StlWriterTest {
@@ -49,6 +51,7 @@ public class StlWriterTest {
         SrtParser srtParser = new SrtParser("utf-8");
         SrtObject srtSource = srtParser.parse(isSrt);
         OutputStream stlOs = new FileOutputStream("src/test/resources/stl/tested2.stl");
+        ((SubtitleWriterWithDsc) stlWriter).setDsc("open_subtitling");
         stlWriter.write(srtSource, stlOs);
 
         InputStream isTested2 = new FileInputStream("src/test/resources/stl/tested2.stl");
@@ -82,5 +85,11 @@ public class StlWriterTest {
     @Test
     public void testGsiOpt() throws Exception {
         assertEquals("TEST", testedGsi.getOpt());
+    }
+
+    @Test
+    public void testGsiDsc() throws Exception {
+        assertEquals(Dsc.TELETEXT_LEVEL_1, testedGsi.getDsc());
+        assertEquals(Dsc.OPEN_SUBTITLING, tested2Gsi.getDsc());
     }
 }

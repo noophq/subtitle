@@ -8,6 +8,7 @@ import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
+import fr.noop.subtitle.model.SubtitleWriterWithDsc;
 import fr.noop.subtitle.stl.StlGsi.Dsc;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -23,9 +24,10 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate {
+public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithDsc {
     private String outputTimecode;
     private String outputFrameRate;
+    private String outputDsc;
 
     public StlWriter() {
     }
@@ -164,7 +166,11 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
         }
 
         // DisplayStandardCode
-        gsi.setDsc(StlGsi.Dsc.getEnum(0x31));
+        Dsc dsc = StlGsi.Dsc.getEnum(0x31);
+        if (outputDsc != null) {
+            dsc = StlGsi.Dsc.getEnumFromName(outputDsc);
+        }
+        gsi.setDsc(dsc);
 
         // CharacterCodeTableNumber
         gsi.setCct(StlGsi.Cct.getEnum(0x3030));
@@ -451,5 +457,10 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
     @Override
     public void setFrameRate(String frameRate) {
         this.outputFrameRate = frameRate;
+    }
+
+    @Override
+    public void setDsc(String dsc) {
+        this.outputDsc = dsc;
     }
 }

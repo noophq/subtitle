@@ -135,6 +135,12 @@ public class StlGsi {
                 if(v.getValue() == value) return v;
             throw new IllegalArgumentException();
         }
+
+        public static Dsc getEnumFromName(String name) {
+            for(Dsc v : values())
+                if(v.name().equalsIgnoreCase(name)) return v;
+            throw new IllegalArgumentException();
+        }
     }
 
     // Character Code Table (CCT)
