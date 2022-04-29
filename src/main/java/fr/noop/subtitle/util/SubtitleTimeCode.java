@@ -163,6 +163,11 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return new SubtitleTimeCode(this.getTime() - toSubtract.getTime());
     }
 
+    public SubtitleTimeCode addOffset(int outputOffset) {
+        long newTC = this.getTime() + outputOffset;
+        return new SubtitleTimeCode(newTC);
+    }
+
     public SubtitleTimeCode convertFromStart(SubtitleTimeCode newStartTimecode, SubtitleTimeCode originalStartTimecode) {
         long newStartTC = newStartTimecode.getTime();
         long origStartTC = originalStartTimecode.getTime();

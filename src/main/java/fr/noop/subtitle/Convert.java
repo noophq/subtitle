@@ -18,6 +18,7 @@ import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.model.SubtitleWriterWithHeader;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.model.SubtitleWriterWithDsc;
+import fr.noop.subtitle.model.SubtitleWriterWithOffset;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.io.input.BOMInputStream;
@@ -97,12 +98,12 @@ public class Convert {
     }
 
     private enum ConvertWriter {
-        SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true, false, false, false, false),
-        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false, false, false, false),
-        SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false, false, false, false),
-        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false, false, false, false),
-        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false, true, true, true),
-        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, true, true, true, false);
+        SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true, false, false, false, false, false),
+        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false, false, false, false, false),
+        SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false, false, false, false, false),
+        TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false, false, false, false, false),
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false, true, true, true, true),
+        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssWriter", true, true, true, true, false, false);
 
         private ConvertFormat format;
         private String className;
@@ -111,8 +112,9 @@ public class Convert {
         private boolean withFrameRate;
         private boolean withTimecode;
         private boolean withDsc;
+        private boolean withOffset;
 
-        ConvertWriter(ConvertFormat format, String className, boolean charsetConstructor, boolean withHeader, boolean withFrameRate, boolean withTimecode, boolean withDsc) {
+        ConvertWriter(ConvertFormat format, String className, boolean charsetConstructor, boolean withHeader, boolean withFrameRate, boolean withTimecode, boolean withDsc, boolean withOffset) {
             this.format = format;
             this.className = className;
             this.charsetConstructor = charsetConstructor;
@@ -120,6 +122,7 @@ public class Convert {
             this.withFrameRate = withFrameRate;
             this.withTimecode = withTimecode;
             this.withDsc = withDsc;
+            this.withOffset = withOffset;
         }
 
         public ConvertFormat getFormat() {
@@ -151,6 +154,10 @@ public class Convert {
 
         public boolean withDsc() {
             return this.withDsc;
+        }
+
+        public boolean withOffset() {
+            return this.withOffset;
         }
 
         public static ConvertWriter getEnum(ConvertFormat format) {
@@ -238,6 +245,14 @@ public class Convert {
                 .hasArg()
                 .desc("Output display standard code")
                 .build());
+
+        // Output offset option
+        this.options.addOption(Option.builder("off")
+                .required(false)
+                .longOpt("output-offset")
+                .hasArg()
+                .desc("Output offset in milliseconds")
+                .build());
     }
 
     public Convert() {
@@ -278,6 +293,7 @@ public class Convert {
             String headerFilePath = line.getOptionValue("hf");
             String outputFrameRate = line.getOptionValue("ofr");
             String outputDsc = line.getOptionValue("dsc");
+            String outputOffset = line.getOptionValue("off");
             boolean disableStrictMode = line.hasOption("disable-strict-mode");
 
             // Build parser for input file
@@ -330,7 +346,7 @@ public class Convert {
             SubtitleWriter writer = null;
 
             try {
-                writer = this.buildWriter(outputFilePath, outputCharset, headerText, outputFrameRate, outputTimecode, outputDsc);
+                writer = this.buildWriter(outputFilePath, outputCharset, headerText, outputFrameRate, outputTimecode, outputDsc, outputOffset);
             } catch(IOException e) {
                 System.out.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
@@ -381,7 +397,7 @@ public class Convert {
         }
     }
 
-    private SubtitleWriter buildWriter(String filePath, String charset, String headerText, String frameRate, String timecode, String dsc) throws IOException {
+    private SubtitleWriter buildWriter(String filePath, String charset, String headerText, String frameRate, String timecode, String dsc, String offset) throws IOException {
         String ext = this.getFileExtension(filePath);
 
         // Get subtitle writer class
@@ -408,6 +424,9 @@ public class Convert {
             }
             if (convertWriter.withDsc()) {
                 ((SubtitleWriterWithDsc) instance).setDsc(dsc);
+            }
+            if (convertWriter.withOffset()) {
+                ((SubtitleWriterWithOffset) instance).setOffset(offset);
             }
             return instance;
         } catch (Exception e) {

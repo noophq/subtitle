@@ -9,6 +9,7 @@ import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.model.SubtitleWriterWithDsc;
+import fr.noop.subtitle.model.SubtitleWriterWithOffset;
 import fr.noop.subtitle.stl.StlGsi.Dsc;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -24,10 +25,11 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithDsc {
+public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithDsc, SubtitleWriterWithOffset {
     private String outputTimecode;
     private String outputFrameRate;
     private String outputDsc;
+    private String outputOffset;
 
     public StlWriter() {
     }
@@ -242,6 +244,10 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
         if (outputTimecode != null) {
             firstTC = firstTC.convertFromStart(outputTC, originalStartTimecode);
         }
+        if (outputOffset != null) {
+            int offset = Integer.parseInt(outputOffset);
+            firstTC = firstTC.addOffset(offset);
+        }
         if (outputFrameRate != null) {
             firstTC = firstTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
         }
@@ -342,6 +348,11 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
             SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
             startTC = startTC.convertFromStart(outputTC, originalStartTimecode);
             endTC = endTC.convertFromStart(outputTC, originalStartTimecode);
+        }
+        if (outputOffset != null) {
+            int offset = Integer.parseInt(outputOffset);
+            startTC = startTC.addOffset(offset);
+            endTC = endTC.addOffset(offset);
         }
         if (outputFrameRate != null) {
             startTC = startTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
@@ -462,5 +473,10 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
     @Override
     public void setDsc(String dsc) {
         this.outputDsc = dsc;
+    }
+
+    @Override
+    public void setOffset(String offset) {
+        this.outputOffset = offset;
     }
 }
