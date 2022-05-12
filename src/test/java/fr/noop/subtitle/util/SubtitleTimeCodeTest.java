@@ -197,13 +197,10 @@ public class SubtitleTimeCodeTest  {
     }
 
     @Test
-    public void testOffset() throws Exception {
-        // Add offset of 3 seconds, or subtract offset of 10 seconds
-        int offset = 3000;
-        int offset2 = -10000;
-        SubtitleTimeCode expected = new SubtitleTimeCode(1, 23, 15, 10);
-        SubtitleTimeCode expected2 = new SubtitleTimeCode(1, 23, 2, 10);
+    public void testAddOffset() throws Exception {
+        // Add offset of 1 minute, 3 seconds, 200 milliseconds
+        SubtitleTimeCode offset = new SubtitleTimeCode(0, 1, 3, 200);
+        SubtitleTimeCode expected = new SubtitleTimeCode(1, 24, 15, 210);
         assertEquals(expected.getTime(), tested.addOffset(offset).getTime());
-        assertEquals(expected2.getTime(), tested.addOffset(offset2).getTime());
     }
 }

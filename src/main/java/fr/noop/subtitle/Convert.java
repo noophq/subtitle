@@ -251,7 +251,7 @@ public class Convert {
                 .required(false)
                 .longOpt("output-offset")
                 .hasArg()
-                .desc("Output offset in milliseconds")
+                .desc("Output offset timecode")
                 .build());
     }
 
