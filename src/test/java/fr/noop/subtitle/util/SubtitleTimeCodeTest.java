@@ -195,4 +195,12 @@ public class SubtitleTimeCodeTest  {
         SubtitleTimeCode expected4 = new SubtitleTimeCode(0, 4, 43, 360);
         assertEquals(expected4.getTime(), tested2.convertWithFrameRate(25, "30").getTime());
     }
+
+    @Test
+    public void testAddOffset() throws Exception {
+        // Add offset of 1 minute, 3 seconds, 200 milliseconds
+        SubtitleTimeCode offset = new SubtitleTimeCode(0, 1, 3, 200);
+        SubtitleTimeCode expected = new SubtitleTimeCode(1, 24, 15, 210);
+        assertEquals(expected.getTime(), tested.addOffset(offset).getTime());
+    }
 }
