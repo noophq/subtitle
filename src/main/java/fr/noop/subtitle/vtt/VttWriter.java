@@ -10,21 +10,18 @@
 
 package fr.noop.subtitle.vtt;
 
-import fr.noop.subtitle.base.BaseSubtitleObject;
 import fr.noop.subtitle.model.SubtitleCue;
 import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
-import fr.noop.subtitle.model.SubtitleWriter;
-import fr.noop.subtitle.util.SubtitleRegion;
+import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
 import fr.noop.subtitle.util.SubtitleStyle.FontStyle;
 
-import java.awt.SystemColor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -32,8 +29,9 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by clebeaupin on 11/10/15.
  */
-public class VttWriter implements SubtitleWriter {
+public class VttWriter implements SubtitleWriterWithTimecode {
     private String charset; // Charset used to encode file
+    private String outputTimecode;
 
     public VttWriter(String charset) {
         this.charset = charset;
@@ -55,18 +53,25 @@ public class VttWriter implements SubtitleWriter {
                 
                 // Write Start time and end time
                 String startToEnd = null;
+                SubtitleTimeCode startTC = cue.getStartTime();
+                SubtitleTimeCode endTC = cue.getEndTime();
+                SubtitleTimeCode startTimeCode = new SubtitleTimeCode(0);
+                float frameRate = 25;
                 if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)){
-                    SubtitleTimeCode startTimeCode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
-                    startToEnd = String.format("%s --> %s %s\n",
-                        this.formatTimeCode(cue.getStartTime().subtract(startTimeCode)),
-                        this.formatTimeCode(cue.getEndTime().subtract(startTimeCode)),
-                        this.verticalPosition(cue));
-                } else {
-                    startToEnd = String.format("%s --> %s %s\n",
-                        this.formatTimeCode(cue.getStartTime()),
-                        this.formatTimeCode(cue.getEndTime()),
-                        this.verticalPosition(cue));
-                }                
+                    startTimeCode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
+                }
+                if (subtitleObject.hasProperty(SubtitleObject.Property.FRAME_RATE)) {
+                    frameRate = (float) subtitleObject.getProperty(SubtitleObject.Property.FRAME_RATE);
+                }
+                if (outputTimecode != null) {
+                    SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
+                    startTC = cue.getStartTime().convertFromStart(outputTC, startTimeCode);
+                    endTC = cue.getEndTime().convertFromStart(outputTC, startTimeCode);
+                }
+                startToEnd = String.format("%s --> %s%s\n",
+                    this.formatTimeCode(startTC),
+                    this.formatTimeCode(endTC),
+                    this.verticalPosition(cue));
 
                 os.write(startToEnd.getBytes(this.charset));
                 // Write text
@@ -108,7 +113,7 @@ public class VttWriter implements SubtitleWriter {
         if (cue instanceof SubtitleRegionCue) {
             VerticalAlign va =  ((SubtitleRegionCue) cue).getRegion().getVerticalAlign();
             if (va == VerticalAlign.TOP) {
-                return "line:0";
+                return " line:0";
             }
             else {
                 return "";
@@ -122,5 +127,10 @@ public class VttWriter implements SubtitleWriter {
                 timeCode.getMinute(),
                 timeCode.getSecond(),
                 timeCode.getMillisecond());
+    }
+
+    @Override
+    public void setTimecode(String timecode) {
+        this.outputTimecode= timecode;
     }
 }
