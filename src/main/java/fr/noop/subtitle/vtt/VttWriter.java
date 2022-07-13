@@ -16,6 +16,8 @@ import fr.noop.subtitle.model.SubtitleObject;
 import fr.noop.subtitle.model.SubtitleRegionCue;
 import fr.noop.subtitle.model.SubtitleStyled;
 import fr.noop.subtitle.model.SubtitleText;
+import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
+import fr.noop.subtitle.model.SubtitleWriterWithOffset;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -29,9 +31,11 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by clebeaupin on 11/10/15.
  */
-public class VttWriter implements SubtitleWriterWithTimecode {
+public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithOffset {
     private String charset; // Charset used to encode file
     private String outputTimecode;
+    private String outputFrameRate;
+    private String outputOffset;
 
     public VttWriter(String charset) {
         this.charset = charset;
@@ -67,6 +71,15 @@ public class VttWriter implements SubtitleWriterWithTimecode {
                     SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
                     startTC = cue.getStartTime().convertFromStart(outputTC, startTimeCode);
                     endTC = cue.getEndTime().convertFromStart(outputTC, startTimeCode);
+                }
+                if (outputOffset != null) {
+                    SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, frameRate);
+                    startTC = startTC.addOffset(offsetTimecode);
+                    endTC = endTC.addOffset(offsetTimecode);
+                }
+                if (outputFrameRate != null) {
+                    startTC = startTC.convertWithFrameRate(frameRate, outputFrameRate);
+                    endTC = endTC.convertWithFrameRate(frameRate, outputFrameRate);
                 }
                 startToEnd = String.format("%s --> %s%s\n",
                     this.formatTimeCode(startTC),
@@ -132,5 +145,15 @@ public class VttWriter implements SubtitleWriterWithTimecode {
     @Override
     public void setTimecode(String timecode) {
         this.outputTimecode= timecode;
+    }
+
+    @Override
+    public void setFrameRate(String frameRate) {
+        this.outputFrameRate = frameRate;
+    }
+
+    @Override
+    public void setOffset(String offset) {
+        this.outputOffset = offset;
     }
 }
