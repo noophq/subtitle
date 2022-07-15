@@ -81,11 +81,8 @@ public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
                     startTC = startTC.convertWithFrameRate(frameRate, outputFrameRate);
                     endTC = endTC.convertWithFrameRate(frameRate, outputFrameRate);
                 }
-                startToEnd = String.format("%s --> %s%s\n",
-                    this.formatTimeCode(startTC),
-                    this.formatTimeCode(endTC),
-                    this.verticalPosition(cue));
-
+                String vp = this.verticalPosition(cue);
+                startToEnd = this.formatTimeCode(startTC) + " --> " + this.formatTimeCode(endTC) + (vp != "" ? " " : "") + vp + "\n";
                 os.write(startToEnd.getBytes(this.charset));
                 // Write text
                 //String text = String.format("%s\n", cue.getText());
@@ -124,9 +121,9 @@ public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
 
     private String verticalPosition(SubtitleCue cue) {
         if (cue instanceof SubtitleRegionCue) {
-            VerticalAlign va =  ((SubtitleRegionCue) cue).getRegion().getVerticalAlign();
+            VerticalAlign va = ((SubtitleRegionCue) cue).getRegion().getVerticalAlign();
             if (va == VerticalAlign.TOP) {
-                return " line:0";
+                return "line:0";
             }
             else {
                 return "";
