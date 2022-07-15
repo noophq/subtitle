@@ -99,7 +99,7 @@ public class Convert {
 
     private enum ConvertWriter {
         SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiWriter", true, false, false, false, false, false),
-        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false, false, false, false, false),
+        VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttWriter", true, false, true, true, false, true),
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtWriter", true, false, false, false, false, false),
         TTML(ConvertFormat.TTML, "fr.noop.subtitle.ttml.TtmlWriter", false, false, false, false, false, false),
         STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlWriter", false, false, true, true, true, true),
