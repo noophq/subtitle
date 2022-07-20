@@ -191,4 +191,26 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
             return false;
         }
     }
+
+    public SubtitleTimeCode convertWithOptions(
+        SubtitleTimeCode inputStartTC,
+        String outputStartTC,
+        float inputFrameRate,
+        String outputFrameRate,
+        String outputOffset
+    ) throws IOException {
+        SubtitleTimeCode converted = this;
+        if (outputStartTC != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputStartTC, inputFrameRate);
+            converted = converted.convertFromStart(outputTC, inputStartTC);
+        }
+        if (outputOffset != null) {
+            SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, inputFrameRate);
+            converted = converted.addOffset(offsetTimecode);
+        }
+        if (outputFrameRate != null) {
+            converted = converted.convertWithFrameRate(inputFrameRate, outputFrameRate);
+        }
+        return converted;
+    }
 }
