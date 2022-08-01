@@ -76,6 +76,11 @@ public class StlObject extends BaseSubtitleObject {
         // Assuming vertical position is divided in 3 cases (top, center, bottom),
         // set 2/3 (top and center) to TOP alignment
         if (tti.getVp() <= gsi.getMnr() * 2 / 3) {
+            if (tti.getVp() > 1) {
+                float frameRate = gsi.getDfc().getFrameRate();
+                String tcIn = tti.getTci().formatWithFramerate(frameRate);
+                System.out.printf("STL vertical position = %d, setting to top vertical align :: %s\n", tti.getVp(), tcIn);
+            }
             region.setVerticalAlign(VerticalAlign.TOP);
         }
 

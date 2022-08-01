@@ -97,7 +97,7 @@ public class Analyse {
             try {
                 subtitleParser = new Convert().buildParser(fileAnalysed, "utf-8");
             } catch(IOException e) {
-                System.out.println(String.format("Unable to build parser for file %s: %s", fileAnalysed, e.getMessage()));
+                System.err.println(String.format("Unable to build parser for file %s: %s", fileAnalysed, e.getMessage()));
                 System.exit(1);
             }
 
@@ -109,7 +109,7 @@ public class Analyse {
                 is = new FileInputStream(fileAnalysed);
                 bom = new BOMInputStream(is);
             } catch(IOException e) {
-                System.out.println(String.format("Input file %s does not exist: %s", fileAnalysed, e.getMessage()));
+                System.err.println(String.format("Input file %s does not exist: %s", fileAnalysed, e.getMessage()));
                 System.exit(1);
             }
 
@@ -119,10 +119,10 @@ public class Analyse {
             try {
                 inputSubtitle = subtitleParser.parse(bom, true);
             } catch (IOException e) {
-                System.out.println(String.format("Unable ro read input file %s: %s", fileAnalysed, e.getMessage()));
+                System.err.println(String.format("Unable ro read input file %s: %s", fileAnalysed, e.getMessage()));
                 System.exit(1);
             } catch (SubtitleParsingException e) {
-                System.out.println(String.format("Unable to parse input file %s;: %s", fileAnalysed, e.getMessage()));
+                System.err.println(String.format("Unable to parse input file %s: %s", fileAnalysed, e.getMessage()));
                 System.exit(1);
             }
 
@@ -133,7 +133,7 @@ public class Analyse {
             try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(reportFile))){
                 obj.write(writer);
             } catch (IOException e) {
-                System.out.println(String.format("Unable to write output file %s: %s", reportFile, e.getMessage()));
+                System.err.println(String.format("Unable to write output file %s: %s", reportFile, e.getMessage()));
                 System.exit(1);
             }
         } catch (ParseException exp) {

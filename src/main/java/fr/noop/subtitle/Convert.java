@@ -302,7 +302,7 @@ public class Convert {
             try {
                 subtitleParser = this.buildParser(inputFilePath, inputCharset);
             } catch(IOException e) {
-                System.out.println(String.format("Unable to build parser for file %s: %s", inputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable to build parser for file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -314,7 +314,7 @@ public class Convert {
                  is = new FileInputStream(inputFilePath);
                  bom = new BOMInputStream(is);
             } catch(IOException e) {
-                System.out.println(String.format("Input file %s does not exist: %s", inputFilePath, e.getMessage()));
+                System.err.println(String.format("Input file %s does not exist: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -324,10 +324,10 @@ public class Convert {
             try {
                 inputSubtitle = subtitleParser.parse(bom, !disableStrictMode);
             } catch (IOException e) {
-                System.out.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable ro read input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
             } catch (SubtitleParsingException e) {
-                System.out.println(String.format("Unable to parse input file %s;: %s", inputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable to parse input file %s: %s", inputFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -338,7 +338,7 @@ public class Convert {
                     headerText = new String(Files.readAllBytes(Paths.get(headerFilePath)));
                 }
             } catch(IOException e) {
-                System.out.println(String.format("Header file %s does not exist: %s", headerFilePath, e.getMessage()));
+                System.err.println(String.format("Header file %s does not exist: %s", headerFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -348,7 +348,7 @@ public class Convert {
             try {
                 writer = this.buildWriter(outputFilePath, outputCharset, headerText, outputFrameRate, outputTimecode, outputDsc, outputOffset);
             } catch(IOException e) {
-                System.out.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable to build writer for file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -358,7 +358,7 @@ public class Convert {
             try {
                 os = new FileOutputStream(outputFilePath);
             } catch(IOException e) {
-                System.out.println(String.format("Unable to create output file %s: %s", outputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable to create output file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
             }
 
@@ -366,7 +366,7 @@ public class Convert {
             try {
                 writer.write(inputSubtitle, os);
             } catch (IOException e) {
-                System.out.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
+                System.err.println(String.format("Unable to write output file %s: %s", outputFilePath, e.getMessage()));
                 System.exit(1);
             }
         }

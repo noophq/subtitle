@@ -78,7 +78,7 @@ public class StlParser implements SubtitleParser {
         try {
             return df.parse(dateString);
         } catch (ParseException e) {
-            System.out.printf("Warning :: Unable to parse Date : '%s', using default date\n", dateString);
+            System.out.printf("Unable to parse Date : '%s', using default date\n", dateString);
             return new Date(0);
         }
     }
@@ -248,8 +248,7 @@ public class StlParser implements SubtitleParser {
         try {
             gsi.setTcp(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
         } catch (NumberFormatException e) {
-            System.out.printf("Can't read timecode  with message : %s\n", e.getMessage());
-            System.out.println("Setting 0000000 as timecode");
+            System.out.printf("Can't read timecode with message : %s, setting 00:00:00:00 as timecode\n", e.getMessage());
             gsi.setTcp(new SubtitleTimeCode(0));
         }
         
@@ -257,8 +256,7 @@ public class StlParser implements SubtitleParser {
         try {
             gsi.setTcf(this.readTimeCode(this.readString(dis, 8), gsi.getDfc().getFrameRate()));
         } catch (NumberFormatException e) {
-            System.out.printf("Can't read timecode  with message : %s\n", e.getMessage());
-            System.out.println("Setting 0000000 as timecode");
+            System.out.printf("Can't read timecode with message : %s, setting 00:00:00:00 as timecode\n", e.getMessage());
             gsi.setTcf(new SubtitleTimeCode(0));
         }
 
