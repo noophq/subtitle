@@ -102,20 +102,8 @@ public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFr
         for (SubtitleCue cue : subtitleObject.getCues()) {
             String cueText = "";
 
-            SubtitleTimeCode startTC = cue.getStartTime();
-            if (outputTimecode != null) {
-                SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
-                startTC = cue.getStartTime().convertFromStart(outputTC, startTimecode);
-            }
-            SubtitleTimeCode endTC = cue.getEndTime();
-            if (outputTimecode != null) {
-                SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
-                endTC = cue.getEndTime().convertFromStart(outputTC, startTimecode);
-            }
-            if (newFrameRate != null) {
-                startTC = startTC.convertWithFrameRate(frameRate, newFrameRate);
-                endTC = endTC.convertWithFrameRate(frameRate, newFrameRate);
-            }
+            SubtitleTimeCode startTC = cue.getStartTime().convertWithOptions(startTimecode, outputTimecode, frameRate, newFrameRate, null);
+            SubtitleTimeCode endTC = cue.getEndTime().convertWithOptions(startTimecode, outputTimecode, frameRate, newFrameRate, null);
 
             String styleName = "Nomalab_Default";
             int vp = 0;

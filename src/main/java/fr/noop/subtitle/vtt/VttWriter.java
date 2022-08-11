@@ -47,6 +47,15 @@ public class VttWriter implements SubtitleWriterWithHeader, SubtitleWriterWithTi
     @Override
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         try {
+            SubtitleTimeCode startTimeCode = new SubtitleTimeCode(0);
+            float frameRate = 25;
+            if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)){
+                startTimeCode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
+            }
+            if (subtitleObject.hasProperty(SubtitleObject.Property.FRAME_RATE)) {
+                frameRate = (float) subtitleObject.getProperty(SubtitleObject.Property.FRAME_RATE);
+            }
+
             // Write header
             os.write(("WEBVTT\n").getBytes(this.charset));
             if (headerText != null){
@@ -60,36 +69,15 @@ public class VttWriter implements SubtitleWriterWithHeader, SubtitleWriterWithTi
                     String number = String.format("%s\n", cue.getId());
                     os.write(number.getBytes(this.charset));
                 }
-                
+
                 // Write Start time and end time
-                String startToEnd = null;
-                SubtitleTimeCode startTC = cue.getStartTime();
-                SubtitleTimeCode endTC = cue.getEndTime();
-                SubtitleTimeCode startTimeCode = new SubtitleTimeCode(0);
-                float frameRate = 25;
-                if (subtitleObject.hasProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL)){
-                    startTimeCode = (SubtitleTimeCode) subtitleObject.getProperty(SubtitleObject.Property.START_TIMECODE_PRE_ROLL);
-                }
-                if (subtitleObject.hasProperty(SubtitleObject.Property.FRAME_RATE)) {
-                    frameRate = (float) subtitleObject.getProperty(SubtitleObject.Property.FRAME_RATE);
-                }
-                if (outputTimecode != null) {
-                    SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, frameRate);
-                    startTC = cue.getStartTime().convertFromStart(outputTC, startTimeCode);
-                    endTC = cue.getEndTime().convertFromStart(outputTC, startTimeCode);
-                }
-                if (outputOffset != null) {
-                    SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, frameRate);
-                    startTC = startTC.addOffset(offsetTimecode);
-                    endTC = endTC.addOffset(offsetTimecode);
-                }
-                if (outputFrameRate != null) {
-                    startTC = startTC.convertWithFrameRate(frameRate, outputFrameRate);
-                    endTC = endTC.convertWithFrameRate(frameRate, outputFrameRate);
-                }
+                SubtitleTimeCode startTC = cue.getStartTime().convertWithOptions(startTimeCode, outputTimecode, frameRate, outputFrameRate, outputOffset);
+                SubtitleTimeCode endTC = cue.getEndTime().convertWithOptions(startTimeCode, outputTimecode, frameRate, outputFrameRate, outputOffset);
+
                 String vp = this.verticalPosition(cue);
-                startToEnd = this.formatTimeCode(startTC) + " --> " + this.formatTimeCode(endTC) + (vp != "" ? " " : "") + vp + "\n";
+                String startToEnd = this.formatTimeCode(startTC) + " --> " + this.formatTimeCode(endTC) + (vp != "" ? " " : "") + vp + "\n";
                 os.write(startToEnd.getBytes(this.charset));
+
                 // Write text
                 //String text = String.format("%s\n", cue.getText());
 
