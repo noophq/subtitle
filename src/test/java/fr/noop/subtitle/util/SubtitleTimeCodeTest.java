@@ -189,11 +189,11 @@ public class SubtitleTimeCodeTest  {
         // Convert from 25 to 24 fps
         SubtitleTimeCode tested2 = new SubtitleTimeCode(0, 4, 43, 360);
         SubtitleTimeCode expected3 = new SubtitleTimeCode(0, 4, 55, 166);
-        assertEquals(expected3.getTime(), tested2.convertWithFrameRate(25, "24").getTime());
+        assertEquals(expected3.getTime(), tested2.convertWithFrameRate(25, 24, new SubtitleTimeCode(0)).getTime());
 
         // Convert from 25 to 30 fps
         SubtitleTimeCode expected4 = new SubtitleTimeCode(0, 4, 43, 360);
-        assertEquals(expected4.getTime(), tested2.convertWithFrameRate(25, "30").getTime());
+        assertEquals(expected4.getTime(), tested2.convertWithFrameRate(25, 30, new SubtitleTimeCode(0)).getTime());
     }
 
     @Test

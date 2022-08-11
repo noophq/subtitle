@@ -175,10 +175,11 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return new SubtitleTimeCode(newTC);
     }
 
-    public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, String newFrameRate) throws IOException {
-        if (needConforming(originalFrameRate, FrameRate.getEnum(newFrameRate).getFrameRate())) {
-            long newTime = (long) ((float) this.getTime() * originalFrameRate / FrameRate.getEnum(newFrameRate).getFrameRate());
-            return new SubtitleTimeCode(newTime);
+    public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, float newFrameRate, SubtitleTimeCode startTimecode) throws IOException {
+        if (needConforming(originalFrameRate, newFrameRate)) {
+            SubtitleTimeCode init = this.subtract(startTimecode);
+            long newTime = (long) ((float) init.getTime() * originalFrameRate / newFrameRate);
+            return new SubtitleTimeCode(newTime).addOffset(startTimecode);
         } else {
             return this;
         }
@@ -203,7 +204,7 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         float outFrameRateFloat = inputFrameRate;
         if (outputFrameRate != null) {
             outFrameRateFloat = FrameRate.getEnum(outputFrameRate).getFrameRate();
-            converted = converted.convertWithFrameRate(inputFrameRate, outputFrameRate);
+            converted = converted.convertWithFrameRate(inputFrameRate, outFrameRateFloat, inputStartTC);
         }
         if (outputOffset != null) {
             SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, outFrameRateFloat);
