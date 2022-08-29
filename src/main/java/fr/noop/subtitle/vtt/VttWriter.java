@@ -19,6 +19,8 @@ import fr.noop.subtitle.model.SubtitleText;
 import fr.noop.subtitle.model.SubtitleWriterWithFrameRate;
 import fr.noop.subtitle.model.SubtitleWriterWithOffset;
 import fr.noop.subtitle.model.SubtitleWriterWithTimecode;
+
+import fr.noop.subtitle.model.SubtitleWriterWithHeader;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleTimeCode;
 import fr.noop.subtitle.util.SubtitleRegion.VerticalAlign;
@@ -31,11 +33,12 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by clebeaupin on 11/10/15.
  */
-public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithOffset {
+public class VttWriter implements SubtitleWriterWithHeader, SubtitleWriterWithTimecode, SubtitleWriterWithFrameRate, SubtitleWriterWithOffset {
     private String charset; // Charset used to encode file
     private String outputTimecode;
     private String outputFrameRate;
     private String outputOffset;
+    private String headerText; // header to append.
 
     public VttWriter(String charset) {
         this.charset = charset;
@@ -45,8 +48,11 @@ public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
     public void write(SubtitleObject subtitleObject, OutputStream os) throws IOException {
         try {
             // Write header
-            os.write(new String("WEBVTT\n\n").getBytes(this.charset));
-
+            os.write(("WEBVTT\n").getBytes(this.charset));
+            if (headerText != null){
+                os.write(headerText.getBytes(this.charset));
+            }
+            os.write("\n".getBytes(this.charset));
             // Write cues
             for (SubtitleCue cue : subtitleObject.getCues()) {
                 if (cue.getId() != null) {
@@ -152,5 +158,11 @@ public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
     @Override
     public void setOffset(String offset) {
         this.outputOffset = offset;
+    }
+
+    @Override
+    public void setHeaderText(String headerText) {
+        this.headerText = headerText;
+        
     }
 }
