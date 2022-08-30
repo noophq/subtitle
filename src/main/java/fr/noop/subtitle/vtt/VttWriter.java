@@ -123,7 +123,8 @@ public class VttWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
         if (cue instanceof SubtitleRegionCue) {
             VerticalAlign va = ((SubtitleRegionCue) cue).getRegion().getVerticalAlign();
             if (va == VerticalAlign.TOP) {
-                return "line:0";
+                // there is a bug in Shaka 4.X when aligned to top using "line:0"
+                return "line:0.01%";
             }
             else {
                 return "";
