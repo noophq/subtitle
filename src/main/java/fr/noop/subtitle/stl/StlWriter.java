@@ -285,8 +285,8 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
             // 0 1 Subtitle Group Number SGN
             os.write(tti.getSgn());
             // 1..2 2 Subtitle Number SN
-            os.write(tti.getSn() >> 8);
             os.write(tti.getSn() >> 0);
+            os.write(tti.getSn() >> 8);
             // 3 1 Extension Block Number EBN
             os.write(tti.getEbn());
             // 4 1 Cumulative Status CS
