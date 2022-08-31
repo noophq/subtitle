@@ -175,10 +175,11 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         return new SubtitleTimeCode(newTC);
     }
 
-    public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, String newFrameRate) throws IOException {
-        if (needConforming(originalFrameRate, FrameRate.getEnum(newFrameRate).getFrameRate())) {
-            long newTime = (long) ((float) this.getTime() * originalFrameRate / FrameRate.getEnum(newFrameRate).getFrameRate());
-            return new SubtitleTimeCode(newTime);
+    public SubtitleTimeCode convertWithFrameRate(float originalFrameRate, float newFrameRate, SubtitleTimeCode startTimecode) throws IOException {
+        if (needConforming(originalFrameRate, newFrameRate)) {
+            SubtitleTimeCode init = this.subtract(startTimecode);
+            long newTime = (long) ((float) init.getTime() * originalFrameRate / newFrameRate);
+            return new SubtitleTimeCode(newTime).addOffset(startTimecode);
         } else {
             return this;
         }
@@ -200,16 +201,18 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         String outputOffset
     ) throws IOException {
         SubtitleTimeCode converted = this;
-        if (outputStartTC != null) {
-            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputStartTC, inputFrameRate);
-            converted = converted.convertFromStart(outputTC, inputStartTC);
+        float outFrameRateFloat = inputFrameRate;
+        if (outputFrameRate != null) {
+            outFrameRateFloat = FrameRate.getEnum(outputFrameRate).getFrameRate();
+            converted = converted.convertWithFrameRate(inputFrameRate, outFrameRateFloat, inputStartTC);
         }
         if (outputOffset != null) {
-            SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, inputFrameRate);
+            SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, outFrameRateFloat);
             converted = converted.addOffset(offsetTimecode);
         }
-        if (outputFrameRate != null) {
-            converted = converted.convertWithFrameRate(inputFrameRate, outputFrameRate);
+        if (outputStartTC != null) {
+            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputStartTC, outFrameRateFloat);
+            converted = converted.convertFromStart(outputTC, inputStartTC);
         }
         return converted;
     }

@@ -240,17 +240,7 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
         gsi.setTcp(outputTC);
 
         // TimeCodeFirstInCue
-        SubtitleTimeCode firstTC = subtitleObject.getCues().get(0).getStartTime();
-        if (outputTimecode != null) {
-            firstTC = firstTC.convertFromStart(outputTC, originalStartTimecode);
-        }
-        if (outputOffset != null) {
-            SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, originalFrameRate);
-            firstTC = firstTC.addOffset(offsetTimecode);
-        }
-        if (outputFrameRate != null) {
-            firstTC = firstTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
-        }
+        SubtitleTimeCode firstTC = subtitleObject.getCues().get(0).getStartTime().convertWithOptions(originalStartTimecode, outputTimecode, originalFrameRate, outputFrameRate, outputOffset);
         gsi.setTcf(firstTC);
 
         // TotalNumberOfDisks
@@ -342,22 +332,8 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
         tti.setCs((short) 0x00);
 
         // TimeCodeIn / TimeCodeOut
-        SubtitleTimeCode startTC = cue.getStartTime();
-        SubtitleTimeCode endTC = cue.getEndTime();
-        if (outputTimecode != null) {
-            SubtitleTimeCode outputTC = SubtitleTimeCode.fromStringWithFrames(outputTimecode, gsi.getDfc().getFrameRate());
-            startTC = startTC.convertFromStart(outputTC, originalStartTimecode);
-            endTC = endTC.convertFromStart(outputTC, originalStartTimecode);
-        }
-        if (outputOffset != null) {
-            SubtitleTimeCode offsetTimecode = SubtitleTimeCode.fromStringWithFrames(outputOffset, originalFrameRate);
-            startTC = startTC.addOffset(offsetTimecode);
-            endTC = endTC.addOffset(offsetTimecode);
-        }
-        if (outputFrameRate != null) {
-            startTC = startTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
-            endTC = endTC.convertWithFrameRate(originalFrameRate, outputFrameRate);
-        }
+        SubtitleTimeCode startTC = cue.getStartTime().convertWithOptions(originalStartTimecode, outputTimecode, originalFrameRate, outputFrameRate, outputOffset);
+        SubtitleTimeCode endTC = cue.getEndTime().convertWithOptions(originalStartTimecode, outputTimecode, originalFrameRate, outputFrameRate, outputOffset);
         tti.setTci(startTC);
         tti.setTco(endTC);
 
