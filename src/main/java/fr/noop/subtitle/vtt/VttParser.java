@@ -30,6 +30,7 @@ public class VttParser implements SubtitleParser {
     private enum CursorStatus {
         NONE,
         SIGNATURE,
+        HEADER,
         EMPTY_LINE,
         CUE_ID,
         CUE_TIMECODE,
@@ -79,7 +80,14 @@ public class VttParser implements SubtitleParser {
                 continue;
             }
 
+            // Optional X-TIMESTAMP-MAP header (HLS)
+            if (cursorStatus == CursorStatus.SIGNATURE && textLine.startsWith("X-TIMESTAMP-MAP")) {
+                cursorStatus = CursorStatus.HEADER;
+                continue;
+            }
+
             if (cursorStatus == CursorStatus.SIGNATURE ||
+                    cursorStatus == CursorStatus.HEADER ||
                     cursorStatus == CursorStatus.EMPTY_LINE) {
                 if (textLine.isEmpty()) {
                     continue;
