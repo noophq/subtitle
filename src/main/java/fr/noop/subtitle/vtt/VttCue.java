@@ -11,13 +11,21 @@
 package fr.noop.subtitle.vtt;
 
 import fr.noop.subtitle.base.BaseSubtitleCue;
-import fr.noop.subtitle.util.SubtitleTextLine;
-
-import java.util.ArrayList;
-import java.util.List;
+import fr.noop.subtitle.model.SubtitleRegionCue;
+import fr.noop.subtitle.util.SubtitleRegion;
 
 /**
  * Created by clebeaupin on 11/10/15.
  */
-public class VttCue extends BaseSubtitleCue {
+public class VttCue extends BaseSubtitleCue implements SubtitleRegionCue {
+    private SubtitleRegion region;
+
+    public void setRegion(SubtitleRegion region) {
+        this.region = region;
+    }
+
+    @Override
+    public SubtitleRegion getRegion() {
+        return this.region;
+    }
 }
