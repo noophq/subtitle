@@ -20,7 +20,13 @@ import java.util.List;
 import fr.noop.subtitle.model.SubtitleLine;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
-import fr.noop.subtitle.util.*;
+import fr.noop.subtitle.util.SubtitleRegion;
+import fr.noop.subtitle.util.SubtitlePlainText;
+import fr.noop.subtitle.util.SubtitleStyle;
+import fr.noop.subtitle.util.SubtitleStyledText;
+import fr.noop.subtitle.util.SubtitleTimeCode;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by clebeaupin on 11/10/15.
@@ -34,7 +40,8 @@ public class VttParser implements SubtitleParser {
         EMPTY_LINE,
         CUE_ID,
         CUE_TIMECODE,
-        CUE_TEXT;
+        CUE_TEXT,
+        CUE_POSITION;
     }
 
     private enum TagStatus {
@@ -71,7 +78,7 @@ public class VttParser implements SubtitleParser {
 
             // Remove BOM
             if (cursorStatus == CursorStatus.NONE) {
-                textLine = StringUtils.removeBOM(textLine);
+                textLine = fr.noop.subtitle.util.StringUtils.removeBOM(textLine);
             }
 
             // All Vtt files start with WEBVTT
@@ -123,10 +130,24 @@ public class VttParser implements SubtitleParser {
                 cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
                 cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
                 cursorStatus = CursorStatus.CUE_TIMECODE;
+
+                SubtitleRegion region = new SubtitleRegion(0, 0);
+                if (textLine.contains("line:")) {
+                    int position = Integer.parseInt(StringUtils.substringAfter(textLine, "line:"));
+                    if (position == 0) {
+                        region.setVerticalAlign(SubtitleRegion.VerticalAlign.TOP);
+                    }
+                    cursorStatus = CursorStatus.CUE_POSITION;
+                }
+                cue.setRegion(region);
                 continue;
             }
 
-            if (cursorStatus == CursorStatus.CUE_TIMECODE &&
+            if (
+                (
+                    cursorStatus == CursorStatus.CUE_TIMECODE ||
+                    cursorStatus == CursorStatus.CUE_POSITION
+                ) &&
                 textLine.isEmpty() &&
                 strict
             ) {
@@ -139,6 +160,7 @@ public class VttParser implements SubtitleParser {
             if (
                 (
                     cursorStatus == CursorStatus.CUE_TIMECODE ||
+                    cursorStatus == CursorStatus.CUE_POSITION ||
                     cursorStatus == CursorStatus.CUE_TEXT
                 ) &&
                 textLine.isEmpty()
@@ -156,6 +178,7 @@ public class VttParser implements SubtitleParser {
 
             // Add new text to cue
             if (cursorStatus == CursorStatus.CUE_TIMECODE ||
+                cursorStatus == CursorStatus.CUE_POSITION ||
                 cursorStatus ==  CursorStatus.CUE_TEXT
             ) {
                 // New line
