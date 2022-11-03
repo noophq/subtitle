@@ -70,7 +70,7 @@ public class StlGsi {
         public static Cpn getEnum(int value) {
             for(Cpn v : values())
                 if(v.getValue() == value) return v;
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid code page number: " + value);
         }
     }
 
