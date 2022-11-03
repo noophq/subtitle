@@ -35,7 +35,7 @@ Usage:
     ...
     VttParser parser = new VttParser("utf-8");
     VttObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.vtt"));
-    
+
 Writer
 ======
 
@@ -62,7 +62,7 @@ Usage:
     ...
     SrtParser parser = new SrtParser("utf-8");
     SrtObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.srt"));
-    
+
 Writer
 ======
 
@@ -74,7 +74,7 @@ Usage:
     ...
     SrtWriter writer = new SrtWriter("utf-8");
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.srt"));
-    
+
 SAMI
 ----
 
@@ -87,7 +87,7 @@ Usage:
     ...
     SamiParser parser = new SamiParser("utf-8");
     SamiObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.smi"));
-    
+
 Writer
 ======
 
@@ -99,15 +99,15 @@ Usage:
     ...
     SamiWriter writer = new SamiWriter("utf-8");
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.smi"));
-    
+
 STL
 ---
 
 The implemented STL format is the binary version of STL EBU.
 Currently only the reader is provided.
 
-All the specifications described in this document 
-https://tech.ebu.ch/docs/tech/tech3264.pdf 
+All the specifications described in this document
+https://tech.ebu.ch/docs/tech/tech3264.pdf
 have been implemented, so you can get data from GSI and TTI blocks.
 
 Advanced features
@@ -125,7 +125,7 @@ Usage:
     ...
     StlParser parser = new StlParser();
     StlObject subtitle = parser.parse(new FileInputStream("/tmp/read/test.stl"));
-    
+
 TTML
 ----
 
@@ -149,6 +149,14 @@ Usage:
     ...
     TtmlWriter writer = new TtmlWriter();
     writer.write(subtitle, new FileOutputStream("/tmp/write/test.ttml"));
+
+Launch tests
+------------
+
+To launch tests:
+
+    mvn test
+
 
 Jar package
 -----------
