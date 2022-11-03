@@ -14,6 +14,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.CoderMalfunctionError;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,10 +34,18 @@ public class StlParser implements SubtitleParser {
     }
     
     public StlObject parse(InputStream is) throws SubtitleParsingException {
-    	return parse(is, true);
+    	return parse(is, true, false, false);
     }
 
-    public StlObject parse(InputStream is, boolean strict) throws SubtitleParsingException {
+    public StlObject parse(InputStream is,
+                           boolean strict) throws SubtitleParsingException {
+        return parse(is, strict, false, false);
+    }
+
+    public StlObject parse(InputStream is,
+                           boolean strict,
+                           boolean skipUserdataTf,
+                           boolean ignoreTcf) throws SubtitleParsingException {
         BufferedInputStream bis = new BufferedInputStream(is);
         DataInputStream dis = new DataInputStream(bis);
 
@@ -63,7 +72,9 @@ public class StlParser implements SubtitleParser {
                 throw new SubtitleParsingException("Unable to parse tti block");
             }
 
-            stl.addTti(tti);
+            if (!skipUserdataTf || tti.getEbn() != 254) {
+                stl.addTti(tti, ignoreTcf);
+            }
         }
 
         return stl;
@@ -266,7 +277,13 @@ public class StlParser implements SubtitleParser {
         // Read TextField (TF)
         byte [] tfBytes = new byte[112];
         dis.readFully(tfBytes, 0, 112);
-        tti.setTf(new String(tfBytes, charset));
+        try {
+            tti.setTf(new String(tfBytes, charset));
+        } catch (CoderMalfunctionError e) {
+            // There exist some STL files in the wild, which contain userdata not parsable using the gsi charset
+            // this is the case for some kinds of software, which carry meta information in EBN-254 text fields
+            tti.setTf(new String(tfBytes));
+        }
 
         // TTI is fully parsed
         return tti;
