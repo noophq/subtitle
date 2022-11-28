@@ -84,19 +84,20 @@ public class VttWriter implements SubtitleWriterWithHeader, SubtitleWriterWithTi
                 String text = "";
                 for (SubtitleLine line : cue.getLines()) {
                     for (SubtitleText inText : line.getTexts()) {
+                        String textString = inText.toString();
+                        textString = textString.replace("&amp;", "&").replace("&", "&amp;"); // avoid writing "&amp;amp;" when replacing
+                        textString = textString.replace("<", "&lt;");
+                        textString = textString.replace(">", "&gt;");
                         if (inText instanceof SubtitleStyled) {
                             SubtitleStyle style = ((SubtitleStyled)inText).getStyle();
-                            String textString = inText.toString();
                             if (style.getFontStyle() == FontStyle.ITALIC || style.getFontStyle() == FontStyle.OBLIQUE) {
                                 textString = String.format("<i>%s</i>", textString);
                             }
                             if (style.getColor() != null){
                                 textString = String.format("<c.%s>%s</c>", style.getColor(), textString);
                             }
-                            text += textString;
-                        } else {
-                            text += inText.toString();
                         }
+                        text += textString;
                         text += "\n";
                     }
                 }
