@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
 import fr.noop.subtitle.util.SubtitlePlainText;
+import fr.noop.subtitle.util.SubtitleRegion;
 import fr.noop.subtitle.util.SubtitleStyle;
 import fr.noop.subtitle.util.SubtitleStyledText;
 import fr.noop.subtitle.util.SubtitleTextLine;
@@ -62,6 +63,7 @@ public class SrtParser implements SubtitleParser {
         boolean bold = false;
         boolean underline = false;
         boolean color = false;
+        SubtitleRegion region = null;
 
         while ((textLine = br.readLine()) != null) {
             textLine = textLine.trim();
@@ -73,6 +75,7 @@ public class SrtParser implements SubtitleParser {
 
                 // New cue
                 cue = new SrtCue();
+                region = new SubtitleRegion(0, 0);
 
                 // First textLine is the cue number
                 try {
@@ -108,6 +111,10 @@ public class SrtParser implements SubtitleParser {
                     cursorStatus ==  CursorStatus.CUE_TEXT)) {
                 SubtitleTextLine line = new SubtitleTextLine();
                 SubtitleStyle textStyle = new SubtitleStyle();
+                if (textLine.contains("{\\an8}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.TOP);
+                    textLine = textLine.replaceAll("\\{\\\\an8\\}", "");
+                }
                 if (textLine.contains("<i>")) {
                     italic = true;
                     textLine = textLine.replaceAll("<i>", "");
@@ -170,8 +177,10 @@ public class SrtParser implements SubtitleParser {
 
             if (cursorStatus == CursorStatus.CUE_TEXT && textLine.isEmpty()) {
                 // End of cue
+                cue.setRegion(region);
                 srtObject.addCue(cue);
                 cue = null;
+                region = null;
                 cursorStatus = CursorStatus.NONE;
                 continue;
             }
@@ -181,6 +190,7 @@ public class SrtParser implements SubtitleParser {
         }
 
         if (cue != null) {
+            cue.setRegion(region);
             srtObject.addCue(cue);
         }
 
