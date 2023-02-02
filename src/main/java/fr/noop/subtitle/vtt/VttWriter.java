@@ -98,8 +98,8 @@ public class VttWriter implements SubtitleWriterWithHeader, SubtitleWriterWithTi
                             }
                         }
                         text += textString;
-                        text += "\n";
                     }
+                    text += "\n";
                 }
                 os.write(text.getBytes(this.charset));
 
