@@ -77,15 +77,17 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 // If not defined, create new text with new style
                 if (text == null) {
                     text = new String();
-                    textStyle = new SubtitleStyle();
-                    if (tti.getJc() == StlTti.Jc.CENTER) {
-                        textStyle.setTextAlign(TextAlign.CENTER);
-                    }
-                    if (tti.getJc() == StlTti.Jc.LEFT) {
-                        textStyle.setTextAlign(TextAlign.LEFT);
-                    }
-                    if (tti.getJc() == StlTti.Jc.RIGHT) {
-                        textStyle.setTextAlign(TextAlign.RIGHT);
+                    if (textStyle == null) {
+                        textStyle = new SubtitleStyle();
+                        if (tti.getJc() == StlTti.Jc.CENTER) {
+                            textStyle.setTextAlign(TextAlign.CENTER);
+                        }
+                        if (tti.getJc() == StlTti.Jc.LEFT) {
+                            textStyle.setTextAlign(TextAlign.LEFT);
+                        }
+                        if (tti.getJc() == StlTti.Jc.RIGHT) {
+                            textStyle.setTextAlign(TextAlign.RIGHT);
+                        }
                     }
                     if (dsc == StlGsi.Dsc.TELETEXT_LEVEL_1 || dsc == StlGsi.Dsc.TELETEXT_LEVEL_2){ // teletext case
                         if (tti.getJc() == StlTti.Jc.NONE) {
@@ -122,6 +124,12 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     if (cByte == StlTti.TextStyle.BOXING_ON.getValue()) {
                         textStyle.setEffect(Effect.BOX);
                     }
+
+                    if (text != null && !text.isEmpty()) {
+                        line.addText(new SubtitlePlainText(text));
+                        text = new String();
+                    }
+
                     continue;
                 }
 

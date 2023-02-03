@@ -187,6 +187,8 @@ public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFr
                         if (style.getColor() != null){
                             Color color = HexBGR.Color.getEnumFromName(style.getColor());
                             styled += String.format("{\\c%s}", color.getHexValue());
+                        } else if (styled.contains("{\\c")) {
+                            styled += String.format("{\\c%s}", HexBGR.Color.WHITE.getHexValue());
                         }
                     }
                     styled += text.toString();
