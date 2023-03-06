@@ -31,7 +31,7 @@ public class StlTti {
     public enum TextColor {
         ALPHA_BLACK(0x00, "black"),
         ALPHA_RED(0x01, "red"),
-        ALPHA_GREEN(0x02, "green"),
+        ALPHA_GREEN(0x02, "lime"),
         ALPHA_YELLOW(0x03, "yellow"),
         ALPHA_BLUE(0x04, "blue"),
         ALPHA_MAGENTA(0x05, "magenta"),
@@ -39,7 +39,7 @@ public class StlTti {
         ALPHA_WHITE(0x07, "white"),
         MOSAIC_BLACK(0x10, "black"),
         MOSAIC_RED(0x11, "red"),
-        MOSAIC_GREEN(0x12, "green"),
+        MOSAIC_GREEN(0x12, "lime"),
         MOSAIC_YELLOW(0x13, "yellow"),
         MOSAIC_BLUE(0x14, "blue"),
         MOSAIC_MAGENTA(0x15, "magenta"),

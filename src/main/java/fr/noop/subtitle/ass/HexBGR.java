@@ -9,7 +9,8 @@ public class HexBGR {
         BLUE("&HFF0000&", "blue"),
         MAGENTA("&HFF00FF&", "magenta"),
         CYAN("&HFFFF00&", "cyan"),
-        WHITE("&HFFFFFF&", "white");
+        WHITE("&HFFFFFF&", "white"),
+        LIME("&H00FF00&", "lime");
 
         private String hex;
         private String colorName;

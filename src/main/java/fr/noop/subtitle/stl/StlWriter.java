@@ -393,7 +393,7 @@ public class StlWriter implements SubtitleWriterWithTimecode, SubtitleWriterWith
                             byte[] red = new byte[] {(byte) StlTti.TextColor.ALPHA_RED.getValue()};
                             color = new String(red, gsi.getCct().getCharset());
                         }
-                        if (color == "green") {
+                        if (color == "lime") {
                             byte[] green = new byte[] {(byte) StlTti.TextColor.ALPHA_GREEN.getValue()};
                             color = new String(green, gsi.getCct().getCharset());
                         }

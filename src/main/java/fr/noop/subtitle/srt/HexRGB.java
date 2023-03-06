@@ -9,7 +9,8 @@ public class HexRGB {
         BLUE("#0000ff", "blue"),
         MAGENTA("#ff00ff", "magenta"),
         CYAN("#00ffff", "cyan"),
-        WHITE("#ffffff", "white");
+        WHITE("#ffffff", "white"),
+        LIME("#00ff00", "lime");
 
         private String hex;
         private String colorName;
