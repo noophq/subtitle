@@ -87,6 +87,19 @@ public class SubtitleTimeCode implements Comparable<SubtitleTimeCode> {
         }
     }
 
+    public static SubtitleTimeCode parseSingleHourTimeCode(String timeCodeString) throws SubtitleParsingException {
+        try {
+            int hour = Integer.parseInt(timeCodeString.substring(0, 1));
+            int minute = Integer.parseInt(timeCodeString.substring(2, 4));
+            int second = Integer.parseInt(timeCodeString.substring(5, 7));
+            int millisecond = Integer.parseInt(timeCodeString.substring(8, 10));
+            return new SubtitleTimeCode(hour, minute, second, millisecond);
+        } catch (NumberFormatException e) {
+            throw new SubtitleParsingException(String.format(
+                "Unable to parse time code: %s", timeCodeString));
+        }
+    }
+
     public static SubtitleTimeCode fromStringWithFrames(String timeCodeString, float frameRate) throws IOException {
         int hour = Integer.parseInt(timeCodeString.substring(0, 2));
         int minute = Integer.parseInt(timeCodeString.substring(3, 5));

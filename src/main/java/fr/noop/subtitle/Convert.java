@@ -61,7 +61,8 @@ public class Convert {
         SAMI(ConvertFormat.SAMI, "fr.noop.subtitle.sami.SamiParser", true),
         VTT(ConvertFormat.VTT, "fr.noop.subtitle.vtt.VttParser", true),
         SRT(ConvertFormat.SRT, "fr.noop.subtitle.srt.SrtParser", true),
-        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlParser", false);
+        STL(ConvertFormat.STL, "fr.noop.subtitle.stl.StlParser", false),
+        ASS(ConvertFormat.ASS, "fr.noop.subtitle.ass.AssParser", true);
 
         private ConvertFormat format;
         private String className;
