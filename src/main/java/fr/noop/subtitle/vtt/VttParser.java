@@ -127,8 +127,8 @@ public class VttParser implements SubtitleParser {
                             "Timecode textLine is badly formated: %s", textLine));
                 }
 
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                cue.setStartTime(SubtitleTimeCode.parseTimeCode(textLine.substring(0, 12)));
+                cue.setEndTime(SubtitleTimeCode.parseTimeCode(textLine.substring(17)));
                 cursorStatus = CursorStatus.CUE_TIMECODE;
 
                 SubtitleRegion region = new SubtitleRegion(0, 0);
@@ -332,18 +332,5 @@ public class VttParser implements SubtitleParser {
         }
 
         return cueLines;
-    }
-
-    private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
-        try {
-            int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-            int minute = Integer.parseInt(timeCodeString.substring(3, 5));
-            int second = Integer.parseInt(timeCodeString.substring(6, 8));
-            int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
-            return new SubtitleTimeCode(hour, minute, second, millisecond);
-        } catch (NumberFormatException e) {
-            throw new SubtitleParsingException(String.format(
-                    "Unable to parse time code: %s", timeCodeString));
-        }
     }
 }
