@@ -1,5 +1,7 @@
 package fr.noop.subtitle.ass;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class HexBGR {
     public enum Color {
         BLACK("&H000000&", "black"),
@@ -33,6 +35,19 @@ public class HexBGR {
                 if(v.getColorName().equalsIgnoreCase(colorName)) return v;
             throw new IllegalArgumentException();
         }
+
+        public static Color getEnumFromHex(String hex) {
+            for(Color v : values())
+                if(v.getHexValue().equalsIgnoreCase(hex)) return v;
+            throw new IllegalArgumentException();
+        }
+
+        public static Color parseAlphaBGR(String value) {
+            String bgr = StringUtils.right(value, 6);
+            for(Color v : values()) {
+                if(v.getHexValue().replaceAll("&H", "").replaceAll("&", "").equalsIgnoreCase(bgr)) return v;
+            }
+            throw new IllegalArgumentException();
+        }
     }
-    
 }
