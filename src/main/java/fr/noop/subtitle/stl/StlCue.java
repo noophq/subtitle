@@ -127,7 +127,7 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
 
                     if (text != null && !text.isEmpty()) {
                         line.addText(new SubtitlePlainText(text));
-                        text = new String();
+                        text = null;
                     }
 
                     continue;
@@ -137,11 +137,6 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                 if ((cByte >= 0x00 && cByte <= 0x07) ||
                         (cByte >= 0x10 && cByte <= 0x17)) {
                     textStyle.setColor(StlTti.TextColor.getEnum(cByte).getColor());
-                    continue;
-                }
-
-                // Text has not been initialized
-                if (text == null) {
                     continue;
                 }
 
@@ -171,8 +166,8 @@ public class StlCue extends BaseSubtitleCue implements SubtitleRegionCue {
                     text += cc;
                 }
             }
-            // if line not added before; add it
-            if (line.isEmpty() && text != null){
+            // if text not added before; add it
+            if (text != null && !text.isEmpty()) {
                 if (textStyle == null) {
                     line.addText(new SubtitlePlainText(text));
                 } else {
