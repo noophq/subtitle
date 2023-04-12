@@ -193,10 +193,10 @@ public class AssWriter implements SubtitleWriterWithHeader, SubtitleWriterWithFr
                     }
                     styled += text.toString();
                     styled += endStyle;
-                    // Add line break between rows
-                    if (cue.getLines().size() > lineIndex) {
-                        styled += "\\N";
-                    }
+                }
+                // Add line break between rows
+                if (cue.getLines().size() > lineIndex) {
+                    styled += "\\N";
                 }
             }
         return styled;
