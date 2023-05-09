@@ -22,6 +22,7 @@ public class SubtitleRegion {
     // Vertical align
     public enum VerticalAlign {
         TOP,
+        MIDDLE,
         BOTTOM;
     }
 

@@ -110,10 +110,45 @@ public class SrtParser implements SubtitleParser {
                     cursorStatus == CursorStatus.CUE_TIMECODE ||
                     cursorStatus ==  CursorStatus.CUE_TEXT)) {
                 SubtitleTextLine line = new SubtitleTextLine();
+                if (textLine.contains("{\\an1}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.BOTTOM);
+                    textLine = textLine.replaceAll("\\{\\\\an1\\}", "");
+                }
                 SubtitleStyle textStyle = new SubtitleStyle();
+                if (textLine.contains("{\\an2}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.BOTTOM);
+                    textLine = textLine.replaceAll("\\{\\\\an2\\}", "");
+                }
+                if (textLine.contains("{\\an3}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.BOTTOM);
+                    textLine = textLine.replaceAll("\\{\\\\an3\\}", "");
+                }
+                if (textLine.contains("{\\an4}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.MIDDLE);
+                    textLine = textLine.replaceAll("\\{\\\\an4\\}", "");
+                }
+                if (textLine.contains("{\\an5}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.MIDDLE);
+                    textLine = textLine.replaceAll("\\{\\\\an5\\}", "");
+                }
+                if (textLine.contains("{\\an6}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.MIDDLE);
+                    textLine = textLine.replaceAll("\\{\\\\an6\\}", "");
+                }
+                if (textLine.contains("{\\an7}")) {
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.TOP);
+                    textLine = textLine.replaceAll("\\{\\\\an7\\}", "");
+                }
                 if (textLine.contains("{\\an8}")) {
+
                     region.setVerticalAlign(SubtitleRegion.VerticalAlign.TOP);
                     textLine = textLine.replaceAll("\\{\\\\an8\\}", "");
+                }
+                if (textLine.contains("{\\an9}")) {
+                    region.setVerticalPosition(1);
+
+                    region.setVerticalAlign(SubtitleRegion.VerticalAlign.TOP);
+                    textLine = textLine.replaceAll("\\{\\\\an9\\}", "");
                 }
                 if (textLine.contains("<i>")) {
                     italic = true;
