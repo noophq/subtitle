@@ -45,9 +45,9 @@ public class SrtParser implements SubtitleParser {
 
     @Override
     public SrtObject parse(InputStream is) throws IOException, SubtitleParsingException {
-    	return parse(is, true);
+        return parse(is, true);
     }
-    
+
     @Override
     public SrtObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
         // Create srt object
@@ -106,9 +106,8 @@ public class SrtParser implements SubtitleParser {
             }
 
             // Following lines are the cue lines
-            if (!textLine.isEmpty() && (
-                    cursorStatus == CursorStatus.CUE_TIMECODE ||
-                    cursorStatus ==  CursorStatus.CUE_TEXT)) {
+            if (!textLine.isEmpty() && (cursorStatus == CursorStatus.CUE_TIMECODE ||
+                    cursorStatus == CursorStatus.CUE_TEXT)) {
                 SubtitleTextLine line = new SubtitleTextLine();
                 if (textLine.contains("{\\an1}")) {
                     region.setVerticalAlign(SubtitleRegion.VerticalAlign.BOTTOM);
@@ -161,6 +160,12 @@ public class SrtParser implements SubtitleParser {
                     italic = false;
                     textLine = textLine.replaceAll("</i>", "");
                 }
+                if (textLine.contains("&lt;")) {
+                    textLine = textLine.replaceAll("&lt;", "");
+                }
+                if (textLine.contains("&gt;")) {
+                    textLine = textLine.replaceAll("&gt;", "");
+                }
                 if (textLine.contains("<b>")) {
                     bold = true;
                     textLine = textLine.replaceAll("<b>", "");
@@ -191,6 +196,8 @@ public class SrtParser implements SubtitleParser {
                         hexCode = matcher.group();
                     }
                     textLine = textLine.replaceAll("<font color=\"#(?:[a-f\\d]{3}){1,2}\\b\">", "");
+                    textLine = textLine.replaceAll("font color=\"#(?:[a-f\\d]{3}){1,2}\\b\"", "");
+
                 }
                 if (color && hexCode != null) {
                     textStyle.setColor(HexRGB.Color.getEnumFromHexCode(hexCode).getColorName());
