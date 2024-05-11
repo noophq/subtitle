@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 
 import fr.noop.subtitle.model.SubtitleParser;
 import fr.noop.subtitle.model.SubtitleParsingException;
+import fr.noop.subtitle.util.StringUtils;
 import fr.noop.subtitle.util.SubtitlePlainText;
 import fr.noop.subtitle.util.SubtitleTextLine;
 import fr.noop.subtitle.util.SubtitleTimeCode;
@@ -61,13 +62,18 @@ public class SrtParser implements SubtitleParser {
                 if (textLine.isEmpty()) {
                     continue;
                 }
+                
+                // issue #22
+                // Remove BOM
+                textLine = StringUtils.removeBOM(textLine);
+                
 
                 // New cue
                 cue = new SrtCue();
 
                 // First textLine is the cue number
                 try {
-                    Integer.parseInt(textLine);
+                    Integer.valueOf(textLine);
                 } catch (NumberFormatException e) {
                     throw new SubtitleParsingException(String.format(
                             "Unable to parse cue number: %s",

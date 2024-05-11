@@ -33,6 +33,7 @@ public class VttParser implements SubtitleParser {
         EMPTY_LINE,
         CUE_ID,
         CUE_TIMECODE,
+        NOTE,
         CUE_TEXT;
     }
 
@@ -43,6 +44,10 @@ public class VttParser implements SubtitleParser {
     }
 
     private String charset; // Charset of the input files
+    
+    // for #21
+    private final String TIMECODE_LINE_REGEX = "^(\\d\\d:)?(\\d\\d):(\\d\\d)\\.\\d\\d\\d --> (\\d\\d:)?(\\d\\d):(\\d\\d)\\.\\d\\d\\d ?.*";
+    
 
     public VttParser(String charset) {
         this.charset = charset;
@@ -55,13 +60,14 @@ public class VttParser implements SubtitleParser {
 
     @Override
     public VttObject parse(InputStream is, boolean strict) throws IOException, SubtitleParsingException {
-        // Create srt object
+        // Create vttObject object
         VttObject vttObject = new VttObject();
 
-        // Read each lines
+        // Read each line
         BufferedReader br = new BufferedReader(new InputStreamReader(is, this.charset));
         String textLine = "";
         CursorStatus cursorStatus = CursorStatus.NONE;
+        CursorStatus memorizedCursorStatus = CursorStatus.NONE;
         VttCue cue = null;
         String cueText = ""; // Text of the cue
 
@@ -74,13 +80,32 @@ public class VttParser implements SubtitleParser {
             }
 
             // All Vtt files start with WEBVTT
-            if (cursorStatus == CursorStatus.NONE && textLine.equals("WEBVTT")) {
+            //if (cursorStatus == CursorStatus.NONE && textLine.equals("WEBVTT")) {
+            // changed for #27
+            if (cursorStatus == CursorStatus.NONE && textLine.startsWith("WEBVTT")) {
                 cursorStatus = CursorStatus.SIGNATURE;
                 continue;
             }
+            
+            if (textLine.startsWith("NOTE")){
+                memorizedCursorStatus = cursorStatus;
+                cursorStatus = CursorStatus.NOTE;
+                continue;                
+            }            
+            if (cursorStatus == CursorStatus.NOTE){
+                if (textLine.isEmpty()) {
+                    // NOTE section is over
+                    cursorStatus = memorizedCursorStatus;
+                }
+                // do nothing in any case
+                continue;
+                
+            }
+            
+            
+            
 
-            if (cursorStatus == CursorStatus.SIGNATURE ||
-                    cursorStatus == CursorStatus.EMPTY_LINE) {
+            if (cursorStatus == CursorStatus.SIGNATURE || cursorStatus == CursorStatus.EMPTY_LINE) {
                 if (textLine.isEmpty()) {
                     continue;
                 }
@@ -88,16 +113,18 @@ public class VttParser implements SubtitleParser {
                 // New cue
                 cue = new VttCue();
                 cursorStatus = CursorStatus.CUE_ID;
-
+                
                 if (
                     textLine.length() < 16 ||
-                    !textLine.substring(13, 16).equals("-->")
+                    // changed for issue #21
+                    //!textLine.substring(13, 16).equals("-->")
+                    !(textLine.matches(TIMECODE_LINE_REGEX))    
                 ) {
                     // First textLine is the cue number
                     cue.setId(textLine);
                     continue;
                 }
-
+                
                 // There is no cue number
             }
 
@@ -105,15 +132,21 @@ public class VttParser implements SubtitleParser {
             // Second textLine defines the start and end time codes
             // 00:01:21.456 --> 00:01:23.417
             if (cursorStatus == CursorStatus.CUE_ID) {
-                if (textLine.length() < 29 ||
-                    !textLine.substring(13, 16).equals("-->")
+                if (//textLine.length() < 29 ||
+                    // changed for issue #21
+                    //!textLine.substring(13, 16).equals("-->")
+                    !(textLine.matches(TIMECODE_LINE_REGEX))    
                 ) {
                     throw new SubtitleParsingException(String.format(
                             "Timecode textLine is badly formated: %s", textLine));
                 }
 
-                cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
-                cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                // changed for issue #21
+                //cue.setStartTime(this.parseTimeCode(textLine.substring(0, 12)));
+                //cue.setEndTime(this.parseTimeCode(textLine.substring(17)));
+                int arrowIndex = textLine.indexOf("-->");
+                cue.setStartTime(this.parseTimeCode(textLine.substring(0, arrowIndex).trim()));
+                cue.setEndTime(this.parseTimeCode(textLine.substring(arrowIndex + 3).trim()));
                 cursorStatus = CursorStatus.CUE_TIMECODE;
                 continue;
             }
@@ -305,10 +338,14 @@ public class VttParser implements SubtitleParser {
 
     private SubtitleTimeCode parseTimeCode(String timeCodeString) throws SubtitleParsingException {
         try {
-            int hour = Integer.parseInt(timeCodeString.substring(0, 2));
-            int minute = Integer.parseInt(timeCodeString.substring(3, 5));
-            int second = Integer.parseInt(timeCodeString.substring(6, 8));
-            int millisecond = Integer.parseInt(timeCodeString.substring(9, 12));
+            String adjustedTimeCodeString = timeCodeString;
+            if (timeCodeString.length()<10){
+                adjustedTimeCodeString = "00:" + timeCodeString;
+            }
+            int hour = Integer.parseInt(adjustedTimeCodeString.substring(0, 2));
+            int minute = Integer.parseInt(adjustedTimeCodeString.substring(3, 5));
+            int second = Integer.parseInt(adjustedTimeCodeString.substring(6, 8));
+            int millisecond = Integer.parseInt(adjustedTimeCodeString.substring(9, 12));
             return new SubtitleTimeCode(hour, minute, second, millisecond);
         } catch (NumberFormatException e) {
             throw new SubtitleParsingException(String.format(
